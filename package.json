@@ -19,10 +19,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
-    "ts.standard.fix": "ts-standard --env jest --fix",
-    "prepare": "husky install"
+    "ts-standard": "ts-standard --env jest --fix"
   },
   "browserslist": {
     "production": [
