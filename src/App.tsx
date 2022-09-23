@@ -4,7 +4,7 @@ import './App.css'
 function App (): any {
   return (
     <h1 className='text-3xl font-bold underline text-blue-500'>
-      Simple React Typescript Tailwind Samples
+      Hello, world!
     </h1>
   )
 };

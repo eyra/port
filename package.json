@@ -19,9 +19,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
+    "test": "react-scripts test",
+    "test-ci": "CI=true react-scripts test",
     "ts-standard": "ts-standard --env jest --fix"
+
   },
   "browserslist": {
     "production": [
