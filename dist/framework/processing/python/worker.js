@@ -1,9 +1,9 @@
-let pyScript;
-onmessage = (event) => {
-    const { eventType } = event.data;
+var pyScript;
+onmessage = function (event) {
+    var eventType = event.data.eventType;
     switch (eventType) {
         case 'initialise':
-            initialise().then(() => {
+            initialise().then(function () {
                 self.postMessage({ eventType: 'initialiseDone' });
             });
             break;
@@ -16,8 +16,8 @@ onmessage = (event) => {
             runCycle(null);
             break;
         case 'nextRunCycle':
-            const { response } = event.data;
-            unwrap(response).then((userInput) => {
+            var response = event.data.response;
+            unwrap(response).then(function (userInput) {
                 runCycle(userInput);
             });
             break;
@@ -36,7 +36,7 @@ function runCycle(userInput) {
     });
 }
 function unwrap(response) {
-    return new Promise((resolve) => {
+    return new Promise(function (resolve) {
         switch (response.prompt.__type__) {
             case 'Event.Command.Prompt.FileInput':
                 copyFileToPyFS(response.userInput, resolve);
@@ -47,9 +47,10 @@ function unwrap(response) {
     });
 }
 function copyFileToPyFS(file, resolve) {
-    const reader = file.stream().getReader();
-    const pyFile = self.pyodide.FS.open(file.name, 'w');
-    const writeToPyFS = ({ done, value }) => {
+    var reader = file.stream().getReader();
+    var pyFile = self.pyodide.FS.open(file.name, 'w');
+    var writeToPyFS = function (_a) {
+        var done = _a.done, value = _a.value;
         if (done) {
             resolve(file.name);
         }
@@ -64,7 +65,7 @@ function initialise() {
     importScripts('https://cdn.jsdelivr.net/pyodide/v0.21.2/full/pyodide.js');
     return loadPyodide({
         indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.21.2/full/'
-    }).then((pyodide) => {
+    }).then(function (pyodide) {
         self.pyodide = pyodide;
         return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas']);
     });
@@ -74,113 +75,7 @@ function loadScript(script) {
     self.pyodide.runPython(pyPortApi);
     self.pyodide.runPython(script);
 }
-const pyPortApi = `
-class Event:
-  def toDict(self):
-    return setType({}, "Event")
-
-
-class EndOfFlow(Event):
-  __slots__ = "result"
-  def __init__(self, result):
-    self.result = result
-  def translate_result(self):
-    print("translate")
-    data_output = []
-    for data in self.result:
-      df = data["data_frame"]
-      data_output.append({"id": data["id"], "data_frame": df.to_json()})
-    return {
-      "title": data["title"],
-      "data": data_output,
-    }
-  def toDict(self):
-    print("toDict2")
-    dict = toDict(super(), "EndOfFlow") 
-    dict = dict | self.translate_result()
-    return dict
-  
-
-class Command(Event):
-  def toDict(self):
-    return toDict(super(), "Command")
-
-
-class Prompt(Command):
-  __slots__ = "title", "description"
-  def __init__(self, title, description):
-    self.title = title
-    self.description = description
-  def toDict(self):
-    dict = toDict(super(), "Prompt")
-    dict["title"] = self.title.toDict()
-    dict["description"] = self.description.toDict()
-    return dict
-
-
-class FileInput(Prompt):
-  __slots__ = "extensions"
-  def __init__(self, title, description, extensions):
-    super().__init__(title, description)
-    self.extensions = extensions
-  def toDict(self):
-    dict = toDict(super(), "FileInput")
-    dict["extensions"] = self.extensions
-    return dict
-
-
-class RadioInput(Prompt):
-  def __init__(self, title, description, items):
-    super().__init__(title, description)
-    self.items = items
-  def toDict(self):
-    dict = toDict(super(), "RadioInput")
-    dict["items"] = self.items
-    return dict
-
-
-class Translatable:
-  __slots__ = "translations"
-  def __init__(self):
-    self.translations = {}
-  def add(self, locale, text):
-    self.translations[locale] = text
-    return self
-  def toDict(self):
-    return setType(self.translations, "Translatable")
-
-
-def toDict(zuper, type):
-  return setType(zuper.toDict(), type)
-
-
-def setType(dict, type):
-  key = "__type__"
-  seperator = "."
-
-  path = [type]
-  if key in dict:
-    path.insert(0, dict[key])
-  dict[key] = seperator.join(path)
-  return dict
-`;
+var pyPortApi = "\nclass Event:\n  def toDict(self):\n    return setType({}, \"Event\")\n\n\nclass EndOfFlow(Event):\n  __slots__ = \"result\"\n  def __init__(self, result):\n    self.result = result\n  def translate_result(self):\n    print(\"translate\")\n    data_output = []\n    for data in self.result:\n      df = data[\"data_frame\"]\n      data_output.append({\"id\": data[\"id\"], \"data_frame\": df.to_json()})\n    return {\n      \"title\": data[\"title\"],\n      \"data\": data_output,\n    }\n  def toDict(self):\n    print(\"toDict2\")\n    dict = toDict(super(), \"EndOfFlow\") \n    dict = dict | self.translate_result()\n    return dict\n  \n\nclass Command(Event):\n  def toDict(self):\n    return toDict(super(), \"Command\")\n\n\nclass Prompt(Command):\n  __slots__ = \"title\", \"description\"\n  def __init__(self, title, description):\n    self.title = title\n    self.description = description\n  def toDict(self):\n    dict = toDict(super(), \"Prompt\")\n    dict[\"title\"] = self.title.toDict()\n    dict[\"description\"] = self.description.toDict()\n    return dict\n\n\nclass FileInput(Prompt):\n  __slots__ = \"extensions\"\n  def __init__(self, title, description, extensions):\n    super().__init__(title, description)\n    self.extensions = extensions\n  def toDict(self):\n    dict = toDict(super(), \"FileInput\")\n    dict[\"extensions\"] = self.extensions\n    return dict\n\n\nclass RadioInput(Prompt):\n  def __init__(self, title, description, items):\n    super().__init__(title, description)\n    self.items = items\n  def toDict(self):\n    dict = toDict(super(), \"RadioInput\")\n    dict[\"items\"] = self.items\n    return dict\n\n\nclass Translatable:\n  __slots__ = \"translations\"\n  def __init__(self):\n    self.translations = {}\n  def add(self, locale, text):\n    self.translations[locale] = text\n    return self\n  def toDict(self):\n    return setType(self.translations, \"Translatable\")\n\n\ndef toDict(zuper, type):\n  return setType(zuper.toDict(), type)\n\n\ndef setType(dict, type):\n  key = \"__type__\"\n  seperator = \".\"\n\n  path = [type]\n  if key in dict:\n    path.insert(0, dict[key])\n  dict[key] = seperator.join(path)\n  return dict\n";
 function pyWorker() {
-    return `
-  from collections.abc import Generator
-  import json
-  import html
-  import pandas as pd
-
-  class ScriptWrapper(Generator):
-    def __init__(self, script):
-        self.script = script
-    def send(self, data):
-        print("toDict")
-        event = self.script.send(data)
-        return event.toDict()
-    def throw(self, type=None, value=None, traceback=None):
-        raise StopIteration
-  script = process()
-  ScriptWrapper(script)
-  `;
+    return "\n  from collections.abc import Generator\n  import json\n  import html\n  import pandas as pd\n\n  class ScriptWrapper(Generator):\n    def __init__(self, script):\n        self.script = script\n    def send(self, data):\n        print(\"toDict\")\n        event = self.script.send(data)\n        return event.toDict()\n    def throw(self, type=None, value=None, traceback=None):\n        raise StopIteration\n  script = process()\n  ScriptWrapper(script)\n  ";
 }

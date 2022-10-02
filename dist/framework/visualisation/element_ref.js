@@ -1,70 +1,71 @@
-export default class ElementRef {
-    el;
-    constructor(el) {
+var ElementRef = /** @class */ (function () {
+    function ElementRef(el) {
         this.el = el;
         if (el === null) {
             throw new Error('Wrapped element is null');
         }
     }
-    setInnerText(text) {
+    ElementRef.prototype.setInnerText = function (text) {
         if (this.el instanceof HTMLElement) {
             this.el.innerText = text;
         }
-    }
-    setInnerHTML(html) {
+    };
+    ElementRef.prototype.setInnerHTML = function (html) {
         if (this.el instanceof HTMLElement) {
             this.el.innerHTML = html;
         }
-    }
-    onClick(handle) {
-        this.el.addEventListener('click', () => {
+    };
+    ElementRef.prototype.onClick = function (handle) {
+        this.el.addEventListener('click', function () {
             handle();
         });
-    }
-    onChange(handle) {
-        this.el.addEventListener('change', () => {
+    };
+    ElementRef.prototype.onChange = function (handle) {
+        this.el.addEventListener('change', function () {
             handle();
         });
-    }
-    selectedFile() {
+    };
+    ElementRef.prototype.selectedFile = function () {
         if (this.el instanceof HTMLInputElement) {
             if (this.el.files !== null && this.el.files.length > 0) {
                 this.el.files.item(0);
             }
         }
         return null;
-    }
-    reset() {
+    };
+    ElementRef.prototype.reset = function () {
         if (this.el instanceof HTMLInputElement) {
             this.el.type = 'text';
             this.el.type = 'file';
         }
-    }
-    click() {
+    };
+    ElementRef.prototype.click = function () {
         if (this.el instanceof HTMLElement) {
             this.el.click();
         }
-    }
-    hide() {
+    };
+    ElementRef.prototype.hide = function () {
         if (!this.el.classList.contains('hidden')) {
             this.el.classList.add('hidden');
         }
-    }
-    show() {
+    };
+    ElementRef.prototype.show = function () {
         this.el.classList.remove('hidden');
-    }
-    child(childId) {
-        const child = this.el.querySelector(`#${childId}`);
+    };
+    ElementRef.prototype.child = function (childId) {
+        var child = this.el.querySelector("#".concat(childId));
         if (child === null) {
-            throw new Error(`Child not found: ${childId}`);
+            throw new Error("Child not found: ".concat(childId));
         }
         else {
             return new ElementRef(child);
         }
-    }
-    childs(className) {
-        const elements = this.el.getElementsByClassName(className);
-        const childs = Array.from(elements);
-        return childs.map((child) => new ElementRef(child));
-    }
-}
+    };
+    ElementRef.prototype.childs = function (className) {
+        var elements = this.el.getElementsByClassName(className);
+        var childs = Array.from(elements);
+        return childs.map(function (child) { return new ElementRef(child); });
+    };
+    return ElementRef;
+}());
+export default ElementRef;
