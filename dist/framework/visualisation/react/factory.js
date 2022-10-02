@@ -38,7 +38,7 @@ var ReactFactory = /** @class */ (function () {
             return factoryMethod(props);
         }
         else {
-            throw new Error("[VisualisationFactory] Received unsupported prompt: ".concat(type));
+            throw new Error("[ReactFactory] Received unsupported prompt: ".concat(type));
         }
     };
     return ReactFactory;

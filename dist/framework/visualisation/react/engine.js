@@ -63,7 +63,7 @@ var ReactEngine = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log('[VisualisationEngine] started');
+                        console.log('[ReactEngine] started');
                         this.script = script;
                         this.root = ReactDOM.createRoot(rootElement);
                         this.locale = locale;
@@ -102,27 +102,26 @@ var ReactEngine = /** @class */ (function () {
     };
     ReactEngine.prototype.handleEvent = function (event) {
         var eventType = event.data.eventType;
-        console.log('[VisualisationEngine] received eventType: ', eventType);
+        console.log('[ReactEngine] received eventType: ', eventType);
         switch (eventType) {
             case 'initialiseDone':
-                console.log('[VisualisationEngine] received: initialiseDone');
+                console.log('[ReactEngine] received: initialiseDone');
                 this.processingEngine.loadScript(this.script);
                 break;
             case 'loadScriptDone':
-                console.log('[VisualisationEngine] Received: loadScriptDone');
+                console.log('[ReactEngine] Received: loadScriptDone');
                 this.processingEngine.firstRunCycle();
                 break;
             case 'runCycleDone':
-                console.log('[VisualisationEngine] received: event', event.data.scriptEvent);
+                console.log('[ReactEngine] received: event', event.data.scriptEvent);
                 this.handleRunCycle(event.data.scriptEvent);
                 break;
             default:
-                console.log('[VisualisationEngine] received unsupported flow event: ', eventType);
+                console.log('[ReactEngine] received unsupported flow event: ', eventType);
         }
     };
     ReactEngine.prototype.handleRunCycle = function (scriptEvent) {
         var _this = this;
-        console.log('scriptEvent', scriptEvent);
         var type = scriptEvent.__type__;
         if (type.startsWith('Event.EndOfFlow')) {
             this.renderComponent(scriptEvent).then(function (result) {
@@ -142,7 +141,7 @@ var ReactEngine = /** @class */ (function () {
             }, null);
             return;
         }
-        console.log('[VisualisationEngine] Received unsupported script event: ', type);
+        console.log('[ReactEngine] Received unsupported script event: ', type);
     };
     ReactEngine.prototype.renderComponent = function (data) {
         return __awaiter(this, void 0, void 0, function () {

@@ -3,12 +3,12 @@ var WorkerProcessingEngine = /** @class */ (function () {
         var _this = this;
         this.eventListener = function (event) {
             var eventString = JSON.stringify(event);
-            console.log('[ProcessingEngine] No event listener registered for event: ', eventString);
+            console.log('[WorkerProcessingEngine] No event listener registered for event: ', eventString);
         };
         this.worker = worker;
         this.worker.onerror = console.log;
         this.worker.onmessage = function (event) {
-            console.log('[ProcessingEngine] Received event from worker: ', event.data.eventType);
+            console.log('[WorkerProcessingEngine] Received event from worker: ', event.data.eventType);
             _this.eventListener(event);
         };
     }
