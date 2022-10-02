@@ -24,7 +24,7 @@ export default class ReactEngine implements VisualisationEngine {
   }
 
   async start (script: string, rootElement: HTMLElement, locale: string): Promise<any> {
-    console.log('[VisualisationEngine] started')
+    console.log('[ReactEngine] started')
     this.script = script
     this.root = ReactDOM.createRoot(rootElement)
     this.locale = locale
@@ -65,32 +65,31 @@ export default class ReactEngine implements VisualisationEngine {
 
   handleEvent (event: any): void {
     const { eventType } = event.data
-    console.log('[VisualisationEngine] received eventType: ', eventType)
+    console.log('[ReactEngine] received eventType: ', eventType)
     switch (eventType) {
       case 'initialiseDone':
-        console.log('[VisualisationEngine] received: initialiseDone')
+        console.log('[ReactEngine] received: initialiseDone')
         this.processingEngine.loadScript(this.script)
         break
 
       case 'loadScriptDone':
-        console.log('[VisualisationEngine] Received: loadScriptDone')
+        console.log('[ReactEngine] Received: loadScriptDone')
         this.processingEngine.firstRunCycle()
         break
 
       case 'runCycleDone':
-        console.log('[VisualisationEngine] received: event', event.data.scriptEvent)
+        console.log('[ReactEngine] received: event', event.data.scriptEvent)
         this.handleRunCycle(event.data.scriptEvent)
         break
       default:
         console.log(
-          '[VisualisationEngine] received unsupported flow event: ',
+          '[ReactEngine] received unsupported flow event: ',
           eventType
         )
     }
   }
 
   handleRunCycle (scriptEvent: any): void {
-    console.log('scriptEvent', scriptEvent)
     const type = scriptEvent.__type__ as string
     if (type.startsWith('Event.EndOfFlow')) {
       this.renderComponent(scriptEvent).then(
@@ -116,7 +115,7 @@ export default class ReactEngine implements VisualisationEngine {
     }
 
     console.log(
-      '[VisualisationEngine] Received unsupported script event: ',
+      '[ReactEngine] Received unsupported script event: ',
       type
     )
   }

@@ -32,7 +32,7 @@ export default class ReactFactory {
       const factoryMethod = this.mapping[type]
       return factoryMethod(props)
     } else {
-      throw new Error(`[VisualisationFactory] Received unsupported prompt: ${type}`)
+      throw new Error(`[ReactFactory] Received unsupported prompt: ${type}`)
     }
   }
 }

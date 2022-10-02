@@ -8,7 +8,7 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     this.eventListener = (event) => {
       const eventString = JSON.stringify(event)
       console.log(
-        '[ProcessingEngine] No event listener registered for event: ',
+        '[WorkerProcessingEngine] No event listener registered for event: ',
         eventString
       )
     }
@@ -17,7 +17,7 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     this.worker.onerror = console.log
     this.worker.onmessage = (event) => {
       console.log(
-        '[ProcessingEngine] Received event from worker: ',
+        '[WorkerProcessingEngine] Received event from worker: ',
         event.data.eventType
       )
       this.eventListener(event)
