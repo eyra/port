@@ -1,0 +1,69 @@
+@font-face {
+  font-family: 'Finador-Thin';
+  src: url('./fonts/Finador-Thin.woff2') format('woff2'), url('./fonts/Finador-Thin.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-ThinOblique';
+  src: url('./fonts/Finador-ThinOblique.woff2') format('woff2'), url('./fonts/Finador-ThinOblique.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-ExtraLight';
+  src: url('./fonts/Finador-ExtraLight.woff2') format('woff2'), url('./fonts/Finador-ExtraLight.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-ExtraLightOblique';
+  src: url('./fonts/Finador-ExtraLightOblique.woff2') format('woff2'), url('./fonts/Finador-ExtraLightOblique.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-Light';
+  src: url('./fonts/Finador-Light.woff2') format('woff2'), url('./fonts/Finador-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-LightOblique';
+  src: url('./fonts/Finador-LightOblique.woff2') format('woff2'), url('./fonts/Finador-LightOblique.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-Regular';
+  src: url('./fonts/Finador-Regular.woff2') format('woff2'), url('./fonts/Finador-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-RegularOblique';
+  src: url('./fonts/Finador-RegularOblique.woff2') format('woff2'), url('./fonts/Finador-RegularOblique.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-Medium';
+  src: url('./fonts/Finador-Medium.woff2') format('woff2'), url('./fonts/Finador-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-MediumOblique';
+  src: url('./fonts/Finador-MediumOblique.woff2') format('woff2'),z url('./fonts/Finador-MediumOblique.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-Bold';
+  src: url('./fonts/Finador-Bold.woff2') format('woff2'), url('./fonts/Finador-Bold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-BoldOblique';
+  src: url('./fonts/Finador-BoldOblique.woff2') format('woff2'), url('./fonts/Finador-BoldOblique.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-Black';
+  src: url('./fonts/Finador-Black.woff2') format('woff2'), url('./fonts/Finador-Black.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Finador-BlackOblique';
+  src: url('./fonts/Finador-BlackOblique.woff2') format('woff2'), url('./fonts/Finador-BlackOblique.woff') format('woff');
+}
