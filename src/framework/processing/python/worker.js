@@ -78,6 +78,11 @@ function initialise () {
   }).then((pyodide) => {
     self.pyodide = pyodide
     return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas'])
+  }).then((pyodide) => {
+    return self.pyodide.runPythonAsync(`
+        import micropip
+        await micropip.install("/ddpinspect-0.0.0-py3-none-any.whl", deps=False)
+    `);
   })
 }
 

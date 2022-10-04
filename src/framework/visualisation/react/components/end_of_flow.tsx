@@ -50,8 +50,11 @@ export const EndOfFlow = (props: EndOfFlowProps): JSX.Element => {
 
   function renderTable (table: any): JSX.Element {
     const id = table.id as string
+    console.log(table.data_frame)
     const dataFrame = JSON.parse(table.data_frame)
-    const rowCount = Object.keys(dataFrame).length
+
+    // hideous, please rewrite if you can do this more elegantly
+    const rowCount = Object.keys(dataFrame[Object.keys(dataFrame)[0]]).length
 
     const header = { cells: Object.keys(dataFrame) }
     const rows = []
