@@ -52,8 +52,13 @@ export const EndOfFlow = (props: EndOfFlowProps): JSX.Element => {
     const id = table.id as string
     const dataFrame = JSON.parse(table.data_frame)
 
-    // hideous, please rewrite if you can do this more elegantly
-    const rowCount = Object.keys(dataFrame[Object.keys(dataFrame)[0]]).length
+    // Hideous, please rewrite if you can do this more elegantly
+    let rowCount
+    if (Object.keys(dataFrame).length === 0) {
+        rowCount = 0
+    } else {
+        rowCount = Object.keys(dataFrame[Object.keys(dataFrame)[0]]).length
+    }
 
     const header = { cells: Object.keys(dataFrame) }
     const rows = []

@@ -5,18 +5,81 @@ logging.basicConfig(level=logging.INFO)
 
 from ddpinspect import unzipddp
 from ddpinspect import twitter
+from ddpinspect import instagram
+
 
 def process():
     twitter_zip = yield prompt_file_twitter()
-    twitter_interests = extract_twitter_interests(twitter_zip)
-    yield result(twitter_interests)
+    yield extract_twitter(twitter_zip)
+
+    instagram_zip = yield prompt_file_instagram()
+    yield extract_instagram(instagram_zip)
 
 
-def extract_twitter_interests(twitter_zip):
+
+def extract_twitter(twitter_zip):
+
+    validation = twitter.validate_zip(twitter_zip)
     interests_bytes = unzipddp.extract_file_from_zip(twitter_zip, "personalization.js")  
     interests_listdict = twitter.bytesio_to_listdict(interests_bytes)
     interests = twitter.interests_to_list(interests_listdict)
-    return interests
+
+    df = pd.DataFrame([{"Interest": item} for item in interests])
+
+    if not df.empty:
+        title = "The following interests where extracted:"
+    elif validation.status_code == 0 and df.empty:
+        title = "We could not find any interests in your Twitter package"
+    else:
+        title = validation.get_status_message()
+
+    result = [{
+        "id": "overview",
+        "title": title,
+        "data_frame": df
+    }]
+
+    return NextFlow(result)
+
+
+
+def extract_instagram(instagram_zip):
+
+    validation_instagram = instagram.validate_zip(instagram_zip)
+    interests_bytes = unzipddp.extract_file_from_zip(instagram_zip, "ads_interests.json")  
+    interests_dict = unzipddp.read_json_from_bytes(interests_bytes)
+    interests = instagram.interests_to_list(interests_dict)
+
+    your_topics_bytes = unzipddp.extract_file_from_zip(instagram_zip, "your_topics.json")  
+    your_topics_dict = unzipddp.read_json_from_bytes(your_topics_bytes)
+    your_topics = instagram.your_topics_to_list(your_topics_dict)
+
+    df_interests = pd.DataFrame([{"Interest": item} for item in interests])
+    df_your_topics = pd.DataFrame([{"Topics": item} for item in your_topics])
+
+    to_donate = [
+        ("interests", df_interests),
+        ("topics", df_your_topics),
+     ]
+
+
+    results = []
+    for subject, df in to_donate:
+
+        if not df.empty:
+            title = f"The following {subject} where extracted:"
+        elif validation.status_code == 0 and df.empty:
+            title = f"We could not find any {subject} in your Interest package"
+        else:
+            title = validation.get_status_message()
+
+        results.append({
+            "id": "overview",
+            "title": title,
+            "data_frame": df
+        })
+
+    return EndOfFlow(results)
 
 
 def prompt_file_twitter():
@@ -32,38 +95,21 @@ def prompt_file_twitter():
 
     return FileInput(title, description, extensions)
 
-
-def prompt_radio(usernames):
+def prompt_file_instagram():
     title = Translatable()
-    title.add("en", "Step 2: Select your username")
-    title.add("nl", "Stap 2: Selecteer je gebruikersnaam")
+    title.add("en", "Select the instagram.zip file")
+    title.add("nl", "Select the instagram.zip file")
 
     description = Translatable()
-    description.add("en", "The following users are extracted from the chat file. Which one are you?")
-    description.add("nl", "De volgende gebruikers hebben we uit de chat file gehaald. Welke ben jij?")
+    description.add("en", "Select the instagram.zip file")
+    description.add("nl", "Select the instagram.zip file")
 
-    return RadioInput(title, description, usernames)
+    extensions = "application/zip, text/plain"
 
-
-def extract_usernames(chat_file_name):
-    print(f"filename: {chat_file_name}")
-
-    with open(chat_file_name) as chat_file:
-        while (line := chat_file.readline().rstrip()):
-            print(line)
-
-    return ["emielvdveen", "a.m.mendrik", "9bitcat"]
+    return FileInput(title, description, extensions)
 
 
-def result(interests):
 
-    df = pd.DataFrame([{"Interest": item} for item in interests])
-    # df = pd.DataFrame([{"num": i} for i in range(10)])
-
-    result = [{
-        "id": "overview",
-        "title": "The following interests where extracted:",
-        "data_frame": df
-    }]
-    return EndOfFlow(result)
+def result():
+    return EndOfFlow(results)
 `

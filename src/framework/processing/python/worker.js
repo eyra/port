@@ -118,6 +118,12 @@ class EndOfFlow(Event):
     dict = dict | self.translate_result()
     return dict
   
+class NextFlow(EndOfFlow):
+  def toDict(self):
+    print("toDict2")
+    dict = toDict(super(), "NextFlow") 
+    dict = dict | self.translate_result()
+    return dict
 
 class Command(Event):
   def toDict(self):

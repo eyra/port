@@ -91,11 +91,25 @@ export default class ReactEngine implements VisualisationEngine {
 
   handleRunCycle (scriptEvent: any): void {
     const type = scriptEvent.__type__ as string
-    if (type.startsWith('Event.EndOfFlow')) {
+    if (type === 'Event.EndOfFlow') {
       this.renderComponent(scriptEvent).then(
         (result) => {
           this.showFinalPage()
           this.finishFlow?.(result)
+        },
+        null)
+      return
+    }
+
+    if (type === 'Event.EndOfFlow.NextFlow') {
+      scriptEvent.__type__ = "Event.EndOfFlow"
+      this.renderComponent(scriptEvent).then(
+        (userInput) => {
+          this.showSpinner()
+          this.processingEngine.nextRunCycle({
+            prompt: scriptEvent,
+            userInput: userInput
+          })
         },
         null)
       return
