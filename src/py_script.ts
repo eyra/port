@@ -45,7 +45,7 @@ def extract_twitter(twitter_zip):
 
 def extract_instagram(instagram_zip):
 
-    validation_instagram = instagram.validate_zip(instagram_zip)
+    validation = instagram.validate_zip(instagram_zip)
     interests_bytes = unzipddp.extract_file_from_zip(instagram_zip, "ads_interests.json")  
     interests_dict = unzipddp.read_json_from_bytes(interests_bytes)
     interests = instagram.interests_to_list(interests_dict)
@@ -61,7 +61,6 @@ def extract_instagram(instagram_zip):
         ("interests", df_interests),
         ("topics", df_your_topics),
      ]
-
 
     results = []
     for subject, df in to_donate:
