@@ -1,64 +1,137 @@
 export const PyScript: string = `
 import pandas as pd
-
+import zipfile
 
 def process():
-    chat_file_name = yield prompt_file()
-    usernames = extract_usernames(chat_file_name)
-    username = yield prompt_radio(usernames)
-    yield result(usernames, username)
+    yield render_start_page()
+
+    platforms = ["Twitter", "Instagram", "Youtube"]
+    for index, platform in enumerate(platforms):
+        data = None
+        while True:
+            promptFile = prompt_file(platform, "application/zip, text/plain")
+            fileResult = yield render_donation_page(index+1, platform, promptFile)
+            if fileResult.__type__ == 'PayloadString':
+                extractionResult = doSomethingWithTheFile(platform, fileResult.value)
+                if extractionResult != 'invalid':
+                    data = extractionResult
+                    break
+                else:
+                    retry_result = yield render_donation_page(index+1, platform, retry_confirmation())
+                    if retry_result.__type__ == 'PayloadTrue':
+                        continue
+                    else:    
+                        break
+            else:
+                break
+
+        if data is not None:
+            prompt = prompt_consent(platform, data)
+            consent_result = yield render_donation_page(index+1, platform, prompt)
+            if consent_result.__type__ == "PayloadString":
+                yield donate(platform, consent_result.value)
+
+    yield render_end_page()
 
 
-def prompt_file():
-    title = Translatable()
-    title.add("en", "Step 1: Select the chat file")
-    title.add("nl", "Stap 1: Selecteer het chat file")
-
-    description = Translatable()
-    description.add("en", "We previously asked you to export a chat file from Whatsapp. Please select this file so we can extract relevant information for our research.")
-    description.add("nl", "We hebben je gevraagd een chat bestand te exporteren uit Whatsapp. Je kan deze file nu selecteren zodat wij er relevante informatie uit kunnen halen voor ons onderzoek.")
-
-    extensions = "application/zip, text/plain"
-
-    return FileInput(title, description, extensions)
+def render_start_page():
+    header = PropsUIHeader(Translatable({
+        "en": "Welcome",
+        "nl": "Welkom"
+    }))
+    page = PropsUIPageStart(header, spinner())
+    return CommandUIRender(page)
 
 
-def prompt_radio(usernames):
-    title = Translatable()
-    title.add("en", "Step 2: Select your username")
-    title.add("nl", "Stap 2: Selecteer je gebruikersnaam")
-
-    description = Translatable()
-    description.add("en", "The following users are extracted from the chat file. Which one are you?")
-    description.add("nl", "De volgende gebruikers hebben we uit de chat file gehaald. Welke ben jij?")
-
-    return RadioInput(title, description, usernames)
+def render_end_page():
+    header = PropsUIHeader(Translatable({
+        "en": "Thank you",
+        "nl": "Dank je wel"
+    }))
+    page = PropsUIPageEnd(header)
+    return CommandUIRender(page)
 
 
-def extract_usernames(chat_file_name):
-    print(f"filename: {chat_file_name}")
+def render_donation_page(index, platform, body):
+    header = PropsUIHeader(Translatable({
+        "en": f"Step {index}: {platform}",
+        "nl": f"Stap {index}: {platform}"
+    }))
+    page = PropsUIPageDonation(header, body, spinner())
+    return CommandUIRender(page)
 
-    with open(chat_file_name) as chat_file:
-        while (line := chat_file.readline().rstrip()):
-            print(line)
 
-    return ["emielvdveen", "a.m.mendrik", "9bitcat"]
+def retry_confirmation():
+    text = Translatable({
+        "en": "The selected file is invalid. Do you want to select a different file?",
+        "nl": "Het geselecteerde bestaand is ongeldig. Wil je een ander bestand selecteren ?"
+    })
+    ok = Translatable({
+        "en": "Different file",
+        "nl": "Ander bestand"
+    })
+    cancel = Translatable({
+        "en": "Cancel",
+        "nl": "Annuleren"
+    })
+    return PropsUIPromptConfirm(text, ok, cancel)
 
 
-def result(usernames, selected_username):
-    data = []
-    for username in usernames:
-        description = "you" if username == selected_username else "-"
-        data.append((username, description))
+def spinner():
+    return PropsUISpinner(Translatable({
+        "en": "One moment please",
+        "nl": "Een moment geduld"
+    }))
 
-    data_frame = pd.DataFrame(data, columns=["username", "description"])
 
-    print(data_frame)
+def prompt_file(platform, extensions):
+    title = Translatable({
+        "en": f"Select {platform} file",
+        "nl": f"Selecteer {platform} bestand"
+    })
 
-    result = [{
-        "id": "overview",
-        "title": "The following usernames where extracted:",
-        "data_frame": data_frame
-    }]
-    return EndOfFlow(result)
+    description = Translatable({
+        "en": "Please select this file so we can extract relevant information for our research.",
+        "nl": "Je kan deze file nu selecteren zodat wij er relevante informatie uit kunnen halen voor ons onderzoek."
+    })
+
+    return PropsUIPromptFileInput(title, description, extensions)
+
+
+def doSomethingWithTheFile(platform, filename):
+    return extract_zip_contents(filename)
+
+
+def extract_zip_contents(filename):
+    names = []
+    try:
+        file = zipfile.ZipFile(filename)
+        data = []
+        for name in file.namelist():
+            names.append(name)
+            info = file.getinfo(name)
+            data.append((name, info.compress_size, info.file_size))
+        return data
+    except:
+        return "invalid"        
+
+
+def prompt_consent(id, data):
+    title = Translatable({
+        "en": "Extracted data",
+        "nl": "Gevonden gegevens"
+    })
+
+    description = Translatable({
+        "en": "Please have a good look at the extracted data before giving consent to use this data.",
+        "nl": "Bekijk de gegevens goed voordat je consent geeft om deze te gebruiken."
+    })
+
+    data_frame = pd.DataFrame(data, columns=["filename", "compressed size", "size"])
+    table = PropsUIPromptConsentFormTable(id, "The zip contains the following files:", data_frame)
+    return PropsUIPromptConsentForm(title, description, [table])
+
+
+def donate(key, consent_data):
+    return CommandSystemDonate(key, consent_data)
 `

@@ -1,18 +1,14 @@
-import ProcessingEngine from '../abstractions/processing_engine'
+import { CommandHandler, ProcessingEngine } from '../types/modules'
+import { isCommand, Response, Script } from '../types/commands'
 
 export default class WorkerProcessingEngine implements ProcessingEngine {
-  eventListener: (event: any) => void
   worker: Worker
+  commandHandler: CommandHandler
 
-  constructor (worker: Worker) {
-    this.eventListener = (event) => {
-      const eventString = JSON.stringify(event)
-      console.log(
-        '[WorkerProcessingEngine] No event listener registered for event: ',
-        eventString
-      )
-    }
+  script!: Script
 
+  constructor (worker: Worker, commandHandler: CommandHandler) {
+    this.commandHandler = commandHandler
     this.worker = worker
     this.worker.onerror = console.log
     this.worker.onmessage = (event) => {
@@ -20,11 +16,39 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
         '[WorkerProcessingEngine] Received event from worker: ',
         event.data.eventType
       )
-      this.eventListener(event)
+      this.handleEvent(event)
     }
   }
 
-  start (): void {
+  handleEvent (event: any): void {
+    const { eventType } = event.data
+    console.log('[ReactEngine] received eventType: ', eventType)
+    switch (eventType) {
+      case 'initialiseDone':
+        console.log('[ReactEngine] received: initialiseDone')
+        this.loadScript(this.script)
+        break
+
+      case 'loadScriptDone':
+        console.log('[ReactEngine] Received: loadScriptDone')
+        this.firstRunCycle()
+        break
+
+      case 'runCycleDone':
+        console.log('[ReactEngine] received: event', event.data.scriptEvent)
+        this.handleRunCycle(event.data.scriptEvent)
+        break
+      default:
+        console.log(
+          '[ReactEngine] received unsupported flow event: ',
+          eventType
+        )
+    }
+  }
+
+  start (script: Script): void {
+    console.log('[WorkerProcessingEngine] started')
+    this.script = script
     this.worker.postMessage({ eventType: 'initialise' })
   }
 
@@ -36,11 +60,20 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     this.worker.postMessage({ eventType: 'firstRunCycle' })
   }
 
-  nextRunCycle (response: any): void {
+  nextRunCycle (response: Response): void {
     this.worker.postMessage({ eventType: 'nextRunCycle', response })
   }
 
   terminate (): void {
     this.worker.terminate()
+  }
+
+  handleRunCycle (command: any): void {
+    if (isCommand(command)) {
+      this.commandHandler.onCommand(command).then(
+        (response) => this.nextRunCycle(response),
+        () => {}
+      )
+    }
   }
 }
