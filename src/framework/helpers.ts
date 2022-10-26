@@ -1,10 +1,14 @@
 import { Omit } from 'lodash'
 
-export const childOf = (arg: any, superType: string): boolean => {
-  return arg?.__type__?.startsWith(superType)
+export const isInstanceOf = <T>(
+  arg: any,
+  type: string,
+  properties: Array<keyof T>
+): arg is T => {
+  return arg?.__type__ === type && isLike<T>(arg, properties)
 }
 
-export const instanceOf = <T>(
+export const isLike = <T>(
   arg: any,
   properties: Array<keyof T>
 ): arg is T => {

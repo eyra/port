@@ -21,7 +21,7 @@ export var SecondaryButton = function (_a) {
 };
 export var ForwardButton = function (_a) {
     var label = _a.label, onClick = _a.onClick;
-    return (_jsx("div", __assign({ className: 'pt-1 pb-1 active:pt-5px active:pb-3px rounded bg-opacity-0 focus:outline-none', onClick: onClick }, { children: _jsxs("div", __assign({ className: 'flex items-center' }, { children: [_jsx("div", __assign({ className: 'focus:outline-none' }, { children: _jsx("div", __assign({ className: 'flex flex-col justify-center h-full items-center' }, { children: _jsx("div", __assign({ className: 'flex-wrap text-button font-button text-grey1' }, { children: label })) })) })), _jsx("div", { children: _jsx("img", { className: 'ml-4 -mt-2px', src: ForwardSvg, alt: label }) })] })) })));
+    return (_jsx("div", __assign({ className: 'pt-1 pb-1 active:pt-5px active:pb-3px rounded bg-opacity-0 focus:outline-none cursor-pointer ', onClick: onClick }, { children: _jsxs("div", __assign({ className: 'flex items-center' }, { children: [_jsx("div", __assign({ className: 'focus:outline-none' }, { children: _jsx("div", __assign({ className: 'flex flex-col justify-center h-full items-center' }, { children: _jsx("div", __assign({ className: 'flex-wrap text-button font-button text-grey1' }, { children: label })) })) })), _jsx("div", { children: _jsx("img", { className: 'ml-4 -mt-2px', src: ForwardSvg, alt: label }) })] })) })));
 };
 export var LabelButton = function (_a) {
     var label = _a.label, onClick = _a.onClick;

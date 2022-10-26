@@ -1,32 +1,35 @@
-import { instanceOf, childOf } from '../helpers'
-import { PropsUIPage } from './pages'
+import { isInstanceOf, isLike } from '../helpers'
+import { isPropsUIPage, PropsUIPage } from './pages'
 
 export type Script = string | File | URL
 export function isScript (arg: any): arg is Script {
   return typeof arg === 'string' || isFile(arg) || isURL(arg)
 }
 export function isFile (arg: unknown): arg is File {
-  return instanceOf<File>(arg, ['arrayBuffer', 'lastModified', 'name', 'size', 'slice', 'stream', 'text', 'type', 'webkitRelativePath'])
+  return isLike<File>(arg, ['arrayBuffer', 'lastModified', 'name', 'size', 'slice', 'stream', 'text', 'type', 'webkitRelativePath'])
 }
 export function isURL (arg: any): arg is URL {
-  return instanceOf<URL>(arg, ['hash', 'host', 'hostname', 'href', 'origin', 'toString', 'password', 'pathname', 'port', 'protocol', 'search', 'searchParams', 'username', 'toJSON'])
+  return isLike<URL>(arg, ['hash', 'host', 'hostname', 'href', 'origin', 'toString', 'password', 'pathname', 'port', 'protocol', 'search', 'searchParams', 'username', 'toJSON'])
 }
 
 export interface Table {
+  __type__: 'Table'
   id: string
   title: Text
   data: any
 }
 export function isTable (arg: any): arg is Table {
-  return instanceOf<Table>(arg, ['id', 'title', 'data'])
+  return isInstanceOf<Table>(arg, 'Table', ['id', 'title', 'data'])
 }
 
 export interface Response {
+  __type__: 'Response'
   command: Command
   payload: Payload
 }
 export function isResponse (arg: any): arg is Response {
-  return instanceOf<Response>(arg, ['command', 'payload'])
+  return isInstanceOf<Response>(arg, 'Response', ['command', 'payload']) &&
+  isCommand(arg.command)
 }
 
 export type Payload =
@@ -78,21 +81,21 @@ export type Command =
   CommandSystem
 
 export function isCommand (arg: any): arg is Command {
-  return childOf(arg, 'Command')
+  return isCommandUI(arg) || isCommandSystem(arg)
 }
 
 export type CommandSystem =
   CommandSystemDonate
 
 export function isCommandSystem (arg: any): arg is CommandSystem {
-  return childOf(arg, 'CommandSystem')
+  return isCommandSystemDonate(arg)
 }
 
 export type CommandUI =
   CommandUIRender
 
 export function isCommandUI (arg: any): arg is CommandUI {
-  return childOf(arg, 'CommandUI')
+  return isCommandUIRender(arg)
 }
 
 export interface CommandSystemDonate {
@@ -101,7 +104,7 @@ export interface CommandSystemDonate {
   data: string
 }
 export function isCommandSystemDonate (arg: any): arg is CommandSystemDonate {
-  return instanceOf<CommandSystemDonate>(arg, ['__type__', 'key', 'data']) && arg.__type__ === 'CommandSystemDonate'
+  return isInstanceOf<CommandSystemDonate>(arg, 'CommandSystemDonate', ['key', 'data'])
 }
 
 export interface CommandUIRender {
@@ -109,5 +112,5 @@ export interface CommandUIRender {
   page: PropsUIPage
 }
 export function isCommandUIRender (arg: any): arg is CommandUIRender {
-  return instanceOf<CommandUIRender>(arg, ['__type__', 'page']) && arg.__type__ === 'CommandUIRender'
+  return isInstanceOf<CommandUIRender>(arg, 'CommandUIRender', ['page']) && isPropsUIPage(arg.page)
 }

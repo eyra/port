@@ -25,7 +25,7 @@ export const SecondaryButton = ({ label, color = 'bg-delete text-delete', onClic
 
 export const ForwardButton = ({ label, onClick }: Weak<PropsUIButtonForward>): JSX.Element => {
   return (
-    <div className='pt-1 pb-1 active:pt-5px active:pb-3px rounded bg-opacity-0 focus:outline-none' onClick={onClick}>
+    <div className='pt-1 pb-1 active:pt-5px active:pb-3px rounded bg-opacity-0 focus:outline-none cursor-pointer ' onClick={onClick}>
       <div className='flex items-center'>
         <div className='focus:outline-none'>
           <div className='flex flex-col justify-center h-full items-center'>

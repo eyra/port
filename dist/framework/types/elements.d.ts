@@ -2,17 +2,17 @@ import { Weak } from '../helpers';
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
 export declare type PropsUI = PropsUIText | PropsUIButton | PropsUISpinner | PropsUIHeader | PropsUITable | PropsUIPage | PropsUIPrompt;
-export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2;
+export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextBodyLarge;
 export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonForward | PropsUIButtonLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
 export declare function isPropsUIText(arg: any): arg is PropsUIText;
-export interface PropsUITextBody {
-    __type__: 'PropsUITextBody';
+export interface PropsUITextBodyLarge {
+    __type__: 'PropsUITextBodyLarge';
     text: string;
     color?: string;
     margin?: string;
 }
-export declare function isPropsUITextBody(arg: any): arg is PropsUITextBody;
+export declare function isPropsUITextBodyLarge(arg: any): arg is PropsUITextBodyLarge;
 export interface PropsUITextTitle0 {
     __type__: 'PropsUITextTitle0';
     text: string;

@@ -1,7 +1,7 @@
 import { Weak } from '../../../../helpers'
-import { PropsUITextBody, PropsUITextTitle0, PropsUITextTitle1, PropsUITextTitle2 } from '../../../../types/elements'
+import { PropsUITextBodyLarge, PropsUITextTitle0, PropsUITextTitle1, PropsUITextTitle2 } from '../../../../types/elements'
 
-export const BodyLarge = ({ text, color = 'text-grey1', margin = 'mb-6 md:mb-8 lg:mb-10' }: Weak<PropsUITextBody>): JSX.Element => {
+export const BodyLarge = ({ text, color = 'text-grey1', margin = 'mb-6 md:mb-8 lg:mb-10' }: Weak<PropsUITextBodyLarge>): JSX.Element => {
   return (
     <div className={`text-bodylarge font-body ${color} ${margin}`}>
       {text}

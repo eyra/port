@@ -24,7 +24,7 @@ export default class CommandRouter implements CommandHandler {
 
   onCommandSystem (command: CommandSystem, resolve: (response: Response) => void): void {
     this.system.send(command)
-    resolve({ command, payload: { __type__: 'PayloadVoid', value: undefined } })
+    resolve({ __type__: 'Response', command, payload: { __type__: 'PayloadVoid', value: undefined } })
   }
 
   onCommandUI (command: CommandUI, reject: (reason?: any) => void): void {

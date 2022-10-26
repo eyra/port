@@ -63,7 +63,7 @@ var CommandRouter = /** @class */ (function () {
     };
     CommandRouter.prototype.onCommandSystem = function (command, resolve) {
         this.system.send(command);
-        resolve({ command: command, payload: { __type__: 'PayloadVoid', value: undefined } });
+        resolve({ __type__: 'Response', command: command, payload: { __type__: 'PayloadVoid', value: undefined } });
     };
     CommandRouter.prototype.onCommandUI = function (command, reject) {
         this.visualisationEngine.render(command).then(function (response) { reject(response); }, function () { });

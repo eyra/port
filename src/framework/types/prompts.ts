@@ -1,4 +1,4 @@
-import { childOf, instanceOf } from '../helpers'
+import { isInstanceOf } from '../helpers'
 import { Text } from './elements'
 
 export type PropsUIPrompt =
@@ -7,7 +7,9 @@ export type PropsUIPrompt =
   PropsUIPromptConsentForm
 
 export function isPropsUIPrompt (arg: any): arg is PropsUIPrompt {
-  return childOf(arg, 'PropsUIPrompt')
+  return isPropsUIPromptFileInput(arg) ||
+    isPropsUIPromptRadioInput(arg) ||
+    isPropsUIPromptConsentForm(arg)
 }
 
 export interface PropsUIPromptConfirm {
@@ -17,7 +19,7 @@ export interface PropsUIPromptConfirm {
   cancel: Text
 }
 export function isPropsUIPromptConfirm (arg: any): arg is PropsUIPromptConfirm {
-  return instanceOf<PropsUIPromptConfirm>(arg, ['__type__', 'text', 'ok', 'cancel']) && arg.__type__ === 'PropsUIPromptConfirm'
+  return isInstanceOf<PropsUIPromptConfirm>(arg, 'PropsUIPromptConfirm', ['text', 'ok', 'cancel'])
 }
 
 export interface PropsUIPromptFileInput {
@@ -27,7 +29,7 @@ export interface PropsUIPromptFileInput {
   extensions: string
 }
 export function isPropsUIPromptFileInput (arg: any): arg is PropsUIPromptFileInput {
-  return instanceOf<PropsUIPromptFileInput>(arg, ['__type__', 'title', 'description', 'extensions']) && arg.__type__ === 'PropsUIPromptFileInput'
+  return isInstanceOf<PropsUIPromptFileInput>(arg, 'PropsUIPromptFileInput', ['title', 'description', 'extensions'])
 }
 
 export interface PropsUIPromptRadioInput {
@@ -37,7 +39,7 @@ export interface PropsUIPromptRadioInput {
   items: string[]
 }
 export function isPropsUIPromptRadioInput (arg: any): arg is PropsUIPromptRadioInput {
-  return instanceOf<PropsUIPromptRadioInput>(arg, ['__type__', 'title', 'description', 'items']) && arg.__type__ === 'PropsUIPromptRadioInput'
+  return isInstanceOf<PropsUIPromptRadioInput>(arg, 'PropsUIPromptRadioInput', ['title', 'description', 'items'])
 }
 export interface PropsUIPromptConsentForm {
   __type__: 'PropsUIPromptConsentForm'
@@ -46,7 +48,7 @@ export interface PropsUIPromptConsentForm {
   tables: PropsUIPromptConsentFormTable[]
 }
 export function isPropsUIPromptConsentForm (arg: any): arg is PropsUIPromptConsentForm {
-  return instanceOf<PropsUIPromptConsentForm>(arg, ['__type__', 'title', 'description', 'tables']) && arg.__type__ === 'PropsUIPromptConsentForm'
+  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', ['title', 'description', 'tables'])
 }
 
 export interface PropsUIPromptConsentFormTable {
@@ -57,5 +59,5 @@ export interface PropsUIPromptConsentFormTable {
   data_frame: any
 }
 export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPromptConsentFormTable {
-  return instanceOf<PropsUIPromptConsentFormTable>(arg, ['__type__', 'id', 'title', 'description', 'data_frame']) && arg.__type__ === 'PropsUIPromptConsentFormTable'
+  return isInstanceOf<PropsUIPromptConsentFormTable>(arg, 'PropsUIPromptConsentFormTable', ['id', 'title', 'description', 'data_frame'])
 }

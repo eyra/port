@@ -26,7 +26,7 @@ export default class ReactEngine implements VisualisationEngine {
     return await new Promise<Response>((resolve) => {
       this.renderPage(command.page).then(
         (payload: Payload) => {
-          resolve({ command, payload })
+          resolve({ __type__: 'Response', command, payload })
         },
         () => {}
       )

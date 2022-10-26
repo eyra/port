@@ -1,7 +1,7 @@
-import { instanceOf, childOf, Weak } from '../helpers'
+import { isInstanceOf, Weak, isLike } from '../helpers'
 import { } from './commands'
-import { PropsUIPage } from './pages'
-import { PropsUIPrompt } from './prompts'
+import { isPropsUIPage, PropsUIPage } from './pages'
+import { isPropsUIPrompt, PropsUIPrompt } from './prompts'
 
 export type PropsUI =
   PropsUIText |
@@ -15,7 +15,8 @@ export type PropsUI =
 export type PropsUIText =
   PropsUITextTitle0 |
   PropsUITextTitle1 |
-  PropsUITextTitle2
+  PropsUITextTitle2 |
+  PropsUITextBodyLarge
 
 export type PropsUIButton =
   PropsUIButtonPrimary |
@@ -26,23 +27,32 @@ export type PropsUIButton =
 // UI
 
 export function isPropsUI (arg: any): arg is PropsUI {
-  return childOf(arg, 'PropsUI')
+  return isPropsUIText(arg) ||
+    isPropsUIButton(arg) ||
+    isPropsUISpinner(arg) ||
+    isPropsUIHeader(arg) ||
+    isPropsUITable(arg) ||
+    isPropsUIPage(arg) ||
+    isPropsUIPrompt(arg)
 }
 
 // TEXTS
 
 export function isPropsUIText (arg: any): arg is PropsUIText {
-  return childOf(arg, 'PropsUIText')
+  return isPropsUITextTitle0(arg) ||
+    isPropsUITextTitle0(arg) ||
+    isPropsUITextTitle0(arg) ||
+    isPropsUITextBodyLarge(arg)
 }
 
-export interface PropsUITextBody {
-  __type__: 'PropsUITextBody'
+export interface PropsUITextBodyLarge {
+  __type__: 'PropsUITextBodyLarge'
   text: string
   color?: string
   margin?: string
 }
-export function isPropsUITextBody (arg: any): arg is PropsUITextBody {
-  return instanceOf<PropsUITextBody>(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextBody'
+export function isPropsUITextBodyLarge (arg: any): arg is PropsUITextBodyLarge {
+  return isInstanceOf<PropsUITextBodyLarge>(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin'])
 }
 
 export interface PropsUITextTitle0 {
@@ -52,7 +62,7 @@ export interface PropsUITextTitle0 {
   margin?: string
 }
 export function isPropsUITextTitle0 (arg: any): arg is PropsUITextTitle0 {
-  return instanceOf<PropsUITextTitle0>(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextTitle0'
+  return isInstanceOf<PropsUITextTitle0>(arg, 'PropsUITextTitle0', ['text', 'color', 'margin'])
 }
 
 export interface PropsUITextTitle1 {
@@ -62,7 +72,7 @@ export interface PropsUITextTitle1 {
   margin?: string
 }
 export function isPropsUITextTitle1 (arg: any): arg is PropsUITextTitle1 {
-  return instanceOf<PropsUITextTitle1>(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextTitle1'
+  return isInstanceOf<PropsUITextTitle1>(arg, 'PropsUITextTitle1', ['text', 'color', 'margin'])
 }
 
 export interface PropsUITextTitle2 {
@@ -72,13 +82,16 @@ export interface PropsUITextTitle2 {
   margin?: string
 }
 export function isPropsUITextTitle2 (arg: any): arg is PropsUITextTitle2 {
-  return instanceOf<PropsUITextTitle2>(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextTitle2'
+  return isInstanceOf<PropsUITextTitle2>(arg, 'PropsUITextTitle2', ['text', 'color', 'margin'])
 }
 
 // BUTTONS
 
 export function isPropsUIButton (arg: any): arg is PropsUIButton {
-  return childOf(arg, 'PropsUIButton')
+  return isPropsUIButtonPrimary(arg) ||
+    isPropsUIButtonSecundary(arg) ||
+    isPropsUIButtonForward(arg) ||
+    isPropsUIButtonLabel(arg)
 }
 
 export interface PropsUIButtonPrimary {
@@ -88,7 +101,7 @@ export interface PropsUIButtonPrimary {
   onClick: () => void
 }
 export function isPropsUIButtonPrimary (arg: any): arg is PropsUIButtonPrimary {
-  return instanceOf<PropsUIButtonPrimary>(arg, ['__type__', 'label', 'color', 'onClick']) && arg.__type__ === 'PropsUIButtonPrimary'
+  return isInstanceOf<PropsUIButtonPrimary>(arg, 'PropsUIButtonPrimary', ['label', 'color', 'onClick'])
 }
 
 export interface PropsUIButtonSecundary {
@@ -98,7 +111,7 @@ export interface PropsUIButtonSecundary {
   onClick: () => void
 }
 export function isPropsUIButtonSecundary (arg: any): arg is PropsUIButtonSecundary {
-  return instanceOf<PropsUIButtonSecundary>(arg, ['__type__', 'label', 'color', 'onClick']) && arg.__type__ === 'PropsUIButtonSecundary'
+  return isInstanceOf<PropsUIButtonSecundary>(arg, 'PropsUIButtonSecundary', ['label', 'color', 'onClick'])
 }
 
 export interface PropsUIButtonForward {
@@ -107,7 +120,7 @@ export interface PropsUIButtonForward {
   onClick: () => void
 }
 export function isPropsUIButtonForward (arg: any): arg is PropsUIButtonForward {
-  return instanceOf<PropsUIButtonForward>(arg, ['__type__', 'label', 'onClick']) && arg.__type__ === 'PropsUIButtonForward'
+  return isInstanceOf<PropsUIButtonForward>(arg, 'PropsUIButtonForward', ['label', 'onClick'])
 }
 
 export interface PropsUIButtonLabel {
@@ -116,7 +129,7 @@ export interface PropsUIButtonLabel {
   onClick: () => void
 }
 export function isPropsUIButtonLabel (arg: any): arg is PropsUIButtonLabel {
-  return instanceOf<PropsUIButtonLabel>(arg, ['__type__', 'label', 'onClick']) && arg.__type__ === 'PropsUIButtonLabel'
+  return isInstanceOf<PropsUIButtonLabel>(arg, 'PropsUIButtonLabel', ['label', 'onClick'])
 }
 
 // SPINNER
@@ -126,7 +139,7 @@ export interface PropsUISpinner {
   text: Text
 }
 export function isPropsUISpinner (arg: any): arg is PropsUISpinner {
-  return instanceOf<PropsUISpinner>(arg, ['__type__', 'text']) && arg.__type__ === 'PropsUISpinner'
+  return isInstanceOf<PropsUISpinner>(arg, 'PropsUISpinner', ['text'])
 }
 
 // Header
@@ -136,7 +149,7 @@ export interface PropsUIHeader {
   title: Text
 }
 export function isPropsUIHeader (arg: any): arg is PropsUIHeader {
-  return instanceOf<PropsUIHeader>(arg, ['__type__', 'title']) && arg.__type__ === 'PropsUIHeader'
+  return isInstanceOf<PropsUIHeader>(arg, 'PropsUIHeader', ['title'])
 }
 
 // TABLE
@@ -148,7 +161,7 @@ export interface PropsUITable {
   body: Weak<PropsUITableBody>
 }
 export function isPropsUITable (arg: any): arg is PropsUITable {
-  return instanceOf<PropsUITable>(arg, ['__type__', 'id', 'head', 'body']) && arg.__type__ === 'PropsUITable'
+  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', ['id', 'head', 'body'])
 }
 
 export interface PropsUITableHead {
@@ -156,7 +169,7 @@ export interface PropsUITableHead {
   cells: PropsUITableCell[]
 }
 export function isPropsUITableHeader (arg: any): arg is PropsUITableHead {
-  return instanceOf<PropsUITableHead>(arg, ['__type__', 'cells']) && arg.__type__ === 'PropsUITableHead'
+  return isInstanceOf<PropsUITableHead>(arg, 'PropsUITableHead', ['cells'])
 }
 
 export interface PropsUITableBody {
@@ -164,7 +177,7 @@ export interface PropsUITableBody {
   rows: Weak<PropsUITableRow[]>
 }
 export function isPropsUITableBody (arg: any): arg is PropsUITableBody {
-  return instanceOf<PropsUITableBody>(arg, ['__type__', 'rows']) && arg.__type__ === 'PropsUITableBody'
+  return isInstanceOf<PropsUITableBody>(arg, 'PropsUITableBody', ['rows'])
 }
 
 export interface PropsUITableRow {
@@ -172,7 +185,7 @@ export interface PropsUITableRow {
   cells: PropsUITableCell[]
 }
 export function isPropsUITableRow (arg: any): arg is PropsUITableRow {
-  return instanceOf<PropsUITableRow>(arg, ['__type__', 'cells']) && arg.__type__ === 'PropsUITableRow'
+  return isInstanceOf<PropsUITableRow>(arg, 'PropsUITableRow', ['cells'])
 }
 
 export interface PropsUITableCell {
@@ -180,7 +193,7 @@ export interface PropsUITableCell {
   text: string
 }
 export function isPropsUITableCell (arg: any): arg is PropsUITableCell {
-  return instanceOf<PropsUITableCell>(arg, ['__type__', 'text']) && arg.__type__ === 'PropsUITableCell'
+  return isInstanceOf<PropsUITableCell>(arg, 'PropsUITableCell', ['text'])
 }
 
 // BASE TYPES
@@ -195,5 +208,5 @@ export interface Translatable {
   translations: { [locale: string]: string }
 }
 export function isTranslatable (arg: any): arg is Translatable {
-  return instanceOf<Translatable>(arg, ['translations'])
+  return isLike<Translatable>(arg, ['translations'])
 }

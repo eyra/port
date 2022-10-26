@@ -1,64 +1,78 @@
-import { instanceOf, childOf } from '../helpers';
+import { isInstanceOf, isLike } from '../helpers';
+import { isPropsUIPage } from './pages';
+import { isPropsUIPrompt } from './prompts';
 // UI
 export function isPropsUI(arg) {
-    return childOf(arg, 'PropsUI');
+    return isPropsUIText(arg) ||
+        isPropsUIButton(arg) ||
+        isPropsUISpinner(arg) ||
+        isPropsUIHeader(arg) ||
+        isPropsUITable(arg) ||
+        isPropsUIPage(arg) ||
+        isPropsUIPrompt(arg);
 }
 // TEXTS
 export function isPropsUIText(arg) {
-    return childOf(arg, 'PropsUIText');
+    return isPropsUITextTitle0(arg) ||
+        isPropsUITextTitle0(arg) ||
+        isPropsUITextTitle0(arg) ||
+        isPropsUITextBodyLarge(arg);
 }
-export function isPropsUITextBody(arg) {
-    return instanceOf(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextBody';
+export function isPropsUITextBodyLarge(arg) {
+    return isInstanceOf(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin']);
 }
 export function isPropsUITextTitle0(arg) {
-    return instanceOf(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextTitle0';
+    return isInstanceOf(arg, 'PropsUITextTitle0', ['text', 'color', 'margin']);
 }
 export function isPropsUITextTitle1(arg) {
-    return instanceOf(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextTitle1';
+    return isInstanceOf(arg, 'PropsUITextTitle1', ['text', 'color', 'margin']);
 }
 export function isPropsUITextTitle2(arg) {
-    return instanceOf(arg, ['__type__', 'text', 'color', 'margin']) && arg.__type__ === 'PropsUITextTitle2';
+    return isInstanceOf(arg, 'PropsUITextTitle2', ['text', 'color', 'margin']);
 }
 // BUTTONS
 export function isPropsUIButton(arg) {
-    return childOf(arg, 'PropsUIButton');
+    return isPropsUIButtonPrimary(arg) ||
+        isPropsUIButtonSecundary(arg) ||
+        isPropsUIButtonForward(arg) ||
+        isPropsUIButtonLabel(arg);
 }
 export function isPropsUIButtonPrimary(arg) {
-    return instanceOf(arg, ['__type__', 'label', 'color', 'onClick']) && arg.__type__ === 'PropsUIButtonPrimary';
+    return isInstanceOf(arg, 'PropsUIButtonPrimary', ['label', 'color', 'onClick']);
 }
 export function isPropsUIButtonSecundary(arg) {
-    return instanceOf(arg, ['__type__', 'label', 'color', 'onClick']) && arg.__type__ === 'PropsUIButtonSecundary';
+    return isInstanceOf(arg, 'PropsUIButtonSecundary', ['label', 'color', 'onClick']);
 }
 export function isPropsUIButtonForward(arg) {
-    return instanceOf(arg, ['__type__', 'label', 'onClick']) && arg.__type__ === 'PropsUIButtonForward';
+    return isInstanceOf(arg, 'PropsUIButtonForward', ['label', 'onClick']);
 }
 export function isPropsUIButtonLabel(arg) {
-    return instanceOf(arg, ['__type__', 'label', 'onClick']) && arg.__type__ === 'PropsUIButtonLabel';
+    return isInstanceOf(arg, 'PropsUIButtonLabel', ['label', 'onClick']);
 }
 export function isPropsUISpinner(arg) {
-    return instanceOf(arg, ['__type__', 'text']) && arg.__type__ === 'PropsUISpinner';
+    return isInstanceOf(arg, 'PropsUISpinner', ['text']);
 }
 export function isPropsUIHeader(arg) {
-    return instanceOf(arg, ['__type__', 'title']) && arg.__type__ === 'PropsUIHeader';
+    return isInstanceOf(arg, 'PropsUIHeader', ['title']);
 }
 export function isPropsUITable(arg) {
-    return instanceOf(arg, ['__type__', 'id', 'head', 'body']) && arg.__type__ === 'PropsUITable';
+    return isInstanceOf(arg, 'PropsUITable', ['id', 'head', 'body']);
 }
 export function isPropsUITableHeader(arg) {
-    return instanceOf(arg, ['__type__', 'cells']) && arg.__type__ === 'PropsUITableHead';
+    return isInstanceOf(arg, 'PropsUITableHead', ['cells']);
 }
 export function isPropsUITableBody(arg) {
-    return instanceOf(arg, ['__type__', 'rows']) && arg.__type__ === 'PropsUITableBody';
+    return isInstanceOf(arg, 'PropsUITableBody', ['rows']);
 }
 export function isPropsUITableRow(arg) {
-    return instanceOf(arg, ['__type__', 'cells']) && arg.__type__ === 'PropsUITableRow';
+    return isInstanceOf(arg, 'PropsUITableRow', ['cells']);
 }
 export function isPropsUITableCell(arg) {
-    return instanceOf(arg, ['__type__', 'text']) && arg.__type__ === 'PropsUITableCell';
+    return isInstanceOf(arg, 'PropsUITableCell', ['text']);
 }
 export function isText(arg) {
     return typeof arg === 'string' || isTranslatable(arg);
 }
 export function isTranslatable(arg) {
-    return instanceOf(arg, ['translations']);
+    return isLike(arg, ['translations']);
 }

@@ -54,7 +54,7 @@ var ReactEngine = /** @class */ (function () {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, new Promise(function (resolve) {
                             _this.renderPage(command.page).then(function (payload) {
-                                resolve({ command: command, payload: payload });
+                                resolve({ __type__: 'Response', command: command, payload: payload });
                             }, function () { });
                         })];
                     case 1: return [2 /*return*/, _a.sent()];

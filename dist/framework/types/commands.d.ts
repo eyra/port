@@ -4,12 +4,14 @@ export declare function isScript(arg: any): arg is Script;
 export declare function isFile(arg: unknown): arg is File;
 export declare function isURL(arg: any): arg is URL;
 export interface Table {
+    __type__: 'Table';
     id: string;
     title: Text;
     data: any;
 }
 export declare function isTable(arg: any): arg is Table;
 export interface Response {
+    __type__: 'Response';
     command: Command;
     payload: Payload;
 }

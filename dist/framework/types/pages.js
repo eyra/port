@@ -1,16 +1,19 @@
-import { childOf, instanceOf } from '../helpers';
+import { isInstanceOf } from '../helpers';
 export function isPropsUIPage(arg) {
-    return childOf(arg, 'PropsUIPage');
+    return (isPropsUIPageSplashScreen(arg) ||
+        isPropsUIPageDonation(arg) ||
+        isPropsUIPageStart(arg) ||
+        isPropsUIPageEnd(arg));
 }
 export function isPropsUIPageSplashScreen(arg) {
-    return instanceOf(arg, ['__type__']) && arg.__type__ === 'PropsUIPageSplashScreen';
+    return isInstanceOf(arg, 'PropsUIPageSplashScreen', []);
 }
 export function isPropsUIPageStart(arg) {
-    return instanceOf(arg, ['__type__']) && arg.__type__ === 'PropsUIPageStart';
+    return isInstanceOf(arg, 'PropsUIPageStart', []);
 }
 export function isPropsUIPageDonation(arg) {
-    return instanceOf(arg, ['__type__', 'header', 'body']) && arg.__type__ === 'PropsUIPageDonation';
+    return isInstanceOf(arg, 'PropsUIPageDonation', ['header', 'body']);
 }
 export function isPropsUIPageEnd(arg) {
-    return instanceOf(arg, ['__type__', 'header']) && arg.__type__ === 'PropsUIPageEnd';
+    return isInstanceOf(arg, 'PropsUIPageEnd', ['header']);
 }
