@@ -13,8 +13,7 @@ export function isTable(arg) {
     return isInstanceOf(arg, 'Table', ['id', 'title', 'data']);
 }
 export function isResponse(arg) {
-    return isInstanceOf(arg, 'Response', ['command', 'payload']) &&
-        isCommand(arg.command);
+    return isInstanceOf(arg, 'Response', ['command', 'payload']) && isCommand(arg.command);
 }
 export function isCommand(arg) {
     return isCommandUI(arg) || isCommandSystem(arg);

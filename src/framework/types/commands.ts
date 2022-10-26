@@ -28,8 +28,7 @@ export interface Response {
   payload: Payload
 }
 export function isResponse (arg: any): arg is Response {
-  return isInstanceOf<Response>(arg, 'Response', ['command', 'payload']) &&
-  isCommand(arg.command)
+  return isInstanceOf<Response>(arg, 'Response', ['command', 'payload']) && isCommand(arg.command)
 }
 
 export type Payload =
