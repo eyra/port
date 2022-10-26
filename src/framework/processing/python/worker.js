@@ -234,15 +234,9 @@ class PropsUIPageDonation:
 
 
 class PropsUIPageStart:
-  __slots__ = "header", "spinner"
-  def __init__(self, header, spinner):
-    self.header = header
-    self.spinner = spinner
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPageStart"
-    dict["header"] = self.header.toDict()
-    dict["spinner"] = self.spinner.toDict()
     return dict
 
 

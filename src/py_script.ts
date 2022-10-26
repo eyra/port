@@ -35,11 +35,7 @@ def process():
 
 
 def render_start_page():
-    header = PropsUIHeader(Translatable({
-        "en": "Welcome",
-        "nl": "Welkom"
-    }))
-    page = PropsUIPageStart(header, spinner())
+    page = PropsUIPageStart()
     return CommandUIRender(page)
 
 
