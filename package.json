@@ -22,6 +22,7 @@
     "dev:build": "react-scripts build",
     "dev:start": "react-scripts start",
     "dev:test": "react-scripts test",
+    "prod:clean": "rm -rf ./dist",
     "prod:fix": "run-s dev:fix",
     "prod:css": "NODE_ENV=production tailwindcss build -i ./src/framework/styles.css -o ./dist/styles.css --minify",
     "prod:build": "tsc -d --project tsconfig.prod.json",
