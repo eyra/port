@@ -1,9 +1,10 @@
 /// <reference types="react" />
+import { PropsUIPage } from '../../types/pages';
+import { Payload } from '../../types/commands';
+export interface ReactFactoryContext {
+    locale: string;
+    resolve?: (payload: Payload) => void;
+}
 export default class ReactFactory {
-    mapping: {
-        [name: string]: (props: any) => JSX.Element;
-    };
-    constructor();
-    add(factory: (props: any) => JSX.Element, name: string): void;
-    createComponent(data: any, locale: string, resolve: (value: any) => void): JSX.Element;
+    createPage(page: PropsUIPage, context: ReactFactoryContext): JSX.Element;
 }

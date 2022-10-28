@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -49,116 +38,55 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import * as ReactDOM from 'react-dom/client';
 import { Main } from './main';
 var ReactEngine = /** @class */ (function () {
-    function ReactEngine(factory, processingEngine) {
-        var _this = this;
+    function ReactEngine(factory) {
         this.factory = factory;
-        this.processingEngine = processingEngine;
-        this.onEvent = function (event) {
-            _this.handleEvent(event);
-        };
     }
-    ReactEngine.prototype.start = function (script, rootElement, locale) {
+    ReactEngine.prototype.start = function (rootElement, locale) {
+        console.log('[ReactEngine] started');
+        this.root = ReactDOM.createRoot(rootElement);
+        this.locale = locale;
+        this.renderSplashScreen();
+    };
+    ReactEngine.prototype.render = function (command) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, new Promise(function (resolve) {
+                            _this.renderPage(command.page).then(function (payload) {
+                                resolve({ __type__: 'Response', command: command, payload: payload });
+                            }, function () { });
+                        })];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    ReactEngine.prototype.renderSplashScreen = function () {
+        var context = { locale: this.locale, resolve: function () { } };
+        var page = this.factory.createPage({ __type__: 'PropsUIPageSplashScreen' }, context);
+        this.renderElements([page]);
+    };
+    ReactEngine.prototype.renderPage = function (props) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log('[ReactEngine] started');
-                        this.script = script;
-                        this.root = ReactDOM.createRoot(rootElement);
-                        this.locale = locale;
-                        this.showStartPage();
-                        this.processingEngine.start();
+                        console.log('[ReactEngine] render page: ' + JSON.stringify(props));
                         return [4 /*yield*/, new Promise(function (resolve) {
-                                _this.finishFlow = resolve;
+                                var context = { locale: _this.locale, resolve: resolve };
+                                var page = _this.factory.createPage(props, context);
+                                _this.renderElements([page]);
                             })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    ReactEngine.prototype.terminate = function () {
-        this.processingEngine.terminate();
-    };
-    ReactEngine.prototype.renderPage = function (elements) {
+    ReactEngine.prototype.terminate = function () { };
+    ReactEngine.prototype.renderElements = function (elements) {
         this.root.render(_jsx(Main, { elements: elements }));
-    };
-    ReactEngine.prototype.showSpinner = function () {
-        var spinner = this.create('Spinner');
-        this.renderPage([spinner]);
-    };
-    ReactEngine.prototype.showStartPage = function () {
-        var welcome = this.create('Title0', { text: 'Welcome' });
-        var spinner = this.create('Spinner');
-        this.renderPage([welcome, spinner]);
-    };
-    ReactEngine.prototype.showFinalPage = function () {
-        var thanks = this.create('Title0', { text: 'Thank you' });
-        this.renderPage([thanks]);
-    };
-    ReactEngine.prototype.create = function (type, props) {
-        if (props === void 0) { props = {}; }
-        return this.factory.createComponent(__assign({ __type__: type }, props), this.locale, function () { });
-    };
-    ReactEngine.prototype.handleEvent = function (event) {
-        var eventType = event.data.eventType;
-        console.log('[ReactEngine] received eventType: ', eventType);
-        switch (eventType) {
-            case 'initialiseDone':
-                console.log('[ReactEngine] received: initialiseDone');
-                this.processingEngine.loadScript(this.script);
-                break;
-            case 'loadScriptDone':
-                console.log('[ReactEngine] Received: loadScriptDone');
-                this.processingEngine.firstRunCycle();
-                break;
-            case 'runCycleDone':
-                console.log('[ReactEngine] received: event', event.data.scriptEvent);
-                this.handleRunCycle(event.data.scriptEvent);
-                break;
-            default:
-                console.log('[ReactEngine] received unsupported flow event: ', eventType);
-        }
-    };
-    ReactEngine.prototype.handleRunCycle = function (scriptEvent) {
-        var _this = this;
-        var type = scriptEvent.__type__;
-        if (type.startsWith('Event.EndOfFlow')) {
-            this.renderComponent(scriptEvent).then(function (result) {
-                var _a;
-                _this.showFinalPage();
-                (_a = _this.finishFlow) === null || _a === void 0 ? void 0 : _a.call(_this, result);
-            }, null);
-            return;
-        }
-        if (type.startsWith('Event.Command.Prompt')) {
-            this.renderComponent(scriptEvent).then(function (userInput) {
-                _this.showSpinner();
-                _this.processingEngine.nextRunCycle({
-                    prompt: scriptEvent,
-                    userInput: userInput
-                });
-            }, null);
-            return;
-        }
-        console.log('[ReactEngine] Received unsupported script event: ', type);
-    };
-    ReactEngine.prototype.renderComponent = function (data) {
-        return __awaiter(this, void 0, void 0, function () {
-            var locale;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        locale = this.locale;
-                        return [4 /*yield*/, new Promise(function (resolve) {
-                                var component = _this.factory.createComponent(data, locale, resolve);
-                                _this.renderPage([component]);
-                            })];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
     };
     return ReactEngine;
 }());

@@ -22,10 +22,11 @@
     "dev:build": "react-scripts build",
     "dev:start": "react-scripts start",
     "dev:test": "react-scripts test",
+    "prod:clean": "rm -rf ./dist",
     "prod:fix": "run-s dev:fix",
     "prod:css": "NODE_ENV=production tailwindcss build -i ./src/framework/styles.css -o ./dist/styles.css --minify",
     "prod:build": "tsc -d --project tsconfig.prod.json",
-    "prod:assets": "cp -R ./src/assets ./dist/assets",
+    "prod:assets": "cp -R ./src/assets ./dist",
     "prod": "run-s prod:fix prod:build prod:assets prod:css",
     "ci:fix": "run-s dev:fix",
     "ci:test": "CI=true react-scripts test"

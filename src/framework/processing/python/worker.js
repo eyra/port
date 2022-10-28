@@ -31,8 +31,9 @@ onmessage = (event) => {
   }
 }
 
-function runCycle (userInput) {
-  scriptEvent = pyScript.send(userInput)
+function runCycle (payload) {
+  console.log('[ProcessingWorker] runCycle ' + JSON.stringify(payload))
+  scriptEvent = pyScript.send(payload)
   self.postMessage({
     eventType: 'runCycleDone',
     scriptEvent: scriptEvent.toJs({
@@ -43,14 +44,15 @@ function runCycle (userInput) {
 }
 
 function unwrap (response) {
+  console.log('[ProcessingWorker] unwrap response: ' + JSON.stringify(response.payload))
   return new Promise((resolve) => {
-    switch (response.prompt.__type__) {
-      case 'Event.Command.Prompt.FileInput':
-        copyFileToPyFS(response.userInput, resolve)
+    switch (response.payload.__type__) {
+      case 'PayloadFile':
+        copyFileToPyFS(response.payload.value, resolve)
         break
 
       default:
-        resolve(response.userInput)
+        resolve(response.payload)
     }
   })
 }
@@ -61,7 +63,7 @@ function copyFileToPyFS (file, resolve) {
 
   const writeToPyFS = ({ done, value }) => {
     if (done) {
-      resolve(file.name)
+      resolve({ __type__: 'PayloadString', value: file.name })
     } else {
       self.pyodide.FS.write(pyFile, value, 0, value.length)
       reader.read().then(writeToPyFS)
@@ -71,11 +73,14 @@ function copyFileToPyFS (file, resolve) {
 }
 
 function initialise () {
+  console.log('[ProcessingWorker] initialise')
   importScripts('https://cdn.jsdelivr.net/pyodide/v0.21.2/full/pyodide.js')
 
+  console.log('[ProcessingWorker] loading Pyodide')
   return loadPyodide({
     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.21.2/full/'
   }).then((pyodide) => {
+    console.log('[ProcessingWorker] loading packages')
     self.pyodide = pyodide
     return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas'])
   })
@@ -88,94 +93,172 @@ function loadScript (script) {
 }
 
 const pyPortApi = `
-class Event:
+class CommandUIRender:
+  __slots__ = "page"
+  def __init__(self, page):
+    self.page = page
   def toDict(self):
-    return setType({}, "Event")
-
-
-class EndOfFlow(Event):
-  __slots__ = "result"
-  def __init__(self, result):
-    self.result = result
-  def translate_result(self):
-    print("translate")
-    data_output = []
-    for data in self.result:
-      df = data["data_frame"]
-      data_output.append({"id": data["id"], "data_frame": df.to_json()})
-    return {
-      "title": data["title"],
-      "data": data_output,
-    }
-  def toDict(self):
-    print("toDict2")
-    dict = toDict(super(), "EndOfFlow") 
-    dict = dict | self.translate_result()
+    dict = {}
+    dict["__type__"] = "CommandUIRender"
+    dict["page"] = self.page.toDict()
     return dict
-  
 
-class Command(Event):
+class CommandSystemDonate:
+  __slots__ = "key", "data"
+  def __init__(self, key, data):
+    self.key = key
+    self.data = data
   def toDict(self):
-    return toDict(super(), "Command")
+    dict = {}
+    dict["__type__"] = "CommandSystemDonate"
+    dict["key"] = self.key
+    dict["data"] = self.data
+    return dict
 
 
-class Prompt(Command):
-  __slots__ = "title", "description"
-  def __init__(self, title, description):
+class PropsUIHeader:
+  __slots__ = "title"
+  def __init__(self, title):
     self.title = title
-    self.description = description
   def toDict(self):
-    dict = toDict(super(), "Prompt")
+    dict = {}
+    dict["__type__"] = "PropsUIHeader"
+    dict["title"] = self.title.toDict()
+    return dict
+
+
+class PropsUIPromptConfirm:
+  __slots__ = "text", "ok", "cancel"
+  def __init__(self, text, ok, cancel):
+    self.text = text
+    self.ok = ok
+    self.cancel = cancel
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIPromptConfirm"
+    dict["text"] = self.text.toDict()
+    dict["ok"] = self.ok.toDict()
+    dict["cancel"] = self.cancel.toDict()
+    return dict
+
+
+class PropsUISpinner:
+  __slots__ = "text"
+  def __init__(self, text):
+    self.text = text
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUISpinner"
+    dict["text"] = self.text.toDict()
+    return dict
+
+
+class PropsUIPromptConsentForm:
+  __slots__ = "title", "description", "tables"
+  def __init__(self, title, description, tables):
+    self.title = title
+    self.description = description            
+    self.tables = tables
+  def translate_tables(self):
+    tables_output = []
+    for table in self.tables:
+      tables_output.append(table.toDict())
+    return tables_output
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIPromptConsentForm"
     dict["title"] = self.title.toDict()
     dict["description"] = self.description.toDict()
+    dict["tables"] = self.translate_tables()
     return dict
 
 
-class FileInput(Prompt):
-  __slots__ = "extensions"
+class PropsUIPromptConsentFormTable:
+  __slots__ = "id", "title", "data_frame"
+  def __init__(self, id, title, data_frame):
+    self.id = id
+    self.title = title
+    self.data_frame = data_frame
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIPromptConsentFormTable"
+    dict["id"] = self.id
+    dict["title"] = self.title
+    dict["data_frame"] = self.data_frame.to_json()
+    return dict
+
+
+class PropsUIPromptFileInput:
+  __slots__ = "title", "description", "extensions"
   def __init__(self, title, description, extensions):
-    super().__init__(title, description)
+    self.title = title
+    self.description = description
     self.extensions = extensions
   def toDict(self):
-    dict = toDict(super(), "FileInput")
+    dict = {}
+    dict["__type__"] = "PropsUIPromptFileInput"
+    dict["title"] = self.title.toDict()
+    dict["description"] = self.description.toDict()
     dict["extensions"] = self.extensions
     return dict
 
 
-class RadioInput(Prompt):
+class PropsUIPromptRadioInput:
+  __slots__ = "title", "description", "items"
   def __init__(self, title, description, items):
-    super().__init__(title, description)
+    self.title = title
+    self.description = description
     self.items = items
   def toDict(self):
-    dict = toDict(super(), "RadioInput")
+    dict = {}
+    dict["__type__"] = "PropsUIPromptRadioInput"
+    dict["title"] = self.title.toDict()
+    dict["description"] = self.description.toDict()
     dict["items"] = self.items
+    return dict
+
+
+class PropsUIPageDonation:
+  __slots__ = "header", "body", "spinner"
+  def __init__(self, header, body, spinner):
+    self.header = header
+    self.body = body
+    self.spinner = spinner
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIPageDonation"
+    dict["header"] = self.header.toDict()
+    dict["body"] = self.body.toDict()
+    dict["spinner"] = self.spinner.toDict()
+    return dict
+
+
+class PropsUIPageStart:
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIPageStart"
+    return dict
+
+
+class PropsUIPageEnd:
+  __slots__ = "header" 
+  def __init__(self, header):
+    self.header = header
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIPageEnd"
+    dict["header"] = self.header.toDict()
     return dict
 
 
 class Translatable:
   __slots__ = "translations"
-  def __init__(self):
-    self.translations = {}
-  def add(self, locale, text):
-    self.translations[locale] = text
-    return self
+  def __init__(self, translations):
+    self.translations = translations
   def toDict(self):
-    return setType(self.translations, "Translatable")
-
-
-def toDict(zuper, type):
-  return setType(zuper.toDict(), type)
-
-
-def setType(dict, type):
-  key = "__type__"
-  seperator = "."
-
-  path = [type]
-  if key in dict:
-    path.insert(0, dict[key])
-  dict[key] = seperator.join(path)
-  return dict
+    dict = {}
+    dict["translations"] = self.translations
+    return dict  
 `
 
 function pyWorker () {
@@ -185,13 +268,13 @@ function pyWorker () {
   import html
   import pandas as pd
 
+
   class ScriptWrapper(Generator):
     def __init__(self, script):
         self.script = script
     def send(self, data):
-        print("toDict")
-        event = self.script.send(data)
-        return event.toDict()
+        command = self.script.send(data)
+        return command.toDict()
     def throw(self, type=None, value=None, traceback=None):
         raise StopIteration
   script = process()
