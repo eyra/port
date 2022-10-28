@@ -11,6 +11,6 @@ export default class LocalSystem implements System {
   }
 
   handleDonation (command: CommandSystemDonate): void {
-    console.log('[LocalSystem] received donation: ' + JSON.stringify(command))
+    console.log(`[LocalSystem] received donation: ${command.key}=${command.json_string}`)
   }
 }

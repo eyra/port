@@ -53,7 +53,8 @@ export type PayloadResolved =
   PayloadVoid |
   PayloadTrue |
   PayloadString |
-  PayloadFile
+  PayloadFile |
+  PayloadJSON
 
 export interface PayloadVoid {
   __type__: 'PayloadVoid'
@@ -73,6 +74,14 @@ export interface PayloadString {
 export interface PayloadFile {
   __type__: 'PayloadFile'
   value: File
+}
+
+export interface PayloadJSON {
+  __type__: 'PayloadJSON'
+  value: string
+}
+export function isPayloadJSON (arg: any): arg is PayloadJSON {
+  return isInstanceOf<PayloadJSON>(arg, 'PayloadJSON', ['value'])
 }
 
 export type Command =
@@ -100,10 +109,10 @@ export function isCommandUI (arg: any): arg is CommandUI {
 export interface CommandSystemDonate {
   __type__: 'CommandSystemDonate'
   key: string
-  data: string
+  json_string: string
 }
 export function isCommandSystemDonate (arg: any): arg is CommandSystemDonate {
-  return isInstanceOf<CommandSystemDonate>(arg, 'CommandSystemDonate', ['key', 'data'])
+  return isInstanceOf<CommandSystemDonate>(arg, 'CommandSystemDonate', ['key', 'json_string'])
 }
 
 export interface CommandUIRender {

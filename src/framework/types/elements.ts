@@ -1,4 +1,4 @@
-import { isInstanceOf, Weak, isLike } from '../helpers'
+import { isInstanceOf, isLike } from '../helpers'
 import { } from './commands'
 import { isPropsUIPage, PropsUIPage } from './pages'
 import { isPropsUIPrompt, PropsUIPrompt } from './prompts'
@@ -6,6 +6,8 @@ import { isPropsUIPrompt, PropsUIPrompt } from './prompts'
 export type PropsUI =
   PropsUIText |
   PropsUIButton |
+  PropsUICheckBox |
+  PropsUIRadioItem |
   PropsUISpinner |
   PropsUIHeader |
   PropsUITable |
@@ -16,6 +18,7 @@ export type PropsUIText =
   PropsUITextTitle0 |
   PropsUITextTitle1 |
   PropsUITextTitle2 |
+  PropsUITextTitle6 |
   PropsUITextBodyLarge
 
 export type PropsUIButton =
@@ -42,7 +45,8 @@ export function isPropsUIText (arg: any): arg is PropsUIText {
   return isPropsUITextTitle0(arg) ||
     isPropsUITextTitle0(arg) ||
     isPropsUITextTitle0(arg) ||
-    isPropsUITextBodyLarge(arg)
+    isPropsUITextBodyLarge(arg) ||
+    isPropsUITextBodyMedium(arg)
 }
 
 export interface PropsUITextBodyLarge {
@@ -53,6 +57,16 @@ export interface PropsUITextBodyLarge {
 }
 export function isPropsUITextBodyLarge (arg: any): arg is PropsUITextBodyLarge {
   return isInstanceOf<PropsUITextBodyLarge>(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin'])
+}
+
+export interface PropsUITextBodyMedium {
+  __type__: 'PropsUITextBodyMedium'
+  text: string
+  color?: string
+  margin?: string
+}
+export function isPropsUITextBodyMedium (arg: any): arg is PropsUITextBodyMedium {
+  return isInstanceOf<PropsUITextBodyMedium>(arg, 'PropsUITextBodyMedium', ['text', 'color', 'margin'])
 }
 
 export interface PropsUITextTitle0 {
@@ -83,6 +97,16 @@ export interface PropsUITextTitle2 {
 }
 export function isPropsUITextTitle2 (arg: any): arg is PropsUITextTitle2 {
   return isInstanceOf<PropsUITextTitle2>(arg, 'PropsUITextTitle2', ['text', 'color', 'margin'])
+}
+
+export interface PropsUITextTitle6 {
+  __type__: 'PropsUITextTitle6'
+  text: string
+  color?: string
+  margin?: string
+}
+export function isPropsUITextTitle6 (arg: any): arg is PropsUITextTitle6 {
+  return isInstanceOf<PropsUITextTitle6>(arg, 'PropsUITextTitle6', ['text', 'color', 'margin'])
 }
 
 // BUTTONS
@@ -132,6 +156,29 @@ export function isPropsUIButtonLabel (arg: any): arg is PropsUIButtonLabel {
   return isInstanceOf<PropsUIButtonLabel>(arg, 'PropsUIButtonLabel', ['label', 'onClick'])
 }
 
+// Radio item
+
+export interface PropsUIRadioItem {
+  id: number
+  value: string
+  selected: boolean
+  onSelect: () => void
+}
+export function isPropsUIRadioItem (arg: any): arg is PropsUIRadioItem {
+  return isInstanceOf<PropsUIRadioItem>(arg, 'PropsUIRadioItem', ['id', 'value', 'selected', 'onSelect'])
+}
+
+// Check box
+
+export interface PropsUICheckBox {
+  id: number
+  selected: boolean
+  onSelect: () => void
+}
+export function isPropsUICheckBox (arg: any): arg is PropsUICheckBox {
+  return isInstanceOf<PropsUICheckBox>(arg, 'PropsUICheckBox', ['id', 'selected', 'onSelect'])
+}
+
 // SPINNER
 
 export interface PropsUISpinner {
@@ -156,25 +203,26 @@ export function isPropsUIHeader (arg: any): arg is PropsUIHeader {
 
 export interface PropsUITable {
   __type__: 'PropsUITable'
+  readOnly?: boolean
   id: string
-  head: Weak<PropsUITableHead>
-  body: Weak<PropsUITableBody>
+  head: PropsUITableHead
+  body: PropsUITableBody
 }
 export function isPropsUITable (arg: any): arg is PropsUITable {
-  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', ['id', 'head', 'body'])
+  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', ['readOnly', 'id', 'head', 'body'])
 }
 
 export interface PropsUITableHead {
   __type__: 'PropsUITableHead'
   cells: PropsUITableCell[]
 }
-export function isPropsUITableHeader (arg: any): arg is PropsUITableHead {
+export function isPropsUITableHead (arg: any): arg is PropsUITableHead {
   return isInstanceOf<PropsUITableHead>(arg, 'PropsUITableHead', ['cells'])
 }
 
 export interface PropsUITableBody {
   __type__: 'PropsUITableBody'
-  rows: Weak<PropsUITableRow[]>
+  rows: PropsUITableRow[]
 }
 export function isPropsUITableBody (arg: any): arg is PropsUITableBody {
   return isInstanceOf<PropsUITableBody>(arg, 'PropsUITableBody', ['rows'])

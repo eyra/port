@@ -1,4 +1,4 @@
-import { Text } from './elements';
+import { PropsUIRadioItem, Text } from './elements';
 export declare type PropsUIPrompt = PropsUIPromptFileInput | PropsUIPromptRadioInput | PropsUIPromptConsentForm;
 export declare function isPropsUIPrompt(arg: any): arg is PropsUIPrompt;
 export interface PropsUIPromptConfirm {
@@ -19,7 +19,7 @@ export interface PropsUIPromptRadioInput {
     __type__: 'PropsUIPromptRadioInput';
     title: Text;
     description: Text;
-    items: string[];
+    items: PropsUIRadioItem[];
 }
 export declare function isPropsUIPromptRadioInput(arg: any): arg is PropsUIPromptRadioInput;
 export interface PropsUIPromptConsentForm {
@@ -27,6 +27,7 @@ export interface PropsUIPromptConsentForm {
     title: Text;
     description: Text;
     tables: PropsUIPromptConsentFormTable[];
+    metaTables: PropsUIPromptConsentFormTable[];
 }
 export declare function isPropsUIPromptConsentForm(arg: any): arg is PropsUIPromptConsentForm;
 export interface PropsUIPromptConsentFormTable {

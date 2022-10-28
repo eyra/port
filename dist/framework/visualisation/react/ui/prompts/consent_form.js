@@ -10,20 +10,20 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { assert } from '../../../../helpers';
 import { Table } from '../elements/table';
-import { PrimaryButton, SecondaryButton } from '../elements/button';
+import { PrimaryButton } from '../elements/button';
 import { BodyLarge, Title1, Title2 } from '../elements/text';
 import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
+import React from 'react';
+import _ from 'lodash';
 export var ConsentForm = function (props) {
-    var tables = props.tables, resolve = props.resolve;
-    var _a = prepareCopy(props), title = _a.title, description = _a.description, donateButton = _a.donateButton, declineButton = _a.declineButton;
-    function handleDonate() {
-        resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadString', value: JSON.stringify(tables) });
-    }
-    function handleDecline() {
-        resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFalse', value: false });
-    }
+    var _a = React.useState(parseTables(props.tables)), tables = _a[0], setTables = _a[1];
+    var _b = React.useState(false), metaTablesVisible = _b[0], setMetaTablesVisible = _b[1];
+    var metaTables = parseTables(props.metaTables);
+    var resolve = props.resolve;
+    var _c = prepareCopy(props), title = _c.title, description = _c.description, donateButton = _c.donateButton;
     function rowCell(dataFrame, column, row) {
         var text = dataFrame[column]["".concat(row)];
         return { __type__: 'PropsUITableCell', text: text };
@@ -43,7 +43,7 @@ export var ConsentForm = function (props) {
         }
         else {
             var firstColumn = dataFrame[columnNames(dataFrame)[0]];
-            return Object.keys(firstColumn).length;
+            return Object.keys(firstColumn).length - 1;
         }
     }
     function rows(data) {
@@ -57,36 +57,88 @@ export var ConsentForm = function (props) {
         }
         return result;
     }
-    function parse(tableData) {
+    function parseTables(tablesData) {
+        return tablesData.map(function (table) { return parseTable(table); });
+    }
+    function parseTable(tableData) {
         var id = tableData.id;
+        var title = Translator.translate(tableData.title, props.locale);
+        var deletedRowCount = 0;
         var dataFrame = JSON.parse(tableData.data_frame);
-        var head = { cells: columnNames(dataFrame).map(function (column) { return headCell(dataFrame, column); }) };
-        var body = { rows: rows(dataFrame) };
-        return { __type__: 'PropsUITable', id: id, head: head, body: body };
+        var headCells = columnNames(dataFrame).map(function (column) { return headCell(dataFrame, column); });
+        var head = { __type__: 'PropsUITableHead', cells: headCells };
+        var body = { __type__: 'PropsUITableBody', rows: rows(dataFrame) };
+        return { __type__: 'PropsUITable', id: id, head: head, body: body, title: title, deletedRowCount: deletedRowCount };
     }
-    function renderTable(tableData) {
-        var title = tableData.title;
-        var tableProps = parse(tableData);
-        return (_jsxs("div", __assign({ className: 'flex flex-col gap-2' }, { children: [_jsx(Title2, { text: title }), _jsx(Table, __assign({}, tableProps))] }), tableProps.id));
+    function renderTable(table, readOnly) {
+        if (readOnly === void 0) { readOnly = false; }
+        return (_jsxs("div", __assign({ className: 'flex flex-col gap-2' }, { children: [_jsx(Title2, { text: table.title }), _jsx(Table, __assign({}, table, { readOnly: readOnly, onChange: handleTableChange }))] }), table.id));
     }
-    return (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [tables.map(function (table) { return renderTable(table); }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 mt-2' }, { children: [_jsx(PrimaryButton, { label: donateButton, onClick: handleDonate }), _jsx(SecondaryButton, { label: declineButton, onClick: handleDecline })] }))] }))] }));
+    function handleTableChange(_a) {
+        var id = _a.id, head = _a.head, body = _a.body;
+        var tablesCopy = tables.slice(0);
+        var index = tablesCopy.findIndex(function (table) { return table.id === id; });
+        if (index > -1) {
+            var _b = tablesCopy[index], title_1 = _b.title, oldBody = _b.body, oldDeletedRowCount = _b.deletedRowCount;
+            var deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - body.rows.length);
+            tablesCopy[index] = { __type__: 'PropsUITable', id: id, head: head, body: body, title: title_1, deletedRowCount: deletedRowCount };
+        }
+        setTables(tablesCopy);
+    }
+    function handleDonate() {
+        var value = serializeConsentData();
+        resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadJSON', value: value });
+    }
+    function serializeConsentData() {
+        var array = serializeTables().concat(serializeMetaData());
+        return JSON.stringify(array);
+    }
+    function serializeMetaData() {
+        return serializeMetaTables().concat(serializeDeletedMetaData());
+    }
+    function serializeTables() {
+        return tables.map(function (table) { return serializeTable(table); });
+    }
+    function serializeMetaTables() {
+        return metaTables.map(function (table) { return serializeTable(table); });
+    }
+    function serializeDeletedMetaData() {
+        var rawData = tables
+            .filter(function (_a) {
+            var deletedRowCount = _a.deletedRowCount;
+            return deletedRowCount > 0;
+        })
+            .map(function (_a) {
+            var id = _a.id, deletedRowCount = _a.deletedRowCount;
+            return "User deleted ".concat(deletedRowCount, " rows from table: ").concat(id);
+        });
+        var data = JSON.stringify(rawData);
+        return { user_omissions: data };
+    }
+    function serializeTable(_a) {
+        var _b;
+        var id = _a.id, head = _a.head, rows = _a.body.rows;
+        var data = rows.map(function (row) { return serializeRow(row, head); });
+        return _b = {}, _b[id] = data, _b;
+    }
+    function serializeRow(row, head) {
+        assert(row.cells.length === head.cells.length, "Number of cells in row (".concat(row.cells.length, ") should be equals to number of cells in head (").concat(head.cells.length, ")"));
+        var keys = head.cells.map(function (cell) { return cell.text; });
+        var values = row.cells.map(function (cell) { return cell.text; });
+        return _.fromPairs(_.zip(keys, values));
+    }
+    return (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [tables.map(function (table) { return renderTable(table); }), metaTablesVisible ? metaTables.map(function (table) { return renderTable(table, true); }) : _jsx("div", {}), _jsxs("div", __assign({ className: 'flex flex-row gap-4 mt-2' }, { children: [metaTablesVisible ? '' : _jsx(PrimaryButton, { label: 'Show meta data', onClick: function () { setMetaTablesVisible(true); } }), _jsx(PrimaryButton, { label: donateButton, onClick: handleDonate, color: 'bg-success text-white' })] }))] }))] }));
 };
 function prepareCopy(_a) {
     var title = _a.title, description = _a.description, locale = _a.locale;
     return {
         title: Translator.translate(title, locale),
         description: Translator.translate(description, locale),
-        donateButton: Translator.translate(donateButtonLabel(), locale),
-        declineButton: Translator.translate(declineButtonLabel(), locale)
+        donateButton: Translator.translate(donateButtonLabel(), locale)
     };
 }
 var donateButtonLabel = function () {
     return new TextBundle()
         .add('en', 'Yes, donate')
         .add('nl', 'Ja, doneer');
-};
-var declineButtonLabel = function () {
-    return new TextBundle()
-        .add('en', 'No')
-        .add('nl', 'Nee');
 };

@@ -17,7 +17,7 @@ export var PrimaryButton = function (_a) {
 };
 export var SecondaryButton = function (_a) {
     var label = _a.label, _b = _a.color, color = _b === void 0 ? 'bg-delete text-delete' : _b, onClick = _a.onClick;
-    return (_jsx("div", __assign({ className: "pt-13px pb-13px active:pt-14px active:pb-3 active:shadow-top2px border-2 font-button text-button rounded bg-opacity-0 pr-4 pl-4 ".concat(color), onClick: onClick }, { children: _jsx("div", __assign({ className: 'flex-wrap' }, { children: label })) })));
+    return (_jsx("div", __assign({ className: "pt-13px pb-13px active:pt-14px active:pb-3 active:shadow-top2px border-2 font-button text-button rounded bg-opacity-0 pr-4 pl-4 cursor-pointer ".concat(color), onClick: onClick }, { children: _jsx("div", __assign({ className: 'flex-wrap' }, { children: label })) })));
 };
 export var ForwardButton = function (_a) {
     var label = _a.label, onClick = _a.onClick;

@@ -3,10 +3,13 @@ import { isTranslatable } from './types/elements';
 export var Translator = (function () {
     var defaultLocale = 'nl';
     function translate(text, locale) {
+        if (typeof text === 'string') {
+            return text;
+        }
         if (isTranslatable(text)) {
             return _.escape(resolve(text, locale));
         }
-        return text;
+        throw new TypeError('Unknown text type');
     }
     function resolve(translatable, locale) {
         var text = translatable.translations[locale];

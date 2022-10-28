@@ -1,5 +1,5 @@
 import { isInstanceOf } from '../helpers'
-import { Text } from './elements'
+import { PropsUIRadioItem, Text } from './elements'
 
 export type PropsUIPrompt =
   PropsUIPromptFileInput |
@@ -36,7 +36,7 @@ export interface PropsUIPromptRadioInput {
   __type__: 'PropsUIPromptRadioInput'
   title: Text
   description: Text
-  items: string[]
+  items: PropsUIRadioItem[]
 }
 export function isPropsUIPromptRadioInput (arg: any): arg is PropsUIPromptRadioInput {
   return isInstanceOf<PropsUIPromptRadioInput>(arg, 'PropsUIPromptRadioInput', ['title', 'description', 'items'])
@@ -46,9 +46,10 @@ export interface PropsUIPromptConsentForm {
   title: Text
   description: Text
   tables: PropsUIPromptConsentFormTable[]
+  metaTables: PropsUIPromptConsentFormTable[]
 }
 export function isPropsUIPromptConsentForm (arg: any): arg is PropsUIPromptConsentForm {
-  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', ['title', 'description', 'tables'])
+  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', ['title', 'description', 'tables', 'metaTables'])
 }
 
 export interface PropsUIPromptConsentFormTable {
