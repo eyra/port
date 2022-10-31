@@ -50,6 +50,9 @@ export function isPropsUIButtonPrimary(arg) {
 export function isPropsUIButtonSecundary(arg) {
     return isInstanceOf(arg, 'PropsUIButtonSecundary', ['label', 'color', 'onClick']);
 }
+export function isPropsUIButtonBack(arg) {
+    return isInstanceOf(arg, 'PropsUIButtonBack', ['label', 'onClick']);
+}
 export function isPropsUIButtonForward(arg) {
     return isInstanceOf(arg, 'PropsUIButtonForward', ['label', 'onClick']);
 }
@@ -69,7 +72,7 @@ export function isPropsUIHeader(arg) {
     return isInstanceOf(arg, 'PropsUIHeader', ['title']);
 }
 export function isPropsUITable(arg) {
-    return isInstanceOf(arg, 'PropsUITable', ['readOnly', 'id', 'head', 'body']);
+    return isInstanceOf(arg, 'PropsUITable', ['readOnly', 'pageSize', 'id', 'head', 'body']);
 }
 export function isPropsUITableHead(arg) {
     return isInstanceOf(arg, 'PropsUITableHead', ['cells']);

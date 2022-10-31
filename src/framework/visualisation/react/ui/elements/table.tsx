@@ -2,30 +2,54 @@ import _ from 'lodash'
 import React from 'react'
 import { Weak } from '../../../../helpers'
 import { PropsUITable, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
-import { PrimaryButton, SecondaryButton } from './button'
+import { BackButton, ForwardButton, PrimaryButton, SecondaryButton } from './button'
 import { CheckBox } from './check_box'
-import { BodyMedium, Title6 } from './text'
+import { BodyLarge, BodyMedium, Title6 } from './text'
 
 type Props = Weak<PropsUITable> & TableContext
 
 export interface TableContext {
-  onChange: (table: PropsUITable) => void
+  onChange: (id: string, rows: PropsUITableRow[]) => void
 }
 
-export const Table = ({ readOnly = false, id, head, body, onChange }: Props): JSX.Element => {
+interface Page {
+  index: number
+  rows: PropsUITableRow[]
+}
+
+export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange }: Props): JSX.Element => {
+  const [editMode, setEditMode] = React.useState<boolean>(false)
+  const [rows, setRows] = React.useState<PropsUITableRow[]>(body.rows)
+  const [pages, setPages] = React.useState<Page[]>(createPages(rows))
+  const [currentPage, setCurrentPage] = React.useState<Page>(pages[0])
   const [selectedRows, setSelectedRows] = React.useState<number[]>([])
+
+  function createPages (rows: PropsUITableRow[]): Page[] {
+    if (rows.length === 0) {
+      return [{ index: 0, rows }]
+    }
+
+    return _
+      .range(0, Math.ceil(rows.length / pageSize))
+      .map((index) => { return { index, rows: createPage(index, rows) } })
+  }
+
+  function createPage (page: number, rows: PropsUITableRow[]): PropsUITableRow[] {
+    const offset = page * pageSize
+    return rows.slice(offset, offset + pageSize)
+  }
 
   function renderHeadRow (props: Weak<PropsUITableHead>): JSX.Element {
     return (
       <tr>
-        {readOnly ? '' : renderHeadCheck()}
+        {editMode ? renderHeadCheck() : ''}
         {props.cells.map((cell, index) => renderHeadCell(cell, index))}
       </tr>
     )
   }
 
   function renderHeadCheck (): JSX.Element {
-    const selected = selectedRows.length > 0 && selectedRows.length === body.rows.length
+    const selected = selectedRows.length > 0 && selectedRows.length === currentPage.rows.length
     return (
       <td key='check-head'>
         <CheckBox id={-1} selected={selected} onSelect={() => handleSelectHead()} />
@@ -48,7 +72,7 @@ export const Table = ({ readOnly = false, id, head, body, onChange }: Props): JS
   function renderRow (row: PropsUITableRow, rowIndex: number): JSX.Element {
     return (
       <tr key={`${rowIndex}`} className='hover:bg-grey5'>
-        {readOnly ? '' : renderRowCheck(rowIndex)}
+        {editMode ? renderRowCheck(rowIndex) : ''}
         {row.cells.map((cell, cellIndex) => renderRowCell(cell, cellIndex))}
       </tr>
     )
@@ -72,7 +96,7 @@ export const Table = ({ readOnly = false, id, head, body, onChange }: Props): JS
   }
 
   function handleSelectHead (): void {
-    const allRowsSelected = selectedRows.length === body.rows.length
+    const allRowsSelected = selectedRows.length === currentPage.rows.length
     if (allRowsSelected) {
       setSelectedRows([])
     } else {
@@ -92,44 +116,98 @@ export const Table = ({ readOnly = false, id, head, body, onChange }: Props): JS
   }
 
   function handleSelectAll (): void {
-    const range = _.range(0, body.rows.length)
+    const range = _.range(0, currentPage.rows.length)
     setSelectedRows(range)
   }
 
+  function handlePrevious (): void {
+    const index = currentPage.index === 0 ? pages.length - 1 : currentPage.index - 1
+    setSelectedRows([])
+    setCurrentPage(pages[index])
+  }
+
+  function handleNext (): void {
+    const index = currentPage.index === pages.length - 1 ? 0 : currentPage.index + 1
+    setSelectedRows([])
+    setCurrentPage(pages[index])
+  }
+
   function handleDeleteSelected (): void {
-    const currentSelectedRows = selectedRows.slice(0)
-    currentSelectedRows.sort((n1, n2) => n2 - n1)
-    const newRows = body.rows.slice(0)
+    const currentSelectedRows = selectedRows.slice(0).sort((n1, n2) => n2 - n1)
+    const newRows = rows.slice(0)
+    const offset = currentPage.index * pageSize
+
     for (const rowIndex of currentSelectedRows) {
-      newRows.splice(rowIndex, 1)
+      const start = offset + rowIndex
+      newRows.splice(start, 1)
     }
 
+    const newPages = createPages(newRows)
+    const newCurrentPageIndex = Math.min(newPages.length - 1, currentPage.index)
+    const newCurrentPage = newPages[newCurrentPageIndex]
+
+    updateRows(newRows)
+
+    setRows(newRows)
+    setPages(newPages)
+    setCurrentPage(newCurrentPage)
     setSelectedRows([])
-    onChange({
-      __type__: 'PropsUITable',
-      id,
-      head,
-      body: {
-        __type__: 'PropsUITableBody',
-        rows: newRows
-      }
-    })
+
+    onChange(id, newRows)
+  }
+
+  function updateRows (rows: PropsUITableRow[]): void {
+    const newPages = createPages(rows)
+    const newCurrentPageIndex = Math.min(newPages.length, currentPage.index)
+    const newCurrentPage = newPages[newCurrentPageIndex]
+
+    setRows(rows)
+    setPages(newPages)
+    setCurrentPage(newCurrentPage)
+    setSelectedRows([])
+
+    onChange(id, rows)
+  }
+
+  function handleUndo (): void {
+    updateRows(body.rows)
   }
 
   return (
     <>
-      <div className={`flex flex-row gap-4 ${readOnly ? 'hidden' : 'block'}`}>
-        <PrimaryButton label='Select all' onClick={handleSelectAll} />
-        <SecondaryButton label='Delete selected' onClick={handleDeleteSelected} />
+      <div className={`${rows.length === 0 ? 'hidden' : ''}`}>
+        <div className={`${readOnly ? 'hidden' : ''}`}>
+          <div className={`flex flex-row gap-4 ${!editMode ? '' : 'hidden'}`}>
+            <PrimaryButton label='Edit' onClick={() => setEditMode(true)} color='bg-delete text-white' />
+          </div>
+          <div className={`flex flex-row gap-4 ${editMode ? '' : 'hidden'}`}>
+            <PrimaryButton label='Select all' onClick={handleSelectAll} />
+            <SecondaryButton label='Delete' onClick={handleDeleteSelected} />
+            <SecondaryButton label='Undo' onClick={handleUndo} color='text-grey1' />
+          </div>
+        </div>
+        <div className='mb-4' />
+        <table className='text-grey1 table-auto '>
+          <thead>
+            {renderHeadRow(head)}
+          </thead>
+          <tbody>
+            {renderRows(currentPage.rows)}
+          </tbody>
+        </table>
+        <div className='mb-2' />
+        <div className={`flex flex-row gap-4 ${rows.length <= pageSize ? 'hidden' : ''} `}>
+          <BackButton label='Previous' onClick={handlePrevious} />
+          <div>{currentPage.index + 1} / {pages.length}</div>
+          <ForwardButton label='Next' onClick={handleNext} />
+        </div>
       </div>
-      <table className='text-grey1 table-auto border-collapse overflow-hidden'>
-        <thead>
-          {renderHeadRow(head)}
-        </thead>
-        <tbody>
-          {renderRows(body.rows)}
-        </tbody>
-      </table>
+      <div className={`flex flex-col gap-4 ${rows.length === 0 ? '' : 'hidden'}`}>
+        <div className={`flex flex-row gap-4 ${body.rows.length > 0 ? '' : 'hidden'}`}>
+          <SecondaryButton label='Undo' onClick={handleUndo} color='text-grey1' />
+        </div>
+        <BodyLarge text='Table is empty' />
+      </div>
     </>
   )
 }

@@ -138,6 +138,15 @@ export function isPropsUIButtonSecundary (arg: any): arg is PropsUIButtonSecunda
   return isInstanceOf<PropsUIButtonSecundary>(arg, 'PropsUIButtonSecundary', ['label', 'color', 'onClick'])
 }
 
+export interface PropsUIButtonBack {
+  __type__: 'PropsUIButtonBack'
+  label: string
+  onClick: () => void
+}
+export function isPropsUIButtonBack (arg: any): arg is PropsUIButtonBack {
+  return isInstanceOf<PropsUIButtonBack>(arg, 'PropsUIButtonBack', ['label', 'onClick'])
+}
+
 export interface PropsUIButtonForward {
   __type__: 'PropsUIButtonForward'
   label: string
@@ -150,6 +159,7 @@ export function isPropsUIButtonForward (arg: any): arg is PropsUIButtonForward {
 export interface PropsUIButtonLabel {
   __type__: 'PropsUIButtonLabel'
   label: string
+  color?: string
   onClick: () => void
 }
 export function isPropsUIButtonLabel (arg: any): arg is PropsUIButtonLabel {
@@ -203,13 +213,14 @@ export function isPropsUIHeader (arg: any): arg is PropsUIHeader {
 
 export interface PropsUITable {
   __type__: 'PropsUITable'
-  readOnly?: boolean
   id: string
   head: PropsUITableHead
   body: PropsUITableBody
+  readOnly?: boolean
+  pageSize?: number
 }
 export function isPropsUITable (arg: any): arg is PropsUITable {
-  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', ['readOnly', 'id', 'head', 'body'])
+  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', ['readOnly', 'pageSize', 'id', 'head', 'body'])
 }
 
 export interface PropsUITableHead {

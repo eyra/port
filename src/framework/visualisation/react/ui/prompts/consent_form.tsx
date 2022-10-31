@@ -18,7 +18,8 @@ interface TableContext {
 }
 
 export const ConsentForm = (props: Props): JSX.Element => {
-  const [tables, setTables] = React.useState<Array<PropsUITable & TableContext>>(parseTables(props.tables))
+  const tablesIn = parseTables(props.tables)
+  const [tablesOut, setTablesOut] = React.useState<Array<PropsUITable & TableContext>>(tablesIn)
   const [metaTablesVisible, setMetaTablesVisible] = React.useState<boolean>(false)
   const metaTables = parseTables(props.metaTables)
 
@@ -85,15 +86,16 @@ export const ConsentForm = (props: Props): JSX.Element => {
     )
   }
 
-  function handleTableChange ({ id, head, body }: PropsUITable): void {
-    const tablesCopy = tables.slice(0)
+  function handleTableChange (id: string, rows: PropsUITableRow[]): void {
+    const tablesCopy = tablesOut.slice(0)
     const index = tablesCopy.findIndex(table => table.id === id)
     if (index > -1) {
-      const { title, body: oldBody, deletedRowCount: oldDeletedRowCount } = tablesCopy[index]
-      const deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - body.rows.length)
+      const { title, head, body: oldBody, deletedRowCount: oldDeletedRowCount } = tablesCopy[index]
+      const body: PropsUITableBody = { __type__: 'PropsUITableBody', rows }
+      const deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - rows.length)
       tablesCopy[index] = { __type__: 'PropsUITable', id, head, body, title, deletedRowCount }
     }
-    setTables(tablesCopy)
+    setTablesOut(tablesCopy)
   }
 
   function handleDonate (): void {
@@ -111,7 +113,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   }
 
   function serializeTables (): any[] {
-    return tables.map((table) => serializeTable(table))
+    return tablesOut.map((table) => serializeTable(table))
   }
 
   function serializeMetaTables (): any[] {
@@ -119,7 +121,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   }
 
   function serializeDeletedMetaData (): any {
-    const rawData = tables
+    const rawData = tablesOut
       .filter(({ deletedRowCount }) => deletedRowCount > 0)
       .map(({ id, deletedRowCount }) => `User deleted ${deletedRowCount} rows from table: ${id}`)
 
@@ -144,7 +146,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
       <Title1 text={title} />
       <BodyLarge text={description} />
       <div className='flex flex-col gap-8'>
-        {tables.map((table) => renderTable(table))}
+        {tablesIn.map((table) => renderTable(table))}
         {metaTablesVisible ? metaTables.map((table) => renderTable(table, true)) : <div />}
         <div className='flex flex-row gap-4 mt-2'>
           {metaTablesVisible ? '' : <PrimaryButton label='Show meta data' onClick={() => { setMetaTablesVisible(true) }} />}
