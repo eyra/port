@@ -13,19 +13,16 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import * as React from 'react';
 import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
-import { ForwardButton, PrimaryButton } from '../elements/button';
+import { PrimaryButton } from '../elements/button';
 export var FileInput = function (props) {
     var _a = React.useState(), selectedFile = _a[0], setSelectedFile = _a[1];
     var _b = React.useState(true), confirmHidden = _b[0], setConfirmHidden = _b[1];
     var input = React.useRef(null);
     var resolve = props.resolve;
-    var _c = prepareCopy(props), title = _c.title, description = _c.description, extensions = _c.extensions, selectButton = _c.selectButton, continueButton = _c.continueButton, forwardButton = _c.forwardButton;
+    var _c = prepareCopy(props), title = _c.title, description = _c.description, extensions = _c.extensions, selectButton = _c.selectButton, continueButton = _c.continueButton;
     function handleClick() {
         var _a;
         (_a = input.current) === null || _a === void 0 ? void 0 : _a.click();
-    }
-    function handleSkip() {
-        resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFalse', value: false });
     }
     function handleSelect(event) {
         var files = event.target.files;
@@ -34,7 +31,7 @@ export var FileInput = function (props) {
             setConfirmHidden(false);
         }
         else {
-            console.log('Error selecting file: ' + JSON.stringify(files));
+            console.log('[FileInput] Error selecting file: ' + JSON.stringify(files));
         }
     }
     function handleConfirm() {
@@ -42,7 +39,7 @@ export var FileInput = function (props) {
             resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFile', value: selectedFile });
         }
     }
-    return (_jsxs(_Fragment, { children: [_jsx("div", __assign({ className: 'text-title5 font-title5 sm:text-title4 sm:font-title4 lg:text-title3 lg:font-title3 text-grey1' }, { children: title })), _jsx("div", { className: 'mt-8' }), _jsxs("div", __assign({ id: 'select-panel' }, { children: [_jsx("div", __assign({ className: 'flex-wrap text-bodylarge font-body text-grey1 text-left' }, { children: description })), _jsx("div", { className: 'mt-4' }), _jsxs("div", __assign({ className: 'flex flex-row items-center gap-4' }, { children: [_jsx("div", __assign({ className: 'flex-wrap cursor-pointer' }, { children: _jsx("div", __assign({ id: 'select-button', className: 'pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 bg-primary text-white', onClick: handleClick }, { children: selectButton })) })), _jsx("div", __assign({ className: 'flex-wrap' }, { children: _jsx("div", __assign({ id: 'selected-filename', className: 'flex-wrap text-subhead font-subhead text-grey1' }, { children: selectedFile === null || selectedFile === void 0 ? void 0 : selectedFile.name })) }))] })), _jsx("input", { ref: input, id: 'input', type: 'file', className: 'hidden', accept: extensions, onChange: handleSelect })] })), _jsx("div", { className: 'mt-10' }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx("div", __assign({ className: confirmHidden ? 'hidden' : '' }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleConfirm, color: 'bg-tertiary text-grey1' }) })), _jsx(ForwardButton, { label: forwardButton, onClick: handleSkip })] }))] }));
+    return (_jsxs(_Fragment, { children: [_jsx("div", __assign({ className: 'text-title5 font-title5 sm:text-title4 sm:font-title4 lg:text-title3 lg:font-title3 text-grey1' }, { children: title })), _jsx("div", { className: 'mt-8' }), _jsxs("div", __assign({ id: 'select-panel' }, { children: [_jsx("div", __assign({ className: 'flex-wrap text-bodylarge font-body text-grey1 text-left' }, { children: description })), _jsx("div", { className: 'mt-4' }), _jsxs("div", __assign({ className: 'flex flex-row items-center gap-4' }, { children: [_jsx("div", __assign({ className: 'flex-wrap cursor-pointer' }, { children: _jsx("div", __assign({ id: 'select-button', className: 'pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 bg-primary text-white', onClick: handleClick }, { children: selectButton })) })), _jsx("div", __assign({ className: 'flex-wrap' }, { children: _jsx("div", __assign({ id: 'selected-filename', className: 'flex-wrap text-subhead font-subhead text-grey1' }, { children: selectedFile === null || selectedFile === void 0 ? void 0 : selectedFile.name })) }))] })), _jsx("input", { ref: input, id: 'input', type: 'file', className: 'hidden', accept: extensions, onChange: handleSelect })] })), _jsx("div", { className: 'mt-10' }), _jsx("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: _jsx("div", __assign({ className: confirmHidden ? 'hidden' : '' }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleConfirm, color: 'bg-tertiary text-grey1' }) })) }))] }));
 };
 function prepareCopy(_a) {
     var title = _a.title, description = _a.description, extensions = _a.extensions, locale = _a.locale;
@@ -51,8 +48,7 @@ function prepareCopy(_a) {
         description: Translator.translate(description, locale),
         extensions: extensions,
         selectButton: Translator.translate(selectButtonLabel(), locale),
-        continueButton: Translator.translate(continueButtonLabel(), locale),
-        forwardButton: Translator.translate(forwardButtonLabel(), locale)
+        continueButton: Translator.translate(continueButtonLabel(), locale)
     };
 }
 var continueButtonLabel = function () {
@@ -64,9 +60,4 @@ var selectButtonLabel = function () {
     return new TextBundle()
         .add('en', 'Choose file')
         .add('nl', 'Kies bestand');
-};
-var forwardButtonLabel = function () {
-    return new TextBundle()
-        .add('en', 'Skip this step')
-        .add('nl', 'Sla deze stap over');
 };

@@ -12,7 +12,12 @@ export const isLike = <T>(
   arg: any,
   properties: Array<keyof T>
 ): arg is T => {
-  return !properties.some((property) => (arg as T)[property] === undefined)
+  properties.forEach((property) => assert((arg as T)[property] !== undefined, `Property ${String(property)} is required`))
+  return true
+}
+
+export function assert (condition: unknown, msg?: string): asserts condition {
+  if (condition === false) throw new Error(msg)
 }
 
 export type Weak<T> = Omit<T, '__type__'>

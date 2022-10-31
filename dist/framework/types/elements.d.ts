@@ -1,8 +1,7 @@
-import { Weak } from '../helpers';
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
-export declare type PropsUI = PropsUIText | PropsUIButton | PropsUISpinner | PropsUIHeader | PropsUITable | PropsUIPage | PropsUIPrompt;
-export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextBodyLarge;
+export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIHeader | PropsUITable | PropsUIPage | PropsUIPrompt;
+export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle6 | PropsUITextBodyLarge;
 export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonForward | PropsUIButtonLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
 export declare function isPropsUIText(arg: any): arg is PropsUIText;
@@ -13,6 +12,13 @@ export interface PropsUITextBodyLarge {
     margin?: string;
 }
 export declare function isPropsUITextBodyLarge(arg: any): arg is PropsUITextBodyLarge;
+export interface PropsUITextBodyMedium {
+    __type__: 'PropsUITextBodyMedium';
+    text: string;
+    color?: string;
+    margin?: string;
+}
+export declare function isPropsUITextBodyMedium(arg: any): arg is PropsUITextBodyMedium;
 export interface PropsUITextTitle0 {
     __type__: 'PropsUITextTitle0';
     text: string;
@@ -34,6 +40,13 @@ export interface PropsUITextTitle2 {
     margin?: string;
 }
 export declare function isPropsUITextTitle2(arg: any): arg is PropsUITextTitle2;
+export interface PropsUITextTitle6 {
+    __type__: 'PropsUITextTitle6';
+    text: string;
+    color?: string;
+    margin?: string;
+}
+export declare function isPropsUITextTitle6(arg: any): arg is PropsUITextTitle6;
 export declare function isPropsUIButton(arg: any): arg is PropsUIButton;
 export interface PropsUIButtonPrimary {
     __type__: 'PropsUIButtonPrimary';
@@ -61,6 +74,19 @@ export interface PropsUIButtonLabel {
     onClick: () => void;
 }
 export declare function isPropsUIButtonLabel(arg: any): arg is PropsUIButtonLabel;
+export interface PropsUIRadioItem {
+    id: number;
+    value: string;
+    selected: boolean;
+    onSelect: () => void;
+}
+export declare function isPropsUIRadioItem(arg: any): arg is PropsUIRadioItem;
+export interface PropsUICheckBox {
+    id: number;
+    selected: boolean;
+    onSelect: () => void;
+}
+export declare function isPropsUICheckBox(arg: any): arg is PropsUICheckBox;
 export interface PropsUISpinner {
     __type__: 'PropsUISpinner';
     text: Text;
@@ -73,19 +99,20 @@ export interface PropsUIHeader {
 export declare function isPropsUIHeader(arg: any): arg is PropsUIHeader;
 export interface PropsUITable {
     __type__: 'PropsUITable';
+    readOnly?: boolean;
     id: string;
-    head: Weak<PropsUITableHead>;
-    body: Weak<PropsUITableBody>;
+    head: PropsUITableHead;
+    body: PropsUITableBody;
 }
 export declare function isPropsUITable(arg: any): arg is PropsUITable;
 export interface PropsUITableHead {
     __type__: 'PropsUITableHead';
     cells: PropsUITableCell[];
 }
-export declare function isPropsUITableHeader(arg: any): arg is PropsUITableHead;
+export declare function isPropsUITableHead(arg: any): arg is PropsUITableHead;
 export interface PropsUITableBody {
     __type__: 'PropsUITableBody';
-    rows: Weak<PropsUITableRow[]>;
+    rows: PropsUITableRow[];
 }
 export declare function isPropsUITableBody(arg: any): arg is PropsUITableBody;
 export interface PropsUITableRow {

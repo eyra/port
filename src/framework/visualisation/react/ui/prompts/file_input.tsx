@@ -5,7 +5,7 @@ import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 import { PropsUIPromptFileInput } from '../../../../types/prompts'
-import { ForwardButton, PrimaryButton } from '../elements/button'
+import { PrimaryButton } from '../elements/button'
 
 type Props = Weak<PropsUIPromptFileInput> & ReactFactoryContext
 
@@ -15,14 +15,10 @@ export const FileInput = (props: Props): JSX.Element => {
   const input = React.useRef<HTMLInputElement>(null)
 
   const { resolve } = props
-  const { title, description, extensions, selectButton, continueButton, forwardButton } = prepareCopy(props)
+  const { title, description, extensions, selectButton, continueButton } = prepareCopy(props)
 
   function handleClick (): void {
     input.current?.click()
-  }
-
-  function handleSkip (): void {
-    resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
   function handleSelect (event: React.ChangeEvent<HTMLInputElement>): void {
@@ -31,7 +27,7 @@ export const FileInput = (props: Props): JSX.Element => {
       setSelectedFile(files[0])
       setConfirmHidden(false)
     } else {
-      console.log('Error selecting file: ' + JSON.stringify(files))
+      console.log('[FileInput] Error selecting file: ' + JSON.stringify(files))
     }
   }
 
@@ -71,7 +67,6 @@ export const FileInput = (props: Props): JSX.Element => {
         <div className={confirmHidden ? 'hidden' : ''}>
           <PrimaryButton label={continueButton} onClick={handleConfirm} color='bg-tertiary text-grey1' />
         </div>
-        <ForwardButton label={forwardButton} onClick={handleSkip} />
       </div>
     </>
   )
@@ -83,7 +78,6 @@ interface Copy {
   extensions: string
   selectButton: string
   continueButton: string
-  forwardButton: string
 }
 
 function prepareCopy ({ title, description, extensions, locale }: Props): Copy {
@@ -92,8 +86,7 @@ function prepareCopy ({ title, description, extensions, locale }: Props): Copy {
     description: Translator.translate(description, locale),
     extensions: extensions,
     selectButton: Translator.translate(selectButtonLabel(), locale),
-    continueButton: Translator.translate(continueButtonLabel(), locale),
-    forwardButton: Translator.translate(forwardButtonLabel(), locale)
+    continueButton: Translator.translate(continueButtonLabel(), locale)
   }
 }
 
@@ -107,10 +100,4 @@ const selectButtonLabel = (): Translatable => {
   return new TextBundle()
     .add('en', 'Choose file')
     .add('nl', 'Kies bestand')
-}
-
-const forwardButtonLabel = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Skip this step')
-    .add('nl', 'Sla deze stap over')
 }

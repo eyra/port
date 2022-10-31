@@ -5,10 +5,13 @@ export const Translator = (function () {
   const defaultLocale: string = 'nl'
 
   function translate (text: Text, locale: string): string {
+    if (typeof text === 'string') {
+      return text
+    }
     if (isTranslatable(text)) {
       return _.escape(resolve(text, locale))
     }
-    return text
+    throw new TypeError('Unknown text type')
   }
 
   function resolve (translatable: Translatable, locale: string): string {

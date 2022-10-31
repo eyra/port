@@ -104,18 +104,18 @@ class CommandUIRender:
     return dict
 
 class CommandSystemDonate:
-  __slots__ = "key", "data"
-  def __init__(self, key, data):
+  __slots__ = "key", "json_string"
+  def __init__(self, key, json_string):
     self.key = key
-    self.data = data
+    self.json_string = json_string
   def toDict(self):
     dict = {}
     dict["__type__"] = "CommandSystemDonate"
     dict["key"] = self.key
-    dict["data"] = self.data
+    dict["json_string"] = self.json_string
     return dict
 
-
+      
 class PropsUIHeader:
   __slots__ = "title"
   def __init__(self, title):
@@ -154,22 +154,29 @@ class PropsUISpinner:
 
 
 class PropsUIPromptConsentForm:
-  __slots__ = "title", "description", "tables"
-  def __init__(self, title, description, tables):
+  __slots__ = "title", "description", "tables", "meta_tables"
+  def __init__(self, title, description, tables, meta_tables):
     self.title = title
     self.description = description            
     self.tables = tables
+    self.meta_tables = meta_tables
   def translate_tables(self):
-    tables_output = []
+    output = []
     for table in self.tables:
-      tables_output.append(table.toDict())
-    return tables_output
+      output.append(table.toDict())
+    return output
+  def translate_meta_tables(self):
+    output = []
+    for table in self.meta_tables:
+      output.append(table.toDict())
+    return output
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPromptConsentForm"
     dict["title"] = self.title.toDict()
     dict["description"] = self.description.toDict()
     dict["tables"] = self.translate_tables()
+    dict["metaTables"] = self.translate_meta_tables()
     return dict
 
 

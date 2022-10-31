@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { Weak } from '../../../../helpers'
-import { Translatable } from '../../../../types/elements'
+import { PropsUIRadioItem, Translatable } from '../../../../types/elements'
 import TextBundle from '../../../../text_bundle'
-import RadioSvg from '../../../../../assets/images/spinner.svg'
-import RadioActiveSvg from '../../../../../assets/images/radio_active.svg'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 import { PropsUIPromptRadioInput } from '../../../../types/prompts'
+import { RadioItem } from '../elements/radio_item'
 
 interface Copy {
   title: string
@@ -24,8 +23,6 @@ function prepareCopy ({ title, description, locale }: Props): Copy {
   }
 }
 
-export const RadioInputFactory = (props: Props): JSX.Element => <RadioInput {...props} />
-
 export const RadioInput = (props: Props): JSX.Element => {
   const [selectedId, setSelectedId] = React.useState<number>(-1)
   const [confirmHidden, setConfirmHidden] = React.useState<boolean>(true)
@@ -41,8 +38,12 @@ export const RadioInput = (props: Props): JSX.Element => {
   function handleConfirm (): void {
     const item = items.at(selectedId)
     if (item !== undefined) {
-      resolve?.({ __type__: 'PayloadString', value: item })
+      resolve?.({ __type__: 'PayloadString', value: item.value })
     }
+  }
+
+  function renderItems (items: PropsUIRadioItem[]): JSX.Element[] {
+    return items.map((item, index) => <RadioItem key={index} onSelect={() => handleSelect(index)} id={index} value={item.value} selected={selectedId === index} />)
   }
 
   return (
@@ -58,7 +59,7 @@ export const RadioInput = (props: Props): JSX.Element => {
         <div className='mt-4' />
         <div>
           <div id='radio-group' className='flex flex-col gap-3'>
-            {items.map((value, index) => <RadioItem key={index} onSelect={handleSelect} id={index} value={value} selected={selectedId === index} />)}
+            {renderItems(items)}
           </div>
         </div>
       </div>
@@ -78,25 +79,4 @@ const continueButtonLabel = (): Translatable => {
   return new TextBundle()
     .add('en', 'Continue')
     .add('nl', 'Doorgaan')
-}
-
-export interface RadioItemProps {
-  id: number
-  value: string
-  selected: boolean
-  onSelect: (id: number) => void
-}
-
-export const RadioItem = ({ id, value, selected, onSelect }: RadioItemProps): JSX.Element => {
-  return (
-    <div id={`${id}`} className='radio-item flex flex-row gap-3 items-center cursor-pointer' onClick={() => onSelect(id)}>
-      <div>
-        <img src={RadioSvg} id={`${id}-off`} className={selected ? 'hidden' : ''} />
-        <img src={RadioActiveSvg} id={`${id}-on`} className={selected ? '' : 'hidden'} />
-      </div>
-      <div className='text-grey1 text-label font-label select-none mt-1'>
-        {value}
-      </div>
-    </div>
-  )
 }
