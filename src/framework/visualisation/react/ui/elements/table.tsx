@@ -4,6 +4,7 @@ import { Weak } from '../../../../helpers'
 import { PropsUITable, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
 import { BackButton, ForwardButton, PrimaryButton, SecondaryButton } from './button'
 import { CheckBox } from './check_box'
+import { SearchBar } from './search_bar'
 import { BodyLarge, BodyMedium, Title6 } from './text'
 
 type Props = Weak<PropsUITable> & TableContext
@@ -19,10 +20,12 @@ interface Page {
 
 export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange }: Props): JSX.Element => {
   const [editMode, setEditMode] = React.useState<boolean>(false)
-  const [rows, setRows] = React.useState<PropsUITableRow[]>(body.rows)
-  const [pages, setPages] = React.useState<Page[]>(createPages(rows))
+  const [query, setQuery] = React.useState<string[]>([])
+  const [alteredRows, setAlteredRows] = React.useState<PropsUITableRow[]>(body.rows)
+  const [filteredRows, setFilteredRows] = React.useState<PropsUITableRow[]>(alteredRows)
+  const [pages, setPages] = React.useState<Page[]>(createPages(filteredRows))
   const [currentPage, setCurrentPage] = React.useState<Page>(pages[0])
-  const [selectedRows, setSelectedRows] = React.useState<number[]>([])
+  const [selectedRows, setSelectedRows] = React.useState<string[]>([])
 
   function createPages (rows: PropsUITableRow[]): Page[] {
     if (rows.length === 0) {
@@ -52,7 +55,7 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
     const selected = selectedRows.length > 0 && selectedRows.length === currentPage.rows.length
     return (
       <td key='check-head'>
-        <CheckBox id={-1} selected={selected} onSelect={() => handleSelectHead()} />
+        <CheckBox id='-1' selected={selected} onSelect={() => handleSelectHead()} />
       </td>
     )
   }
@@ -72,17 +75,17 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
   function renderRow (row: PropsUITableRow, rowIndex: number): JSX.Element {
     return (
       <tr key={`${rowIndex}`} className='hover:bg-grey5'>
-        {editMode ? renderRowCheck(rowIndex) : ''}
+        {editMode ? renderRowCheck(row.id) : ''}
         {row.cells.map((cell, cellIndex) => renderRowCell(cell, cellIndex))}
       </tr>
     )
   }
 
-  function renderRowCheck (rowIndex: number): JSX.Element {
-    const selected = selectedRows.includes(rowIndex)
+  function renderRowCheck (rowId: string): JSX.Element {
+    const selected = selectedRows.includes(rowId)
     return (
-      <td key={`check-${rowIndex}`} className='w-8 min-w-8'>
-        <CheckBox id={rowIndex} selected={selected} onSelect={() => handleSelectRow(rowIndex)} />
+      <td key={`check-${rowId}`} className='w-8 min-w-8'>
+        <CheckBox id={rowId} selected={selected} onSelect={() => handleSelectRow(rowId)} />
       </td>
     )
   }
@@ -104,11 +107,11 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
     }
   }
 
-  function handleSelectRow (row: number): void {
+  function handleSelectRow (rowId: string): void {
     const newSelected = selectedRows.slice(0)
-    const index = selectedRows.indexOf(row)
+    const index = selectedRows.indexOf(rowId)
     if (index === -1) {
-      newSelected.push(row)
+      newSelected.push(rowId)
     } else {
       newSelected.splice(index, 1)
     }
@@ -116,8 +119,8 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
   }
 
   function handleSelectAll (): void {
-    const range = _.range(0, currentPage.rows.length)
-    setSelectedRows(range)
+    const allRowIds = currentPage.rows.map((row) => row.id)
+    setSelectedRows(allRowIds)
   }
 
   function handlePrevious (): void {
@@ -133,60 +136,77 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
   }
 
   function handleDeleteSelected (): void {
-    const currentSelectedRows = selectedRows.slice(0).sort((n1, n2) => n2 - n1)
-    const newRows = rows.slice(0)
-    const offset = currentPage.index * pageSize
+    const currentSelectedRows = selectedRows.slice(0)
+    const newAlteredRows = alteredRows.slice(0)
 
-    for (const rowIndex of currentSelectedRows) {
-      const start = offset + rowIndex
-      newRows.splice(start, 1)
+    for (const rowId of currentSelectedRows) {
+      const index = newAlteredRows.findIndex((row) => row.id === rowId)
+      if (index !== -1) {
+        newAlteredRows.splice(index, 1)
+      }
     }
-
-    const newPages = createPages(newRows)
-    const newCurrentPageIndex = Math.min(newPages.length - 1, currentPage.index)
-    const newCurrentPage = newPages[newCurrentPageIndex]
-
-    updateRows(newRows)
-
-    setRows(newRows)
-    setPages(newPages)
-    setCurrentPage(newCurrentPage)
-    setSelectedRows([])
-
-    onChange(id, newRows)
+    updateAlteredRows(newAlteredRows, query)
   }
 
-  function updateRows (rows: PropsUITableRow[]): void {
-    const newPages = createPages(rows)
+  function updateAlteredRows (alteredRows: PropsUITableRow[], query: string[]): void {
+    const filteredRows = filterRows(alteredRows, query)
+    const newPages = createPages(filteredRows)
     const newCurrentPageIndex = Math.min(newPages.length, currentPage.index)
     const newCurrentPage = newPages[newCurrentPageIndex]
 
-    setRows(rows)
+    setAlteredRows(alteredRows)
+    setFilteredRows(filteredRows)
     setPages(newPages)
     setCurrentPage(newCurrentPage)
     setSelectedRows([])
 
-    onChange(id, rows)
+    onChange(id, alteredRows)
+  }
+
+  function filterRows (rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
+    if (query.length === 0) {
+      return rows
+    }
+    return rows.filter((row) => matchRow(row, query))
+  }
+
+  function matchRow (row: PropsUITableRow, query: string[]): boolean {
+    return row.cells.find((cell) => matchCell(cell, query)) !== undefined
+  }
+
+  function matchCell (cell: PropsUITableCell, query: string[]): boolean {
+    return query.find((word) => cell.text.includes(word)) !== undefined
   }
 
   function handleUndo (): void {
-    updateRows(body.rows)
+    updateAlteredRows(body.rows, query)
+  }
+
+  function handleSearch (query: string[]): void {
+    setQuery(query)
+    updateAlteredRows(alteredRows, query)
   }
 
   return (
     <>
-      <div className={`${rows.length === 0 ? 'hidden' : ''}`}>
-        <div className={`${readOnly ? 'hidden' : ''}`}>
-          <div className={`flex flex-row gap-4 ${!editMode ? '' : 'hidden'}`}>
-            <PrimaryButton label='Edit' onClick={() => setEditMode(true)} color='bg-delete text-white' />
-          </div>
-          <div className={`flex flex-row gap-4 ${editMode ? '' : 'hidden'}`}>
-            <PrimaryButton label='Select all' onClick={handleSelectAll} />
-            <SecondaryButton label='Delete' onClick={handleDeleteSelected} />
-            <SecondaryButton label='Undo' onClick={handleUndo} color='text-grey1' />
-          </div>
+      <div className='flex flex-row gap-4'>
+        <div className={`${!editMode && !readOnly ? '' : 'hidden'}`}>
+          <PrimaryButton label='Edit' onClick={() => setEditMode(true)} color='bg-delete text-white' />
         </div>
-        <div className='mb-4' />
+        <div className={`${editMode ? '' : 'hidden'}`}>
+          <PrimaryButton label='Select all' onClick={handleSelectAll} />
+        </div>
+        <div className={`${editMode ? '' : 'hidden'}`}>
+          <SecondaryButton label='Delete' onClick={handleDeleteSelected} />
+        </div>
+        <div className={`${editMode && body.rows.length > 0 ? '' : 'hidden'}`}>
+          <SecondaryButton label='Undo' onClick={handleUndo} color='text-grey1' />
+        </div>
+        <div className={`${alteredRows.length > pageSize ? '' : 'hidden'}`}>
+          <SearchBar placeholder='Search' onSearch={handleSearch} />
+        </div>
+      </div>
+      <div className={`${filteredRows.length === 0 ? 'hidden' : ''}`}>
         <table className='text-grey1 table-auto '>
           <thead>
             {renderHeadRow(head)}
@@ -195,18 +215,17 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
             {renderRows(currentPage.rows)}
           </tbody>
         </table>
-        <div className='mb-2' />
-        <div className={`flex flex-row gap-4 ${rows.length <= pageSize ? 'hidden' : ''} `}>
+        <div className={`flex flex-row gap-4 mt-2 ${filteredRows.length <= pageSize ? 'hidden' : ''} `}>
           <BackButton label='Previous' onClick={handlePrevious} />
           <div>{currentPage.index + 1} / {pages.length}</div>
           <ForwardButton label='Next' onClick={handleNext} />
         </div>
       </div>
-      <div className={`flex flex-col gap-4 ${rows.length === 0 ? '' : 'hidden'}`}>
-        <div className={`flex flex-row gap-4 ${body.rows.length > 0 ? '' : 'hidden'}`}>
-          <SecondaryButton label='Undo' onClick={handleUndo} color='text-grey1' />
-        </div>
-        <BodyLarge text='Table is empty' />
+      <div className={`flex flex-col ${alteredRows.length === 0 ? '' : 'hidden'}`}>
+        <BodyLarge text='Empty data set' margin='' />
+      </div>
+      <div className={`flex flex-col ${alteredRows.length > 0 && filteredRows.length === 0 ? '' : 'hidden'}`}>
+        <BodyLarge text='Nothing found' margin='' />
       </div>
     </>
   )
