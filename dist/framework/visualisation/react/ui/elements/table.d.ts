@@ -1,9 +1,9 @@
 /// <reference types="react" />
 import { Weak } from '../../../../helpers';
-import { PropsUITable } from '../../../../types/elements';
+import { PropsUITable, PropsUITableRow } from '../../../../types/elements';
 declare type Props = Weak<PropsUITable> & TableContext;
 export interface TableContext {
-    onChange: (table: PropsUITable) => void;
+    onChange: (id: string, rows: PropsUITableRow[]) => void;
 }
-export declare const Table: ({ readOnly, id, head, body, onChange }: Props) => JSX.Element;
+export declare const Table: ({ id, head, body, readOnly, pageSize, onChange }: Props) => JSX.Element;
 export {};

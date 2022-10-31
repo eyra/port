@@ -62,6 +62,12 @@ export interface PropsUIButtonSecundary {
     onClick: () => void;
 }
 export declare function isPropsUIButtonSecundary(arg: any): arg is PropsUIButtonSecundary;
+export interface PropsUIButtonBack {
+    __type__: 'PropsUIButtonBack';
+    label: string;
+    onClick: () => void;
+}
+export declare function isPropsUIButtonBack(arg: any): arg is PropsUIButtonBack;
 export interface PropsUIButtonForward {
     __type__: 'PropsUIButtonForward';
     label: string;
@@ -71,6 +77,7 @@ export declare function isPropsUIButtonForward(arg: any): arg is PropsUIButtonFo
 export interface PropsUIButtonLabel {
     __type__: 'PropsUIButtonLabel';
     label: string;
+    color?: string;
     onClick: () => void;
 }
 export declare function isPropsUIButtonLabel(arg: any): arg is PropsUIButtonLabel;
@@ -99,10 +106,11 @@ export interface PropsUIHeader {
 export declare function isPropsUIHeader(arg: any): arg is PropsUIHeader;
 export interface PropsUITable {
     __type__: 'PropsUITable';
-    readOnly?: boolean;
     id: string;
     head: PropsUITableHead;
     body: PropsUITableBody;
+    readOnly?: boolean;
+    pageSize?: number;
 }
 export declare function isPropsUITable(arg: any): arg is PropsUITable;
 export interface PropsUITableHead {

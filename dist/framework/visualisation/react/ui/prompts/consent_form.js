@@ -19,7 +19,8 @@ import { Translator } from '../../../../translator';
 import React from 'react';
 import _ from 'lodash';
 export var ConsentForm = function (props) {
-    var _a = React.useState(parseTables(props.tables)), tables = _a[0], setTables = _a[1];
+    var tablesIn = parseTables(props.tables);
+    var _a = React.useState(tablesIn), tablesOut = _a[0], setTablesOut = _a[1];
     var _b = React.useState(false), metaTablesVisible = _b[0], setMetaTablesVisible = _b[1];
     var metaTables = parseTables(props.metaTables);
     var resolve = props.resolve;
@@ -74,16 +75,16 @@ export var ConsentForm = function (props) {
         if (readOnly === void 0) { readOnly = false; }
         return (_jsxs("div", __assign({ className: 'flex flex-col gap-2' }, { children: [_jsx(Title2, { text: table.title }), _jsx(Table, __assign({}, table, { readOnly: readOnly, onChange: handleTableChange }))] }), table.id));
     }
-    function handleTableChange(_a) {
-        var id = _a.id, head = _a.head, body = _a.body;
-        var tablesCopy = tables.slice(0);
+    function handleTableChange(id, rows) {
+        var tablesCopy = tablesOut.slice(0);
         var index = tablesCopy.findIndex(function (table) { return table.id === id; });
         if (index > -1) {
-            var _b = tablesCopy[index], title_1 = _b.title, oldBody = _b.body, oldDeletedRowCount = _b.deletedRowCount;
-            var deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - body.rows.length);
+            var _a = tablesCopy[index], title_1 = _a.title, head = _a.head, oldBody = _a.body, oldDeletedRowCount = _a.deletedRowCount;
+            var body = { __type__: 'PropsUITableBody', rows: rows };
+            var deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - rows.length);
             tablesCopy[index] = { __type__: 'PropsUITable', id: id, head: head, body: body, title: title_1, deletedRowCount: deletedRowCount };
         }
-        setTables(tablesCopy);
+        setTablesOut(tablesCopy);
     }
     function handleDonate() {
         var value = serializeConsentData();
@@ -97,13 +98,13 @@ export var ConsentForm = function (props) {
         return serializeMetaTables().concat(serializeDeletedMetaData());
     }
     function serializeTables() {
-        return tables.map(function (table) { return serializeTable(table); });
+        return tablesOut.map(function (table) { return serializeTable(table); });
     }
     function serializeMetaTables() {
         return metaTables.map(function (table) { return serializeTable(table); });
     }
     function serializeDeletedMetaData() {
-        var rawData = tables
+        var rawData = tablesOut
             .filter(function (_a) {
             var deletedRowCount = _a.deletedRowCount;
             return deletedRowCount > 0;
@@ -127,7 +128,7 @@ export var ConsentForm = function (props) {
         var values = row.cells.map(function (cell) { return cell.text; });
         return _.fromPairs(_.zip(keys, values));
     }
-    return (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [tables.map(function (table) { return renderTable(table); }), metaTablesVisible ? metaTables.map(function (table) { return renderTable(table, true); }) : _jsx("div", {}), _jsxs("div", __assign({ className: 'flex flex-row gap-4 mt-2' }, { children: [metaTablesVisible ? '' : _jsx(PrimaryButton, { label: 'Show meta data', onClick: function () { setMetaTablesVisible(true); } }), _jsx(PrimaryButton, { label: donateButton, onClick: handleDonate, color: 'bg-success text-white' })] }))] }))] }));
+    return (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [tablesIn.map(function (table) { return renderTable(table); }), metaTablesVisible ? metaTables.map(function (table) { return renderTable(table, true); }) : _jsx("div", {}), _jsxs("div", __assign({ className: 'flex flex-row gap-4 mt-2' }, { children: [metaTablesVisible ? '' : _jsx(PrimaryButton, { label: 'Show meta data', onClick: function () { setMetaTablesVisible(true); } }), _jsx(PrimaryButton, { label: donateButton, onClick: handleDonate, color: 'bg-success text-white' })] }))] }))] }));
 };
 function prepareCopy(_a) {
     var title = _a.title, description = _a.description, locale = _a.locale;
