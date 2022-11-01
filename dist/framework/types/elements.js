@@ -81,10 +81,13 @@ export function isPropsUITableBody(arg) {
     return isInstanceOf(arg, 'PropsUITableBody', ['rows']);
 }
 export function isPropsUITableRow(arg) {
-    return isInstanceOf(arg, 'PropsUITableRow', ['cells']);
+    return isInstanceOf(arg, 'PropsUITableRow', ['id', 'cells']);
 }
 export function isPropsUITableCell(arg) {
     return isInstanceOf(arg, 'PropsUITableCell', ['text']);
+}
+export function isPropsUISearchBar(arg) {
+    return isInstanceOf(arg, 'PropsUISearchBar', ['placeholder']);
 }
 export function isText(arg) {
     return typeof arg === 'string' || isTranslatable(arg);

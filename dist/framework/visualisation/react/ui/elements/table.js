@@ -14,14 +14,17 @@ import _ from 'lodash';
 import React from 'react';
 import { BackButton, ForwardButton, PrimaryButton, SecondaryButton } from './button';
 import { CheckBox } from './check_box';
+import { SearchBar } from './search_bar';
 import { BodyLarge, BodyMedium, Title6 } from './text';
 export var Table = function (_a) {
     var id = _a.id, head = _a.head, body = _a.body, _b = _a.readOnly, readOnly = _b === void 0 ? false : _b, _c = _a.pageSize, pageSize = _c === void 0 ? 7 : _c, onChange = _a.onChange;
     var _d = React.useState(false), editMode = _d[0], setEditMode = _d[1];
-    var _e = React.useState(body.rows), rows = _e[0], setRows = _e[1];
-    var _f = React.useState(createPages(rows)), pages = _f[0], setPages = _f[1];
-    var _g = React.useState(pages[0]), currentPage = _g[0], setCurrentPage = _g[1];
-    var _h = React.useState([]), selectedRows = _h[0], setSelectedRows = _h[1];
+    var _e = React.useState([]), query = _e[0], setQuery = _e[1];
+    var _f = React.useState(body.rows), alteredRows = _f[0], setAlteredRows = _f[1];
+    var _g = React.useState(alteredRows), filteredRows = _g[0], setFilteredRows = _g[1];
+    var _h = React.useState(createPages(filteredRows)), pages = _h[0], setPages = _h[1];
+    var _j = React.useState(pages[0]), currentPage = _j[0], setCurrentPage = _j[1];
+    var _k = React.useState([]), selectedRows = _k[0], setSelectedRows = _k[1];
     function createPages(rows) {
         if (rows.length === 0) {
             return [{ index: 0, rows: rows }];
@@ -39,7 +42,7 @@ export var Table = function (_a) {
     }
     function renderHeadCheck() {
         var selected = selectedRows.length > 0 && selectedRows.length === currentPage.rows.length;
-        return (_jsx("td", { children: _jsx(CheckBox, { id: -1, selected: selected, onSelect: function () { return handleSelectHead(); } }) }, 'check-head'));
+        return (_jsx("td", { children: _jsx(CheckBox, { id: '-1', selected: selected, onSelect: function () { return handleSelectHead(); } }) }, 'check-head'));
     }
     function renderHeadCell(props, index) {
         return (_jsx("th", __assign({ className: 'px-2 pt-3 pb-13px text-left' }, { children: _jsx(Title6, { text: props.text, margin: '' }) }), "".concat(index)));
@@ -48,11 +51,11 @@ export var Table = function (_a) {
         return rows.map(function (row, index) { return renderRow(row, index); });
     }
     function renderRow(row, rowIndex) {
-        return (_jsxs("tr", __assign({ className: 'hover:bg-grey5' }, { children: [editMode ? renderRowCheck(rowIndex) : '', row.cells.map(function (cell, cellIndex) { return renderRowCell(cell, cellIndex); })] }), "".concat(rowIndex)));
+        return (_jsxs("tr", __assign({ className: 'hover:bg-grey5' }, { children: [editMode ? renderRowCheck(row.id) : '', row.cells.map(function (cell, cellIndex) { return renderRowCell(cell, cellIndex); })] }), "".concat(rowIndex)));
     }
-    function renderRowCheck(rowIndex) {
-        var selected = selectedRows.includes(rowIndex);
-        return (_jsx("td", __assign({ className: 'w-8 min-w-8' }, { children: _jsx(CheckBox, { id: rowIndex, selected: selected, onSelect: function () { return handleSelectRow(rowIndex); } }) }), "check-".concat(rowIndex)));
+    function renderRowCheck(rowId) {
+        var selected = selectedRows.includes(rowId);
+        return (_jsx("td", __assign({ className: 'w-8 min-w-8' }, { children: _jsx(CheckBox, { id: rowId, selected: selected, onSelect: function () { return handleSelectRow(rowId); } }) }), "check-".concat(rowId)));
     }
     function renderRowCell(props, cellIndex) {
         return (_jsx("td", __assign({ className: 'px-2 pt-3 pb-13px' }, { children: _jsx(BodyMedium, { text: props.text, margin: '' }) }), "".concat(cellIndex)));
@@ -66,11 +69,11 @@ export var Table = function (_a) {
             handleSelectAll();
         }
     }
-    function handleSelectRow(row) {
+    function handleSelectRow(rowId) {
         var newSelected = selectedRows.slice(0);
-        var index = selectedRows.indexOf(row);
+        var index = selectedRows.indexOf(rowId);
         if (index === -1) {
-            newSelected.push(row);
+            newSelected.push(rowId);
         }
         else {
             newSelected.splice(index, 1);
@@ -78,8 +81,8 @@ export var Table = function (_a) {
         setSelectedRows(newSelected);
     }
     function handleSelectAll() {
-        var range = _.range(0, currentPage.rows.length);
-        setSelectedRows(range);
+        var allRowIds = currentPage.rows.map(function (row) { return row.id; });
+        setSelectedRows(allRowIds);
     }
     function handlePrevious() {
         var index = currentPage.index === 0 ? pages.length - 1 : currentPage.index - 1;
@@ -92,36 +95,50 @@ export var Table = function (_a) {
         setCurrentPage(pages[index]);
     }
     function handleDeleteSelected() {
-        var currentSelectedRows = selectedRows.slice(0).sort(function (n1, n2) { return n2 - n1; });
-        var newRows = rows.slice(0);
-        var offset = currentPage.index * pageSize;
+        var currentSelectedRows = selectedRows.slice(0);
+        var newAlteredRows = alteredRows.slice(0);
+        var _loop_1 = function (rowId) {
+            var index = newAlteredRows.findIndex(function (row) { return row.id === rowId; });
+            if (index !== -1) {
+                newAlteredRows.splice(index, 1);
+            }
+        };
         for (var _i = 0, currentSelectedRows_1 = currentSelectedRows; _i < currentSelectedRows_1.length; _i++) {
-            var rowIndex = currentSelectedRows_1[_i];
-            var start = offset + rowIndex;
-            newRows.splice(start, 1);
+            var rowId = currentSelectedRows_1[_i];
+            _loop_1(rowId);
         }
-        var newPages = createPages(newRows);
-        var newCurrentPageIndex = Math.min(newPages.length - 1, currentPage.index);
-        var newCurrentPage = newPages[newCurrentPageIndex];
-        updateRows(newRows);
-        setRows(newRows);
-        setPages(newPages);
-        setCurrentPage(newCurrentPage);
-        setSelectedRows([]);
-        onChange(id, newRows);
+        updateAlteredRows(newAlteredRows, query);
     }
-    function updateRows(rows) {
-        var newPages = createPages(rows);
+    function updateAlteredRows(alteredRows, query) {
+        var filteredRows = filterRows(alteredRows, query);
+        var newPages = createPages(filteredRows);
         var newCurrentPageIndex = Math.min(newPages.length, currentPage.index);
         var newCurrentPage = newPages[newCurrentPageIndex];
-        setRows(rows);
+        setAlteredRows(alteredRows);
+        setFilteredRows(filteredRows);
         setPages(newPages);
         setCurrentPage(newCurrentPage);
         setSelectedRows([]);
-        onChange(id, rows);
+        onChange(id, alteredRows);
+    }
+    function filterRows(rows, query) {
+        if (query.length === 0) {
+            return rows;
+        }
+        return rows.filter(function (row) { return matchRow(row, query); });
+    }
+    function matchRow(row, query) {
+        return row.cells.find(function (cell) { return matchCell(cell, query); }) !== undefined;
+    }
+    function matchCell(cell, query) {
+        return query.find(function (word) { return cell.text.includes(word); }) !== undefined;
     }
     function handleUndo() {
-        updateRows(body.rows);
+        updateAlteredRows(body.rows, query);
     }
-    return (_jsxs(_Fragment, { children: [_jsxs("div", __assign({ className: "".concat(rows.length === 0 ? 'hidden' : '') }, { children: [_jsxs("div", __assign({ className: "".concat(readOnly ? 'hidden' : '') }, { children: [_jsx("div", __assign({ className: "flex flex-row gap-4 ".concat(!editMode ? '' : 'hidden') }, { children: _jsx(PrimaryButton, { label: 'Edit', onClick: function () { return setEditMode(true); }, color: 'bg-delete text-white' }) })), _jsxs("div", __assign({ className: "flex flex-row gap-4 ".concat(editMode ? '' : 'hidden') }, { children: [_jsx(PrimaryButton, { label: 'Select all', onClick: handleSelectAll }), _jsx(SecondaryButton, { label: 'Delete', onClick: handleDeleteSelected }), _jsx(SecondaryButton, { label: 'Undo', onClick: handleUndo, color: 'text-grey1' })] }))] })), _jsx("div", { className: 'mb-4' }), _jsxs("table", __assign({ className: 'text-grey1 table-auto ' }, { children: [_jsx("thead", { children: renderHeadRow(head) }), _jsx("tbody", { children: renderRows(currentPage.rows) })] })), _jsx("div", { className: 'mb-2' }), _jsxs("div", __assign({ className: "flex flex-row gap-4 ".concat(rows.length <= pageSize ? 'hidden' : '', " ") }, { children: [_jsx(BackButton, { label: 'Previous', onClick: handlePrevious }), _jsxs("div", { children: [currentPage.index + 1, " / ", pages.length] }), _jsx(ForwardButton, { label: 'Next', onClick: handleNext })] }))] })), _jsxs("div", __assign({ className: "flex flex-col gap-4 ".concat(rows.length === 0 ? '' : 'hidden') }, { children: [_jsx("div", __assign({ className: "flex flex-row gap-4 ".concat(body.rows.length > 0 ? '' : 'hidden') }, { children: _jsx(SecondaryButton, { label: 'Undo', onClick: handleUndo, color: 'text-grey1' }) })), _jsx(BodyLarge, { text: 'Table is empty' })] }))] }));
+    function handleSearch(query) {
+        setQuery(query);
+        updateAlteredRows(alteredRows, query);
+    }
+    return (_jsxs(_Fragment, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4' }, { children: [_jsx("div", __assign({ className: "".concat(!editMode && !readOnly ? '' : 'hidden') }, { children: _jsx(PrimaryButton, { label: 'Edit', onClick: function () { return setEditMode(true); }, color: 'bg-delete text-white' }) })), _jsx("div", __assign({ className: "".concat(editMode ? '' : 'hidden') }, { children: _jsx(PrimaryButton, { label: 'Select all', onClick: handleSelectAll }) })), _jsx("div", __assign({ className: "".concat(editMode ? '' : 'hidden') }, { children: _jsx(SecondaryButton, { label: 'Delete', onClick: handleDeleteSelected }) })), _jsx("div", __assign({ className: "".concat(editMode && body.rows.length > 0 ? '' : 'hidden') }, { children: _jsx(SecondaryButton, { label: 'Undo', onClick: handleUndo, color: 'text-grey1' }) })), _jsx("div", __assign({ className: "".concat(alteredRows.length > pageSize ? '' : 'hidden') }, { children: _jsx(SearchBar, { placeholder: 'Search', onSearch: handleSearch }) }))] })), _jsxs("div", __assign({ className: "".concat(filteredRows.length === 0 ? 'hidden' : '') }, { children: [_jsxs("table", __assign({ className: 'text-grey1 table-auto ' }, { children: [_jsx("thead", { children: renderHeadRow(head) }), _jsx("tbody", { children: renderRows(currentPage.rows) })] })), _jsxs("div", __assign({ className: "flex flex-row gap-4 mt-2 ".concat(filteredRows.length <= pageSize ? 'hidden' : '', " ") }, { children: [_jsx(BackButton, { label: 'Previous', onClick: handlePrevious }), _jsxs("div", { children: [currentPage.index + 1, " / ", pages.length] }), _jsx(ForwardButton, { label: 'Next', onClick: handleNext })] }))] })), _jsx("div", __assign({ className: "flex flex-col ".concat(alteredRows.length === 0 ? '' : 'hidden') }, { children: _jsx(BodyLarge, { text: 'Empty data set', margin: '' }) })), _jsx("div", __assign({ className: "flex flex-col ".concat(alteredRows.length > 0 && filteredRows.length === 0 ? '' : 'hidden') }, { children: _jsx(BodyLarge, { text: 'Nothing found', margin: '' }) }))] }));
 };

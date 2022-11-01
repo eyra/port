@@ -26,7 +26,7 @@ export var ConsentForm = function (props) {
     var resolve = props.resolve;
     var _c = prepareCopy(props), title = _c.title, description = _c.description, donateButton = _c.donateButton;
     function rowCell(dataFrame, column, row) {
-        var text = dataFrame[column]["".concat(row)];
+        var text = String(dataFrame[column]["".concat(row)]);
         return { __type__: 'PropsUITableCell', text: text };
     }
     function headCell(dataFrame, column) {
@@ -50,8 +50,9 @@ export var ConsentForm = function (props) {
     function rows(data) {
         var result = [];
         var _loop_1 = function (row) {
+            var id = "".concat(row);
             var cells = columnNames(data).map(function (column) { return rowCell(data, column, row); });
-            result.push({ __type__: 'PropsUITableRow', cells: cells });
+            result.push({ __type__: 'PropsUITableRow', id: id, cells: cells });
         };
         for (var row = 0; row <= rowCount(data); row++) {
             _loop_1(row);
@@ -73,7 +74,7 @@ export var ConsentForm = function (props) {
     }
     function renderTable(table, readOnly) {
         if (readOnly === void 0) { readOnly = false; }
-        return (_jsxs("div", __assign({ className: 'flex flex-col gap-2' }, { children: [_jsx(Title2, { text: table.title }), _jsx(Table, __assign({}, table, { readOnly: readOnly, onChange: handleTableChange }))] }), table.id));
+        return (_jsxs("div", __assign({ className: 'flex flex-col gap-4 mb-4' }, { children: [_jsx(Title2, { text: table.title, margin: '' }), _jsx(Table, __assign({}, table, { readOnly: readOnly, onChange: handleTableChange }))] }), table.id));
     }
     function handleTableChange(id, rows) {
         var tablesCopy = tablesOut.slice(0);

@@ -27,7 +27,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   const { title, description, donateButton } = prepareCopy(props)
 
   function rowCell (dataFrame: any, column: string, row: number): PropsUITableCell {
-    const text = dataFrame[column][`${row}`] as string
+    const text = String(dataFrame[column][`${row}`])
     return { __type__: 'PropsUITableCell', text: text }
   }
 
@@ -55,8 +55,9 @@ export const ConsentForm = (props: Props): JSX.Element => {
   function rows (data: any): PropsUITableRow[] {
     const result: PropsUITableRow[] = []
     for (let row = 0; row <= rowCount(data); row++) {
+      const id = `${row}`
       const cells = columnNames(data).map((column: string) => rowCell(data, column, row))
-      result.push({ __type__: 'PropsUITableRow', cells: cells })
+      result.push({ __type__: 'PropsUITableRow', id, cells })
     }
     return result
   }
@@ -79,8 +80,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   function renderTable (table: (Weak<PropsUITable> & TableContext), readOnly = false): JSX.Element {
     return (
-      <div key={table.id} className='flex flex-col gap-2'>
-        <Title2 text={table.title} />
+      <div key={table.id} className='flex flex-col gap-4 mb-4'>
+        <Title2 text={table.title} margin='' />
         <Table {...table} readOnly={readOnly} onChange={handleTableChange} />
       </div>
     )

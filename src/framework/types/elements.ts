@@ -11,6 +11,7 @@ export type PropsUI =
   PropsUISpinner |
   PropsUIHeader |
   PropsUITable |
+  PropsUISearchBar |
   PropsUIPage |
   PropsUIPrompt
 
@@ -181,7 +182,7 @@ export function isPropsUIRadioItem (arg: any): arg is PropsUIRadioItem {
 // Check box
 
 export interface PropsUICheckBox {
-  id: number
+  id: string
   selected: boolean
   onSelect: () => void
 }
@@ -241,10 +242,11 @@ export function isPropsUITableBody (arg: any): arg is PropsUITableBody {
 
 export interface PropsUITableRow {
   __type__: 'PropsUITableRow'
+  id: string
   cells: PropsUITableCell[]
 }
 export function isPropsUITableRow (arg: any): arg is PropsUITableRow {
-  return isInstanceOf<PropsUITableRow>(arg, 'PropsUITableRow', ['cells'])
+  return isInstanceOf<PropsUITableRow>(arg, 'PropsUITableRow', ['id', 'cells'])
 }
 
 export interface PropsUITableCell {
@@ -253,6 +255,18 @@ export interface PropsUITableCell {
 }
 export function isPropsUITableCell (arg: any): arg is PropsUITableCell {
   return isInstanceOf<PropsUITableCell>(arg, 'PropsUITableCell', ['text'])
+}
+
+// SEARCH BAR
+
+export interface PropsUISearchBar {
+  __type__: 'PropsUISearchBar'
+  placeholder: string
+  debounce?: number
+  onSearch: (words: string[]) => void
+}
+export function isPropsUISearchBar (arg: any): arg is PropsUISearchBar {
+  return isInstanceOf<PropsUISearchBar>(arg, 'PropsUISearchBar', ['placeholder'])
 }
 
 // BASE TYPES

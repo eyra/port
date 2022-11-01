@@ -1,6 +1,6 @@
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
-export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIHeader | PropsUITable | PropsUIPage | PropsUIPrompt;
+export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
 export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle6 | PropsUITextBodyLarge;
 export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonForward | PropsUIButtonLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
@@ -89,7 +89,7 @@ export interface PropsUIRadioItem {
 }
 export declare function isPropsUIRadioItem(arg: any): arg is PropsUIRadioItem;
 export interface PropsUICheckBox {
-    id: number;
+    id: string;
     selected: boolean;
     onSelect: () => void;
 }
@@ -125,6 +125,7 @@ export interface PropsUITableBody {
 export declare function isPropsUITableBody(arg: any): arg is PropsUITableBody;
 export interface PropsUITableRow {
     __type__: 'PropsUITableRow';
+    id: string;
     cells: PropsUITableCell[];
 }
 export declare function isPropsUITableRow(arg: any): arg is PropsUITableRow;
@@ -133,6 +134,13 @@ export interface PropsUITableCell {
     text: string;
 }
 export declare function isPropsUITableCell(arg: any): arg is PropsUITableCell;
+export interface PropsUISearchBar {
+    __type__: 'PropsUISearchBar';
+    placeholder: string;
+    debounce?: number;
+    onSearch: (words: string[]) => void;
+}
+export declare function isPropsUISearchBar(arg: any): arg is PropsUISearchBar;
 export declare type Text = Translatable | string;
 export declare function isText(arg: any): arg is Text;
 export interface Translatable {
