@@ -18,10 +18,10 @@ interface TableContext {
 }
 
 export const ConsentForm = (props: Props): JSX.Element => {
-  const tablesIn = parseTables(props.tables)
+  const [tablesIn] = React.useState<Array<PropsUITable & TableContext>>(parseTables(props.tables))
   const [tablesOut, setTablesOut] = React.useState<Array<PropsUITable & TableContext>>(tablesIn)
   const [metaTablesVisible, setMetaTablesVisible] = React.useState<boolean>(false)
-  const metaTables = parseTables(props.metaTables)
+  const [metaTables] = React.useState<Array<PropsUITable & TableContext>>(parseTables(props.metaTables))
 
   const { resolve } = props
   const { title, description, donateButton } = prepareCopy(props)

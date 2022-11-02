@@ -1,11 +1,15 @@
+import { useMemo } from 'react'
 import { Weak } from '../../../../helpers'
 import { PropsUISearchBar } from '../../../../types/elements'
+import _ from 'lodash'
 
 export const SearchBar = ({ placeholder, debounce = 1000, onSearch }: Weak<PropsUISearchBar>): JSX.Element => {
   function handleChange (event: React.ChangeEvent<HTMLInputElement>): void {
     const words = event.target.value.split(/\s+/)
     onSearch(words)
   }
+
+  const handleChangeDebounced = useMemo(() => _.debounce(handleChange, 300), [])
 
   return (
     <form>
@@ -15,8 +19,7 @@ export const SearchBar = ({ placeholder, debounce = 1000, onSearch }: Weak<Props
           placeholder={placeholder}
           name='query'
           type='search'
-          phx-debounce={1000}
-          onChange={handleChange}
+          onChange={handleChangeDebounced}
         />
       </div>
     </form>

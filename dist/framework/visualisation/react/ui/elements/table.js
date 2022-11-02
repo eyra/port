@@ -128,10 +128,8 @@ export var Table = function (_a) {
         return rows.filter(function (row) { return matchRow(row, query); });
     }
     function matchRow(row, query) {
-        return row.cells.find(function (cell) { return matchCell(cell, query); }) !== undefined;
-    }
-    function matchCell(cell, query) {
-        return query.find(function (word) { return cell.text.includes(word); }) !== undefined;
+        var rowText = row.cells.map(function (cell) { return cell.text; }).join(' ');
+        return query.find(function (word) { return !rowText.includes(word); }) === undefined;
     }
     function handleUndo() {
         updateAlteredRows(body.rows, query);
