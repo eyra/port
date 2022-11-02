@@ -171,11 +171,8 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
   }
 
   function matchRow (row: PropsUITableRow, query: string[]): boolean {
-    return row.cells.find((cell) => matchCell(cell, query)) !== undefined
-  }
-
-  function matchCell (cell: PropsUITableCell, query: string[]): boolean {
-    return query.find((word) => cell.text.includes(word)) !== undefined
+    const rowText = row.cells.map((cell) => cell.text).join(' ')
+    return query.find((word) => !rowText.includes(word)) === undefined
   }
 
   function handleUndo (): void {

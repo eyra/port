@@ -19,10 +19,10 @@ import { Translator } from '../../../../translator';
 import React from 'react';
 import _ from 'lodash';
 export var ConsentForm = function (props) {
-    var tablesIn = parseTables(props.tables);
+    var tablesIn = React.useState(parseTables(props.tables))[0];
     var _a = React.useState(tablesIn), tablesOut = _a[0], setTablesOut = _a[1];
     var _b = React.useState(false), metaTablesVisible = _b[0], setMetaTablesVisible = _b[1];
-    var metaTables = parseTables(props.metaTables);
+    var metaTables = React.useState(parseTables(props.metaTables))[0];
     var resolve = props.resolve;
     var _c = prepareCopy(props), title = _c.title, description = _c.description, donateButton = _c.donateButton;
     function rowCell(dataFrame, column, row) {
