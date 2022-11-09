@@ -1,10 +1,17 @@
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
 export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
-export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle6 | PropsUITextBodyLarge;
+export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
 export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonForward | PropsUIButtonLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
 export declare function isPropsUIText(arg: any): arg is PropsUIText;
+export interface PropsUITextLabel {
+    __type__: 'PropsUITextLabel';
+    text: string;
+    color?: string;
+    margin?: string;
+}
+export declare function isPropsUITextLabel(arg: any): arg is PropsUITextLabel;
 export interface PropsUITextBodyLarge {
     __type__: 'PropsUITextBodyLarge';
     text: string;
@@ -52,6 +59,8 @@ export interface PropsUIButtonPrimary {
     __type__: 'PropsUIButtonPrimary';
     label: string;
     color?: string;
+    enabled?: boolean;
+    spinning?: boolean;
     onClick: () => void;
 }
 export declare function isPropsUIButtonPrimary(arg: any): arg is PropsUIButtonPrimary;
@@ -96,7 +105,8 @@ export interface PropsUICheckBox {
 export declare function isPropsUICheckBox(arg: any): arg is PropsUICheckBox;
 export interface PropsUISpinner {
     __type__: 'PropsUISpinner';
-    text: Text;
+    spinning?: boolean;
+    color?: string;
 }
 export declare function isPropsUISpinner(arg: any): arg is PropsUISpinner;
 export interface PropsUIHeader {

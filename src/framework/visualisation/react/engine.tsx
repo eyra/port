@@ -19,7 +19,6 @@ export default class ReactEngine implements VisualisationEngine {
     console.log('[ReactEngine] started')
     this.root = ReactDOM.createRoot(rootElement)
     this.locale = locale
-    this.renderSplashScreen()
   }
 
   async render (command: CommandUIRender): Promise<Response> {
@@ -31,12 +30,6 @@ export default class ReactEngine implements VisualisationEngine {
         () => {}
       )
     })
-  }
-
-  renderSplashScreen (): void {
-    const context = { locale: this.locale, resolve: () => {} }
-    const page = this.factory.createPage({ __type__: 'PropsUIPageSplashScreen' }, context)
-    this.renderElements([page])
   }
 
   async renderPage (props: PropsUIPage): Promise<any> {

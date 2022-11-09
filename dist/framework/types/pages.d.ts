@@ -1,4 +1,4 @@
-import { PropsUIHeader, PropsUISpinner } from './elements';
+import { PropsUIHeader } from './elements';
 import { PropsUIPromptFileInput, PropsUIPromptConfirm, PropsUIPromptConsentForm } from './prompts';
 export declare type PropsUIPage = PropsUIPageSplashScreen | PropsUIPageDonation | PropsUIPageStart | PropsUIPageEnd;
 export declare function isPropsUIPage(arg: any): arg is PropsUIPage;
@@ -14,7 +14,6 @@ export interface PropsUIPageDonation {
     __type__: 'PropsUIPageDonation';
     header: PropsUIHeader;
     body: PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptConsentForm;
-    spinner: PropsUISpinner;
 }
 export declare function isPropsUIPageDonation(arg: any): arg is PropsUIPageDonation;
 export interface PropsUIPageEnd {

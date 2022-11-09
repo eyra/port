@@ -34,3 +34,7 @@ export var Title6 = function (_a) {
     var text = _a.text, _b = _a.color, color = _b === void 0 ? 'text-grey1' : _b, _c = _a.margin, margin = _c === void 0 ? 'mb-2' : _c;
     return (_jsx("div", __assign({ className: "text-title6 font-title6 ".concat(margin, " ").concat(color) }, { children: text })));
 };
+export var Label = function (_a) {
+    var text = _a.text, _b = _a.color, color = _b === void 0 ? 'text-grey1' : _b, _c = _a.margin, margin = _c === void 0 ? '' : _c;
+    return (_jsx("div", __assign({ className: "text-label font-label ".concat(color, " ").concat(margin) }, { children: text })));
+};

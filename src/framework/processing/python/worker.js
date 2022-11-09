@@ -142,17 +142,6 @@ class PropsUIPromptConfirm:
     return dict
 
 
-class PropsUISpinner:
-  __slots__ = "text"
-  def __init__(self, text):
-    self.text = text
-  def toDict(self):
-    dict = {}
-    dict["__type__"] = "PropsUISpinner"
-    dict["text"] = self.text.toDict()
-    return dict
-
-
 class PropsUIPromptConsentForm:
   __slots__ = "title", "description", "tables", "meta_tables"
   def __init__(self, title, description, tables, meta_tables):
@@ -226,17 +215,15 @@ class PropsUIPromptRadioInput:
 
 
 class PropsUIPageDonation:
-  __slots__ = "header", "body", "spinner"
-  def __init__(self, header, body, spinner):
+  __slots__ = "header", "body"
+  def __init__(self, header, body):
     self.header = header
     self.body = body
-    self.spinner = spinner
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPageDonation"
     dict["header"] = self.header.toDict()
     dict["body"] = self.body.toDict()
-    dict["spinner"] = self.spinner.toDict()
     return dict
 
 

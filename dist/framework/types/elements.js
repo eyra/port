@@ -17,7 +17,11 @@ export function isPropsUIText(arg) {
         isPropsUITextTitle0(arg) ||
         isPropsUITextTitle0(arg) ||
         isPropsUITextBodyLarge(arg) ||
-        isPropsUITextBodyMedium(arg);
+        isPropsUITextBodyMedium(arg) ||
+        isPropsUITextLabel(arg);
+}
+export function isPropsUITextLabel(arg) {
+    return isInstanceOf(arg, 'PropsUITextLabel', ['text', 'color', 'margin']);
 }
 export function isPropsUITextBodyLarge(arg) {
     return isInstanceOf(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin']);
@@ -66,7 +70,7 @@ export function isPropsUICheckBox(arg) {
     return isInstanceOf(arg, 'PropsUICheckBox', ['id', 'selected', 'onSelect']);
 }
 export function isPropsUISpinner(arg) {
-    return isInstanceOf(arg, 'PropsUISpinner', ['text']);
+    return isInstanceOf(arg, 'PropsUISpinner', ['color', 'spinning']);
 }
 export function isPropsUIHeader(arg) {
     return isInstanceOf(arg, 'PropsUIHeader', ['title']);
