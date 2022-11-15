@@ -33,7 +33,6 @@ export default class ReactEngine implements VisualisationEngine {
   }
 
   async renderPage (props: PropsUIPage): Promise<any> {
-    console.log('[ReactEngine] render page: ' + JSON.stringify(props))
     return await new Promise<any>((resolve) => {
       const context = { locale: this.locale, resolve }
       const page = this.factory.createPage(props, context)

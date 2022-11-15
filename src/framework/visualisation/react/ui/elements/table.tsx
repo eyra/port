@@ -1,60 +1,144 @@
 import _ from 'lodash'
 import React from 'react'
 import { Weak } from '../../../../helpers'
+import TextBundle from '../../../../text_bundle'
+import { Translator } from '../../../../translator'
 import { PropsUITable, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
-import { BackButton, ForwardButton, PrimaryButton, SecondaryButton } from './button'
+import { ReactFactoryContext } from '../../factory'
+import { BackIconButton, ForwardIconButton, IconLabelButton } from './button'
 import { CheckBox } from './check_box'
 import { SearchBar } from './search_bar'
-import { BodyLarge, BodyMedium, Title6 } from './text'
+import { Caption, Label, Title3 } from './text'
+import UndoSvg from '../../../../../assets/images/undo.svg'
+import DeleteSvg from '../../../../../assets/images/delete.svg'
+import { PageIcon } from './page_icon'
 
-type Props = Weak<PropsUITable> & TableContext
+type Props = Weak<PropsUITable> & TableContext & ReactFactoryContext
 
 export interface TableContext {
   onChange: (id: string, rows: PropsUITableRow[]) => void
 }
 
-interface Page {
-  index: number
-  rows: PropsUITableRow[]
+interface Visibility {
+  search: boolean
+  undo: boolean
+  delete: boolean
+  table: boolean
+  noData: boolean
+  noDataLeft: boolean
+  noResults: boolean
 }
 
-export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange }: Props): JSX.Element => {
-  const [editMode, setEditMode] = React.useState<boolean>(false)
-  const [query, setQuery] = React.useState<string[]>([])
-  const [alteredRows, setAlteredRows] = React.useState<PropsUITableRow[]>(body.rows)
-  const [filteredRows, setFilteredRows] = React.useState<PropsUITableRow[]>(alteredRows)
-  const [pages, setPages] = React.useState<Page[]>(createPages(filteredRows))
-  const [currentPage, setCurrentPage] = React.useState<Page>(pages[0])
-  const [selectedRows, setSelectedRows] = React.useState<string[]>([])
+interface State {
+  edit: boolean
+  page: number
+  pageCount: number
+  pageWindow: number[]
+  rows: PropsUITableRow[]
+  selected: string[]
+  deletedCount: number
+  visibility: Visibility
+}
 
-  function createPages (rows: PropsUITableRow[]): Page[] {
-    if (rows.length === 0) {
-      return [{ index: 0, rows }]
+export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, onChange }: Props): JSX.Element => {
+  const pageWindowlegSize = 3
+
+  const query = React.useRef<string[]>([])
+  const alteredRows = React.useRef<PropsUITableRow[]>(body.rows)
+  const filteredRows = React.useRef<PropsUITableRow[]>(alteredRows.current)
+
+  const initialState: State = {
+    edit: false,
+    pageCount: getPageCount(),
+    page: 0,
+    pageWindow: updatePageWindow(0),
+    rows: updateRows(0),
+    selected: [],
+    deletedCount: 0,
+    visibility: {
+      search: alteredRows.current.length > pageSize,
+      delete: false,
+      undo: false,
+      table: filteredRows.current.length > 0,
+      noData: filteredRows.current.length === 0,
+      noDataLeft: false,
+      noResults: false
     }
-
-    return _
-      .range(0, Math.ceil(rows.length / pageSize))
-      .map((index) => { return { index, rows: createPage(index, rows) } })
   }
 
-  function createPage (page: number, rows: PropsUITableRow[]): PropsUITableRow[] {
-    const offset = page * pageSize
-    return rows.slice(offset, offset + pageSize)
+  const [state, setState] = React.useState<State>(initialState)
+
+  const copy = prepareCopy(locale)
+
+  function display (element: keyof Visibility): string {
+    return visible(element) ? '' : 'hidden'
+  }
+
+  function visible (element: keyof Visibility): boolean {
+    if (typeof state.visibility[element] === 'boolean') {
+      return state.visibility[element]
+    }
+    return false
+  }
+
+  function updatePageWindow (currentPage: number): number[] {
+    const pageWindowSize = (pageWindowlegSize * 2) + 1
+    const pageCount = getPageCount()
+
+    let range: number[] = []
+    if (pageWindowSize >= pageCount && pageCount > 0) {
+      range = _.range(0, Math.min(pageCount, pageWindowSize))
+    } else if (pageWindowSize < pageCount) {
+      const maxIndex = pageCount - 1
+
+      let start: number
+      let end: number
+
+      if (currentPage < pageWindowlegSize) {
+        // begin
+        start = 0
+        end = Math.min(pageCount, pageWindowSize)
+      } else if (maxIndex - currentPage <= pageWindowlegSize) {
+        // end
+        start = maxIndex - (pageWindowSize - 1)
+        end = maxIndex + 1
+      } else {
+        // middle
+        start = currentPage - pageWindowlegSize
+        end = currentPage + pageWindowlegSize + 1
+      }
+      range = _.range(start, end)
+    }
+
+    return range
+  }
+
+  function getPageCount (): number {
+    if (filteredRows.current.length === 0) {
+      return 0
+    }
+
+    return Math.ceil(filteredRows.current.length / pageSize)
+  }
+
+  function updateRows (currentPage: number): PropsUITableRow[] {
+    const offset = currentPage * pageSize
+    return filteredRows.current.slice(offset, offset + pageSize)
   }
 
   function renderHeadRow (props: Weak<PropsUITableHead>): JSX.Element {
     return (
       <tr>
-        {editMode ? renderHeadCheck() : ''}
+        {state.edit ? renderHeadCheck() : ''}
         {props.cells.map((cell, index) => renderHeadCell(cell, index))}
       </tr>
     )
   }
 
   function renderHeadCheck (): JSX.Element {
-    const selected = selectedRows.length > 0 && selectedRows.length === currentPage.rows.length
+    const selected = state.selected.length > 0 && state.selected.length === state.rows.length
     return (
-      <td key='check-head'>
+      <td key='check-head' className='pl-4 w-10'>
         <CheckBox id='-1' selected={selected} onSelect={() => handleSelectHead()} />
       </td>
     )
@@ -62,29 +146,29 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
 
   function renderHeadCell (props: Weak<PropsUITableCell>, index: number): JSX.Element {
     return (
-      <th key={`${index}`} className='px-2 pt-3 pb-13px text-left'>
-        <Title6 text={props.text} margin='' />
+      <th key={`${index}`} className='h-12 px-4 text-left'>
+        <div className='font-table-header text-table text-grey1'>{props.text}</div>
       </th>
     )
   }
 
-  function renderRows (rows: PropsUITableRow[]): JSX.Element[] {
-    return rows.map((row, index) => renderRow(row, index))
+  function renderRows (): JSX.Element[] {
+    return state.rows.map((row, index) => renderRow(row, index))
   }
 
   function renderRow (row: PropsUITableRow, rowIndex: number): JSX.Element {
     return (
-      <tr key={`${rowIndex}`} className='hover:bg-grey5'>
-        {editMode ? renderRowCheck(row.id) : ''}
+      <tr key={`${rowIndex}`} className='hover:bg-grey6'>
+        {state.edit ? renderRowCheck(row.id) : ''}
         {row.cells.map((cell, cellIndex) => renderRowCell(cell, cellIndex))}
       </tr>
     )
   }
 
   function renderRowCheck (rowId: string): JSX.Element {
-    const selected = selectedRows.includes(rowId)
+    const selected = state.selected.includes(rowId)
     return (
-      <td key={`check-${rowId}`} className='w-8 min-w-8'>
+      <td key={`check-${rowId}`} className='pl-4'>
         <CheckBox id={rowId} selected={selected} onSelect={() => handleSelectRow(rowId)} />
       </td>
     )
@@ -92,82 +176,29 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
 
   function renderRowCell (props: Weak<PropsUITableCell>, cellIndex: number): JSX.Element {
     return (
-      <td key={`${cellIndex}`} className='px-2 pt-3 pb-13px'>
-        <BodyMedium text={props.text} margin='' />
+      <td key={`${cellIndex}`} className='h-12 px-4'>
+        <div className='font-table-row text-table text-grey1'>{props.text}</div>
       </td>
     )
   }
 
-  function handleSelectHead (): void {
-    const allRowsSelected = selectedRows.length === currentPage.rows.length
-    if (allRowsSelected) {
-      setSelectedRows([])
-    } else {
-      handleSelectAll()
+  function renderPageIcons (): JSX.Element {
+    return (
+      <div className='flex flex-row gap-2'>
+        {state.pageWindow.map((page) => renderPageIcon(page))}
+      </div>
+    )
+  }
+
+  function renderPageIcon (index: number): JSX.Element {
+    return <PageIcon key={`page-${index}`} index={index + 1} selected={state.page === index} onClick={() => handleNewPage(index)} />
+  }
+
+  function filterRows (): PropsUITableRow[] {
+    if (query.current.length === 0) {
+      return alteredRows.current
     }
-  }
-
-  function handleSelectRow (rowId: string): void {
-    const newSelected = selectedRows.slice(0)
-    const index = selectedRows.indexOf(rowId)
-    if (index === -1) {
-      newSelected.push(rowId)
-    } else {
-      newSelected.splice(index, 1)
-    }
-    setSelectedRows(newSelected)
-  }
-
-  function handleSelectAll (): void {
-    const allRowIds = currentPage.rows.map((row) => row.id)
-    setSelectedRows(allRowIds)
-  }
-
-  function handlePrevious (): void {
-    const index = currentPage.index === 0 ? pages.length - 1 : currentPage.index - 1
-    setSelectedRows([])
-    setCurrentPage(pages[index])
-  }
-
-  function handleNext (): void {
-    const index = currentPage.index === pages.length - 1 ? 0 : currentPage.index + 1
-    setSelectedRows([])
-    setCurrentPage(pages[index])
-  }
-
-  function handleDeleteSelected (): void {
-    const currentSelectedRows = selectedRows.slice(0)
-    const newAlteredRows = alteredRows.slice(0)
-
-    for (const rowId of currentSelectedRows) {
-      const index = newAlteredRows.findIndex((row) => row.id === rowId)
-      if (index !== -1) {
-        newAlteredRows.splice(index, 1)
-      }
-    }
-    updateAlteredRows(newAlteredRows, query)
-  }
-
-  function updateAlteredRows (alteredRows: PropsUITableRow[], query: string[]): void {
-    const filteredRows = filterRows(alteredRows, query)
-    const newPages = createPages(filteredRows)
-    const newCurrentPageIndex = Math.min(newPages.length, currentPage.index)
-    const newCurrentPage = newPages[newCurrentPageIndex]
-
-    setAlteredRows(alteredRows)
-    setFilteredRows(filteredRows)
-    setPages(newPages)
-    setCurrentPage(newCurrentPage)
-    setSelectedRows([])
-
-    onChange(id, alteredRows)
-  }
-
-  function filterRows (rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
-    if (query.length === 0) {
-      return rows
-    }
-    return rows.filter((row) => matchRow(row, query))
+    return alteredRows.current.filter((row) => matchRow(row, query.current))
   }
 
   function matchRow (row: PropsUITableRow, query: string[]): boolean {
@@ -175,55 +206,295 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, onChange
     return query.find((word) => !rowText.includes(word)) === undefined
   }
 
-  function handleUndo (): void {
-    updateAlteredRows(body.rows, query)
+  function handleSelectHead (): void {
+    const allRowsSelected = state.selected.length === state.rows.length
+    if (allRowsSelected) {
+      setState((state) => {
+        return { ...state, selected: [] }
+      })
+    } else {
+      handleSelectAll()
+    }
   }
 
-  function handleSearch (query: string[]): void {
-    setQuery(query)
-    updateAlteredRows(alteredRows, query)
+  function handleSelectRow (rowId: string): void {
+    setState((state) => {
+      const selected = state.selected.slice(0)
+      const index = selected.indexOf(rowId)
+      if (index === -1) {
+        selected.push(rowId)
+      } else {
+        selected.splice(index, 1)
+      }
+      return { ...state, selected }
+    })
+  }
+
+  function handleSelectAll (): void {
+    setState((state) => {
+      const selected = state.rows.map((row) => row.id)
+      return { ...state, selected }
+    })
+  }
+
+  function handlePrevious (): void {
+    setState((state) => {
+      const page = state.page === 0 ? state.pageCount - 1 : state.page - 1
+      const pageWindow = updatePageWindow(page)
+      const rows = updateRows(page)
+      return { ...state, page, pageWindow, rows }
+    })
+  }
+
+  function handleNext (): void {
+    setState((state) => {
+      const page = state.page === state.pageCount - 1 ? 0 : state.page + 1
+      const pageWindow = updatePageWindow(page)
+      const rows = updateRows(page)
+      return { ...state, page, pageWindow, rows }
+    })
+  }
+
+  function handleDeleteSelected (): void {
+    const currentSelectedRows = state.selected.slice(0)
+    if (currentSelectedRows.length === 0) return
+
+    const newAlteredRows = alteredRows.current.slice(0)
+
+    for (const rowId of currentSelectedRows) {
+      const index = newAlteredRows.findIndex((row) => row.id === rowId)
+      if (index !== -1) {
+        newAlteredRows.splice(index, 1)
+      }
+    }
+
+    alteredRows.current = newAlteredRows
+    filteredRows.current = filterRows()
+
+    setState((state) => {
+      const pageCount = getPageCount()
+      const page = Math.max(0, Math.min(pageCount - 1, state.page))
+      const pageWindow = updatePageWindow(page)
+      const rows = updateRows(page)
+      const deletedCount = body.rows.length - alteredRows.current.length
+      const visibility = {
+        ...state.visibility,
+        undo: deletedCount > 0,
+        table: filteredRows.current.length > 0,
+        noData: false,
+        noDataLeft: alteredRows.current.length === 0,
+        noResults: alteredRows.current.length > 0 && filteredRows.current.length === 0
+      }
+      return { ...state, page, pageCount, pageWindow, rows, deletedCount, selected: [], visibility }
+    })
+
+    onChange(id, alteredRows.current)
+  }
+
+  function handleUndo (): void {
+    alteredRows.current = body.rows
+    filteredRows.current = filterRows()
+    setState((state) => {
+      const pageCount = getPageCount()
+      const page = Math.min(pageCount, state.page)
+      const pageWindow = updatePageWindow(page)
+      const rows = updateRows(state.page)
+
+      const visibility = {
+        ...state.visibility,
+        undo: false,
+        table: filteredRows.current.length > 0,
+        noData: false,
+        noDataLeft: false,
+        noResults: filteredRows.current.length === 0
+      }
+      return { ...state, page, pageCount, pageWindow, rows, deletedCount: 0, selected: [], visibility }
+    })
+
+    onChange(id, body.rows)
+  }
+
+  function handleSearch (newQuery: string[]): void {
+    query.current = newQuery
+    filteredRows.current = filterRows()
+    setState((state) => {
+      const pageCount = getPageCount()
+      const page = Math.min(pageCount, state.page)
+      const pageWindow = updatePageWindow(page)
+      const rows = updateRows(state.page)
+      const visibility = {
+        ...state.visibility,
+        table: filteredRows.current.length > 0,
+        noData: body.rows.length === 0,
+        noDataLeft: body.rows.length > 0 && alteredRows.current.length === 0,
+        noResults: body.rows.length > 0 && alteredRows.current.length > 0 && filteredRows.current.length === 0
+      }
+      return { ...state, page, pageCount, pageWindow, rows, visibility }
+    })
+  }
+
+  function handleNewPage (page: number): void {
+    setState((state) => {
+      const rows = updateRows(page)
+      return { ...state, page, rows }
+    })
+  }
+
+  function handleEditToggle (): void {
+    setState((state) => {
+      const edit = !state.edit
+      const visibility = {
+        ...state.visibility,
+        delete: edit
+      }
+      return { ...state, edit, visibility }
+    })
   }
 
   return (
     <>
-      <div className='flex flex-row gap-4'>
-        <div className={`${!editMode && !readOnly ? '' : 'hidden'}`}>
-          <PrimaryButton label='Edit' onClick={() => setEditMode(true)} color='bg-delete text-white' />
+      <div className='flex flex-row gap-4 items-center'>
+        <div className={`flex flex-row items-center gap-2 mt-2 ${body.rows.length <= pageSize ? 'hidden' : ''} `}>
+          <BackIconButton onClick={handlePrevious} />
+          <div>
+            {renderPageIcons()}
+          </div>
+          <ForwardIconButton onClick={handleNext} />
         </div>
-        <div className={`${editMode ? '' : 'hidden'}`}>
-          <PrimaryButton label='Select all' onClick={handleSelectAll} />
-        </div>
-        <div className={`${editMode ? '' : 'hidden'}`}>
-          <SecondaryButton label='Delete' onClick={handleDeleteSelected} />
-        </div>
-        <div className={`${editMode && body.rows.length > 0 ? '' : 'hidden'}`}>
-          <SecondaryButton label='Undo' onClick={handleUndo} color='text-grey1' />
-        </div>
-        <div className={`${alteredRows.length > pageSize ? '' : 'hidden'}`}>
-          <SearchBar placeholder='Search' onSearch={handleSearch} />
+        <div className='flex-grow' />
+        <Caption text={copy.pages} color='text-grey2' margin='' />
+        <div className={`${display('search')}`}>
+          <SearchBar placeholder={copy.searchPlaceholder} onSearch={(query) => handleSearch(query)} />
         </div>
       </div>
-      <div className={`${filteredRows.length === 0 ? 'hidden' : ''}`}>
-        <table className='text-grey1 table-auto '>
+      <div className={`flex flex-col gap-4 justify-center h-full ${display('table')}`}>
+        <table className='text-grey1 table-fixed divide-y divide-grey4'>
           <thead>
             {renderHeadRow(head)}
           </thead>
-          <tbody>
-            {renderRows(currentPage.rows)}
+          <tbody className='divide-y divide-grey4'>
+            {renderRows()}
           </tbody>
         </table>
-        <div className={`flex flex-row gap-4 mt-2 ${filteredRows.length <= pageSize ? 'hidden' : ''} `}>
-          <BackButton label='Previous' onClick={handlePrevious} />
-          <div>{currentPage.index + 1} / {pages.length}</div>
-          <ForwardButton label='Next' onClick={handleNext} />
+      </div>
+      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noData')}`}>
+        <Title3 text={copy.noData} color='text-grey3' margin='' />
+      </div>
+      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noDataLeft')}`}>
+        <Title3 text={copy.noDataLeft} color='text-grey3' margin='' />
+      </div>
+      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noResults')}`}>
+        <Title3 text={copy.noResults} color='text-grey3' margin='' />
+      </div>
+      <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
+        <div className='flex flex-row gap-4 items-center'>
+          <CheckBox id='edit' selected={state.edit} onSelect={handleEditToggle} />
+          <Label text={copy.edit} margin='mt-1px' />
         </div>
-      </div>
-      <div className={`flex flex-col ${alteredRows.length === 0 ? '' : 'hidden'}`}>
-        <BodyLarge text='Empty data set' margin='' />
-      </div>
-      <div className={`flex flex-col ${alteredRows.length > 0 && filteredRows.length === 0 ? '' : 'hidden'}`}>
-        <BodyLarge text='Nothing found' margin='' />
+        <div className={`${display('delete')} mt-1px`}>
+          <IconLabelButton label={copy.delete} color='text-delete' icon={DeleteSvg} onClick={handleDeleteSelected} />
+        </div>
+        <div className='flex-grow' />
+        <Label text={copy.deleted} />
+        <div className={`${display('undo')}`}>
+          <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
+        </div>
       </div>
     </>
   )
+
+  function prepareCopy (locale: string): Copy {
+    return {
+      edit: Translator.translate(editLabel, locale),
+      undo: Translator.translate(undoLabel, locale),
+      noData: Translator.translate(noDataLabel, locale),
+      noDataLeft: Translator.translate(noDataLeftLabel, locale),
+      noResults: Translator.translate(noResultsLabel, locale),
+      pages: Translator.translate(pagesLabel(state.pageCount), locale),
+      delete: Translator.translate(deleteLabel, locale),
+      deleted: Translator.translate(deletedLabel(body.rows.length - alteredRows.current.length), locale),
+      searchPlaceholder: Translator.translate(searchPlaceholder, locale)
+    }
+  }
+}
+
+interface Copy {
+  edit: string
+  undo: string
+  noData: string
+  noDataLeft: string
+  noResults: string
+  pages: string
+  delete: string
+  deleted: string
+  searchPlaceholder: string
+}
+
+const searchPlaceholder = new TextBundle()
+  .add('en', 'Search')
+  .add('nl', 'Zoeken')
+
+const noDataLabel = new TextBundle()
+  .add('en', 'No information found')
+  .add('nl', 'Geen informatie gevonden')
+
+const noDataLeftLabel = new TextBundle()
+  .add('en', 'No information left')
+  .add('nl', 'Geen informatie overgebleven')
+
+const noResultsLabel = new TextBundle()
+  .add('en', 'No search results')
+  .add('nl', 'Geen zoek resultaten')
+
+const editLabel = new TextBundle()
+  .add('en', 'Edit table')
+  .add('nl', 'Bewerk tabel')
+
+const undoLabel = new TextBundle()
+  .add('en', 'Undo')
+  .add('nl', 'Herstel')
+
+const deleteLabel = new TextBundle()
+  .add('en', 'Delete selected')
+  .add('nl', 'Verwijder geselecteerde')
+
+function deletedNoneRowLabel (): TextBundle {
+  return new TextBundle()
+    .add('en', 'No changes made')
+    .add('nl', 'Geen aanpassingen')
+}
+
+function deletedRowLabel (amount: number): TextBundle {
+  return new TextBundle()
+    .add('en', `You deleted ${amount} row`)
+    .add('nl', `Je hebt ${amount} rij verwijderd`)
+}
+
+function deletedRowsLabel (amount: number): TextBundle {
+  return new TextBundle()
+    .add('en', `You deleted ${amount} rows`)
+    .add('nl', `Je hebt ${amount} rijen verwijderd`)
+}
+
+function deletedLabel (amount: number): TextBundle {
+  if (amount === 0) return deletedNoneRowLabel()
+  if (amount === 1) return deletedRowLabel(amount)
+  return deletedRowsLabel(amount)
+}
+
+function singlePageLabel (): TextBundle {
+  return new TextBundle()
+    .add('en', '1 page')
+    .add('nl', '1 pagina')
+}
+
+function multiplePagesLabel (amount: number): TextBundle {
+  return new TextBundle()
+    .add('en', `${amount} pages`)
+    .add('nl', `${amount} pagina's`)
+}
+
+function pagesLabel (amount: number): TextBundle {
+  if (amount === 1) return singlePageLabel()
+  return multiplePagesLabel(amount)
 }

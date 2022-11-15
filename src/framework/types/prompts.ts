@@ -24,12 +24,11 @@ export function isPropsUIPromptConfirm (arg: any): arg is PropsUIPromptConfirm {
 
 export interface PropsUIPromptFileInput {
   __type__: 'PropsUIPromptFileInput'
-  title: Text
   description: Text
   extensions: string
 }
 export function isPropsUIPromptFileInput (arg: any): arg is PropsUIPromptFileInput {
-  return isInstanceOf<PropsUIPromptFileInput>(arg, 'PropsUIPromptFileInput', ['title', 'description', 'extensions'])
+  return isInstanceOf<PropsUIPromptFileInput>(arg, 'PropsUIPromptFileInput', ['description', 'extensions'])
 }
 
 export interface PropsUIPromptRadioInput {
@@ -43,13 +42,11 @@ export function isPropsUIPromptRadioInput (arg: any): arg is PropsUIPromptRadioI
 }
 export interface PropsUIPromptConsentForm {
   __type__: 'PropsUIPromptConsentForm'
-  title: Text
-  description: Text
   tables: PropsUIPromptConsentFormTable[]
   metaTables: PropsUIPromptConsentFormTable[]
 }
 export function isPropsUIPromptConsentForm (arg: any): arg is PropsUIPromptConsentForm {
-  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', ['title', 'description', 'tables', 'metaTables'])
+  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', ['tables', 'metaTables'])
 }
 
 export interface PropsUIPromptConsentFormTable {

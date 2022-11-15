@@ -14,15 +14,21 @@ import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
 import { isPropsUIPromptConfirm, isPropsUIPromptConsentForm, isPropsUIPromptFileInput } from '../../../../types/prompts';
 import { ForwardButton } from '../elements/button';
-import { Title0 } from '../elements/text';
+import { Title1 } from '../elements/text';
 import { Confirm } from '../prompts/confirm';
 import { ConsentForm } from '../prompts/consent_form';
 import { FileInput } from '../prompts/file_input';
+import { Footer } from './templates/footer';
+import { Sidebar } from './templates/sidebar';
+import LogoSvg from '../../../../../assets/images/logo.svg';
+import { Page } from './templates/page';
+import { Progress } from '../elements/progress';
+import { Instructions } from '../elements/instructions';
 export var DonationPage = function (props) {
     var _a = prepareCopy(props), title = _a.title, forwardButton = _a.forwardButton;
-    var resolve = props.resolve;
+    var platform = props.platform, locale = props.locale, resolve = props.resolve;
     function renderBody(props) {
-        var context = { locale: props.locale, resolve: props.resolve };
+        var context = { locale: locale, resolve: props.resolve };
         var body = props.body;
         if (isPropsUIPromptFileInput(body)) {
             return _jsx(FileInput, __assign({}, body, context));
@@ -38,7 +44,10 @@ export var DonationPage = function (props) {
     function handleSkip() {
         resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFalse', value: false });
     }
-    return (_jsxs(_Fragment, { children: [_jsx(Title0, { text: title }), renderBody(props), _jsx("div", { className: 'mb-10' }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center w-full' }, { children: [_jsx("div", { className: 'flex-grow' }), _jsx(ForwardButton, { label: forwardButton, onClick: handleSkip })] }))] }));
+    var footer = (_jsx(Footer, { middle: _jsx(Progress, { percentage: props.footer.progressPercentage }), right: _jsxs("div", __assign({ className: 'flex flex-row' }, { children: [_jsx("div", { className: 'flex-grow' }), _jsx(ForwardButton, { label: forwardButton, onClick: handleSkip })] })) }));
+    var sidebar = (_jsx(Sidebar, { logo: LogoSvg, content: _jsx(Instructions, { platform: platform, locale: locale }) }));
+    var body = (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), renderBody(props)] }));
+    return (_jsx(Page, { body: body, sidebar: sidebar, footer: footer }));
 };
 function prepareCopy(_a) {
     var title = _a.header.title, locale = _a.locale;
@@ -49,6 +58,6 @@ function prepareCopy(_a) {
 }
 var forwardButtonLabel = function () {
     return new TextBundle()
-        .add('en', 'Skip this step')
-        .add('nl', 'Sla deze stap over');
+        .add('en', 'Skip')
+        .add('nl', 'Overslaan');
 };

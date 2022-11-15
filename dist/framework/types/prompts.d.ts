@@ -10,7 +10,6 @@ export interface PropsUIPromptConfirm {
 export declare function isPropsUIPromptConfirm(arg: any): arg is PropsUIPromptConfirm;
 export interface PropsUIPromptFileInput {
     __type__: 'PropsUIPromptFileInput';
-    title: Text;
     description: Text;
     extensions: string;
 }
@@ -24,8 +23,6 @@ export interface PropsUIPromptRadioInput {
 export declare function isPropsUIPromptRadioInput(arg: any): arg is PropsUIPromptRadioInput;
 export interface PropsUIPromptConsentForm {
     __type__: 'PropsUIPromptConsentForm';
-    title: Text;
-    description: Text;
     tables: PropsUIPromptConsentFormTable[];
     metaTables: PropsUIPromptConsentFormTable[];
 }

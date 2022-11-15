@@ -15,7 +15,11 @@ import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
 import { PrimaryButton } from '../elements/button';
 import { CheckBox } from '../elements/check_box';
-import { BodyLarge, Label, Title0 } from '../elements/text';
+import { BodyLarge, Label, Title1 } from '../elements/text';
+import LogoSvg from '../../../../../assets/images/logo.svg';
+import { Footer } from './templates/footer';
+import { Page } from './templates/page';
+import { Sidebar } from './templates/sidebar';
 function prepareCopy(_a) {
     var locale = _a.locale;
     return {
@@ -39,7 +43,10 @@ export var SplashScreen = function (props) {
     function handleCheck() {
         setChecked(true);
     }
-    return (_jsxs(_Fragment, { children: [_jsx(Title0, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(CheckBox, { id: '0', selected: checked, onSelect: function () { return handleCheck(); } }), _jsx(Label, { text: privacyLabel })] })), _jsx("div", __assign({ className: "flex flex-row gap-4 ".concat(checked ? '' : 'opacity-30') }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleContinue, enabled: checked, spinning: waiting }) }))] }))] }));
+    var footer = _jsx(Footer, {});
+    var sidebar = _jsx(Sidebar, { logo: LogoSvg });
+    var body = (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(CheckBox, { id: '0', selected: checked, onSelect: function () { return handleCheck(); } }), _jsx(Label, { text: privacyLabel })] })), _jsx("div", __assign({ className: "flex flex-row gap-4 ".concat(checked ? '' : 'opacity-30') }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleContinue, enabled: checked, spinning: waiting }) }))] }))] }));
+    return (_jsx(Page, { body: body, sidebar: sidebar, footer: footer }));
 };
 var title = new TextBundle()
     .add('en', 'Welcome')

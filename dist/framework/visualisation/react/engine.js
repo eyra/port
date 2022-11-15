@@ -66,13 +66,11 @@ var ReactEngine = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        console.log('[ReactEngine] render page: ' + JSON.stringify(props));
-                        return [4 /*yield*/, new Promise(function (resolve) {
-                                var context = { locale: _this.locale, resolve: resolve };
-                                var page = _this.factory.createPage(props, context);
-                                _this.renderElements([page]);
-                            })];
+                    case 0: return [4 /*yield*/, new Promise(function (resolve) {
+                            var context = { locale: _this.locale, resolve: resolve };
+                            var page = _this.factory.createPage(props, context);
+                            _this.renderElements([page]);
+                        })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });

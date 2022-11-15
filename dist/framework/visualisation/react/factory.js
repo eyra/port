@@ -11,8 +11,7 @@ var __assign = (this && this.__assign) || function () {
 };
 import { jsx as _jsx } from "react/jsx-runtime";
 import { EndPage } from './ui/pages/end_page';
-import { StartPage } from './ui/pages/start_page';
-import { isPropsUIPageEnd, isPropsUIPageDonation, isPropsUIPageStart, isPropsUIPageSplashScreen } from '../../types/pages';
+import { isPropsUIPageEnd, isPropsUIPageDonation, isPropsUIPageSplashScreen } from '../../types/pages';
 import { DonationPage } from './ui/pages/donation_page';
 import { SplashScreen } from './ui/pages/splash_screen';
 var ReactFactory = /** @class */ (function () {
@@ -21,9 +20,6 @@ var ReactFactory = /** @class */ (function () {
     ReactFactory.prototype.createPage = function (page, context) {
         if (isPropsUIPageSplashScreen(page)) {
             return _jsx(SplashScreen, __assign({}, page, context));
-        }
-        if (isPropsUIPageStart(page)) {
-            return _jsx(StartPage, __assign({}, page, context));
         }
         if (isPropsUIPageEnd(page)) {
             return _jsx(EndPage, __assign({}, page, context));
