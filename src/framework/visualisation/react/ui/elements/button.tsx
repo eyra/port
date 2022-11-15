@@ -3,12 +3,27 @@ import { PropsUIButtonBack, PropsUIButtonForward, PropsUIButtonLabel, PropsUIBut
 
 import BackSvg from '../../../../../assets/images/back.svg'
 import ForwardSvg from '../../../../../assets/images/forward.svg'
+import { Spinner } from './spinner'
 
-export const PrimaryButton = ({ label, color = 'bg-primary text-white', onClick }: Weak<PropsUIButtonPrimary>): JSX.Element => {
+function spinnerColor (buttonColor: string): string {
+  if (buttonColor.includes('bg-tertiary')) {
+    return 'dark'
+  }
+  return 'light'
+}
+
+export const PrimaryButton = ({ label, spinning = false, enabled = true, color = 'bg-primary text-white', onClick }: Weak<PropsUIButtonPrimary>): JSX.Element => {
   return (
-    <div className={`pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer ${color}`} onClick={onClick}>
-      <div id='confirm-button' className='flex-wrap'>
-        {label}
+    <div className='relative'>
+      <div className={`pt-15px pb-15px pr-4 pl-4 leading-none font-button text-button rounded ${enabled ? 'cursor-pointer active:shadow-top4px active:pt-4 active:pb-14px' : ''} ${color}`} onClick={onClick}>
+        <div id='confirm-button' className={`flex-wrap ${spinning ? 'opacity-0' : ''}`}>
+          {label}
+        </div>
+      </div>
+      <div className={`absolute top-0 h-full w-full flex flex-col justify-center items-center ${spinning ? '' : 'hidden'}`}>
+        <div className='w-5 h-5'>
+          <Spinner color={spinnerColor(color)} spinning={spinning} />
+        </div>
       </div>
     </div>
   )

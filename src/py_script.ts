@@ -65,7 +65,7 @@ def render_donation_page(index, platform, body):
         "en": f"Step {index}: {platform}",
         "nl": f"Stap {index}: {platform}"
     }))
-    page = PropsUIPageDonation(header, body, spinner())
+    page = PropsUIPageDonation(header, body)
     return CommandUIRender(page)
 
 
@@ -83,13 +83,6 @@ def retry_confirmation():
         "nl": "Annuleren"
     })
     return PropsUIPromptConfirm(text, ok, cancel)
-
-
-def spinner():
-    return PropsUISpinner(Translatable({
-        "en": "One moment please",
-        "nl": "Een moment geduld"
-    }))
 
 
 def prompt_file(platform, extensions):

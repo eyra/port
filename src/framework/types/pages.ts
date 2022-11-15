@@ -1,5 +1,5 @@
 import { isInstanceOf } from '../helpers'
-import { PropsUIHeader, PropsUISpinner } from './elements'
+import { PropsUIHeader } from './elements'
 import { PropsUIPromptFileInput, PropsUIPromptConfirm, PropsUIPromptConsentForm } from './prompts'
 
 export type PropsUIPage =
@@ -35,7 +35,6 @@ export interface PropsUIPageDonation {
   __type__: 'PropsUIPageDonation'
   header: PropsUIHeader
   body: PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptConsentForm
-  spinner: PropsUISpinner
 }
 export function isPropsUIPageDonation (arg: any): arg is PropsUIPageDonation {
   return isInstanceOf<PropsUIPageDonation>(arg, 'PropsUIPageDonation', ['header', 'body'])

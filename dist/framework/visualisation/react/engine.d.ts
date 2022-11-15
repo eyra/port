@@ -11,7 +11,6 @@ export default class ReactEngine implements VisualisationEngine {
     constructor(factory: VisualisationFactory);
     start(rootElement: HTMLElement, locale: string): void;
     render(command: CommandUIRender): Promise<Response>;
-    renderSplashScreen(): void;
     renderPage(props: PropsUIPage): Promise<any>;
     terminate(): void;
     renderElements(elements: JSX.Element[]): void;

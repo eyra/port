@@ -7,7 +7,6 @@ import { PropsUIPageDonation } from '../../../../types/pages'
 import { isPropsUIPromptConfirm, isPropsUIPromptConsentForm, isPropsUIPromptFileInput } from '../../../../types/prompts'
 import { ReactFactoryContext } from '../../factory'
 import { ForwardButton } from '../elements/button'
-import { Spinner } from '../elements/spinner'
 import { Title0 } from '../elements/text'
 import { Confirm } from '../prompts/confirm'
 import { ConsentForm } from '../prompts/consent_form'
@@ -16,7 +15,6 @@ import { FileInput } from '../prompts/file_input'
 type Props = Weak<PropsUIPageDonation> & ReactFactoryContext
 
 export const DonationPage = (props: Props): JSX.Element => {
-  const [spinnerHidden] = React.useState<boolean>(true)
   const { title, forwardButton } = prepareCopy(props)
   const { resolve } = props
 
@@ -43,9 +41,6 @@ export const DonationPage = (props: Props): JSX.Element => {
     <>
       <Title0 text={title} />
       {renderBody(props)}
-      <div className={spinnerHidden ? 'hidden' : ''}>
-        <Spinner {... props.spinner} locale={props.locale} />
-      </div>
       <div className='mb-10' />
       <div className='flex flex-row gap-4 items-center w-full'>
         <div className='flex-grow' />

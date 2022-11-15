@@ -9,28 +9,47 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import React from 'react';
 import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
-import { Spinner } from '../elements/spinner';
-import { BodyLarge, Title0 } from '../elements/text';
+import { PrimaryButton } from '../elements/button';
+import { CheckBox } from '../elements/check_box';
+import { BodyLarge, Label, Title0 } from '../elements/text';
 function prepareCopy(_a) {
     var locale = _a.locale;
     return {
         title: Translator.translate(title, locale),
-        description: Translator.translate(description, locale)
+        description: Translator.translate(description, locale),
+        continueButton: Translator.translate(continueButton, locale),
+        privacyLabel: Translator.translate(privacyLabel, locale)
     };
 }
 export var SplashScreen = function (props) {
-    var _a = prepareCopy(props), title = _a.title, description = _a.description;
-    return (_jsxs(_Fragment, { children: [_jsx(Title0, { text: title }), _jsx(BodyLarge, { text: description }), _jsx(Spinner, __assign({ text: spinnerText }, props))] }));
+    var _a = React.useState(false), checked = _a[0], setChecked = _a[1];
+    var _b = React.useState(false), waiting = _b[0], setWaiting = _b[1];
+    var _c = prepareCopy(props), title = _c.title, description = _c.description, continueButton = _c.continueButton, privacyLabel = _c.privacyLabel;
+    var resolve = props.resolve;
+    function handleContinue() {
+        if (checked && !waiting) {
+            setWaiting(true);
+            resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadVoid', value: undefined });
+        }
+    }
+    function handleCheck() {
+        setChecked(true);
+    }
+    return (_jsxs(_Fragment, { children: [_jsx(Title0, { text: title }), _jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(CheckBox, { id: '0', selected: checked, onSelect: function () { return handleCheck(); } }), _jsx(Label, { text: privacyLabel })] })), _jsx("div", __assign({ className: "flex flex-row gap-4 ".concat(checked ? '' : 'opacity-30') }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleContinue, enabled: checked, spinning: waiting }) }))] }))] }));
 };
 var title = new TextBundle()
     .add('en', 'Welcome')
     .add('nl', 'Welkom');
 var description = new TextBundle()
-    .add('en', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
-    .add('nl', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-var spinnerText = new TextBundle()
-    .add('en', 'One moment please..')
-    .add('nl', 'Een moment geduld..');
+    .add('en', 'This way you can donate your data to the University of Amsterdam. The data we ask you to donate can be used to research… . We explain step by step what is expected of you. No data is saved or sent during these steps. The data is only saved when you are asked whether you want to send the data. Thank you in advance.')
+    .add('nl', 'U kunt zo uw gegevens gaan doneren aan de universiteit van Amsterdam. De gegevens die we u vragen te doneren kunnen worden gebruikt om te onderzoeken … . We leggen u stap voor stap uit wat er van u verwacht wordt. Tijdens deze stappen worden geen gegevens opgeslagen of verstuurd. Pas als u de vraag krijgt of u de gegevens wilt versturen, worden de gegevens opgeslagen. Alvast hartelijk dank.');
+var continueButton = new TextBundle()
+    .add('en', 'Continue')
+    .add('nl', 'Ga verder');
+var privacyLabel = new TextBundle()
+    .add('en', 'I have read and agree to the privacy conditions.')
+    .add('nl', 'Ik heb de privacy voorwaarden gelezen en ben hiermee akkoord.');

@@ -45,7 +45,6 @@ var ReactEngine = /** @class */ (function () {
         console.log('[ReactEngine] started');
         this.root = ReactDOM.createRoot(rootElement);
         this.locale = locale;
-        this.renderSplashScreen();
     };
     ReactEngine.prototype.render = function (command) {
         return __awaiter(this, void 0, void 0, function () {
@@ -61,11 +60,6 @@ var ReactEngine = /** @class */ (function () {
                 }
             });
         });
-    };
-    ReactEngine.prototype.renderSplashScreen = function () {
-        var context = { locale: this.locale, resolve: function () { } };
-        var page = this.factory.createPage({ __type__: 'PropsUIPageSplashScreen' }, context);
-        this.renderElements([page]);
     };
     ReactEngine.prototype.renderPage = function (props) {
         return __awaiter(this, void 0, void 0, function () {

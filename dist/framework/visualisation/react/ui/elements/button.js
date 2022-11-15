@@ -12,9 +12,16 @@ var __assign = (this && this.__assign) || function () {
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import BackSvg from '../../../../../assets/images/back.svg';
 import ForwardSvg from '../../../../../assets/images/forward.svg';
+import { Spinner } from './spinner';
+function spinnerColor(buttonColor) {
+    if (buttonColor.includes('bg-tertiary')) {
+        return 'dark';
+    }
+    return 'light';
+}
 export var PrimaryButton = function (_a) {
-    var label = _a.label, _b = _a.color, color = _b === void 0 ? 'bg-primary text-white' : _b, onClick = _a.onClick;
-    return (_jsx("div", __assign({ className: "pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer ".concat(color), onClick: onClick }, { children: _jsx("div", __assign({ id: 'confirm-button', className: 'flex-wrap' }, { children: label })) })));
+    var label = _a.label, _b = _a.spinning, spinning = _b === void 0 ? false : _b, _c = _a.enabled, enabled = _c === void 0 ? true : _c, _d = _a.color, color = _d === void 0 ? 'bg-primary text-white' : _d, onClick = _a.onClick;
+    return (_jsxs("div", __assign({ className: 'relative' }, { children: [_jsx("div", __assign({ className: "pt-15px pb-15px pr-4 pl-4 leading-none font-button text-button rounded ".concat(enabled ? 'cursor-pointer active:shadow-top4px active:pt-4 active:pb-14px' : '', " ").concat(color), onClick: onClick }, { children: _jsx("div", __assign({ id: 'confirm-button', className: "flex-wrap ".concat(spinning ? 'opacity-0' : '') }, { children: label })) })), _jsx("div", __assign({ className: "absolute top-0 h-full w-full flex flex-col justify-center items-center ".concat(spinning ? '' : 'hidden') }, { children: _jsx("div", __assign({ className: 'w-5 h-5' }, { children: _jsx(Spinner, { color: spinnerColor(color), spinning: spinning }) })) }))] })));
 };
 export var SecondaryButton = function (_a) {
     var label = _a.label, _b = _a.color, color = _b === void 0 ? 'bg-delete text-delete' : _b, onClick = _a.onClick;

@@ -20,7 +20,8 @@ export type PropsUIText =
   PropsUITextTitle1 |
   PropsUITextTitle2 |
   PropsUITextTitle6 |
-  PropsUITextBodyLarge
+  PropsUITextBodyLarge |
+  PropsUITextLabel
 
 export type PropsUIButton =
   PropsUIButtonPrimary |
@@ -47,7 +48,18 @@ export function isPropsUIText (arg: any): arg is PropsUIText {
     isPropsUITextTitle0(arg) ||
     isPropsUITextTitle0(arg) ||
     isPropsUITextBodyLarge(arg) ||
-    isPropsUITextBodyMedium(arg)
+    isPropsUITextBodyMedium(arg) ||
+    isPropsUITextLabel(arg)
+}
+
+export interface PropsUITextLabel {
+  __type__: 'PropsUITextLabel'
+  text: string
+  color?: string
+  margin?: string
+}
+export function isPropsUITextLabel (arg: any): arg is PropsUITextLabel {
+  return isInstanceOf<PropsUITextLabel>(arg, 'PropsUITextLabel', ['text', 'color', 'margin'])
 }
 
 export interface PropsUITextBodyLarge {
@@ -123,6 +135,8 @@ export interface PropsUIButtonPrimary {
   __type__: 'PropsUIButtonPrimary'
   label: string
   color?: string
+  enabled?: boolean
+  spinning?: boolean
   onClick: () => void
 }
 export function isPropsUIButtonPrimary (arg: any): arg is PropsUIButtonPrimary {
@@ -194,10 +208,11 @@ export function isPropsUICheckBox (arg: any): arg is PropsUICheckBox {
 
 export interface PropsUISpinner {
   __type__: 'PropsUISpinner'
-  text: Text
+  spinning?: boolean
+  color?: string
 }
 export function isPropsUISpinner (arg: any): arg is PropsUISpinner {
-  return isInstanceOf<PropsUISpinner>(arg, 'PropsUISpinner', ['text'])
+  return isInstanceOf<PropsUISpinner>(arg, 'PropsUISpinner', ['color', 'spinning'])
 }
 
 // Header

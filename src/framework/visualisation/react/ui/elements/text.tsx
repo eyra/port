@@ -1,5 +1,5 @@
 import { Weak } from '../../../../helpers'
-import { PropsUITextBodyLarge, PropsUITextBodyMedium, PropsUITextTitle0, PropsUITextTitle1, PropsUITextTitle2, PropsUITextTitle6 } from '../../../../types/elements'
+import { PropsUITextBodyLarge, PropsUITextBodyMedium, PropsUITextLabel, PropsUITextTitle0, PropsUITextTitle1, PropsUITextTitle2, PropsUITextTitle6 } from '../../../../types/elements'
 
 export const BodyLarge = ({ text, color = 'text-grey1', margin = 'mb-6 md:mb-8 lg:mb-10' }: Weak<PropsUITextBodyLarge>): JSX.Element => {
   return (
@@ -44,6 +44,14 @@ export const Title2 = ({ text, color = 'text-grey1', margin = 'mb-6 md:mb-8 lg:m
 export const Title6 = ({ text, color = 'text-grey1', margin = 'mb-2' }: Weak<PropsUITextTitle6>): JSX.Element => {
   return (
     <div className={`text-title6 font-title6 ${margin} ${color}`}>
+      {text}
+    </div>
+  )
+}
+
+export const Label = ({ text, color = 'text-grey1', margin = '' }: Weak<PropsUITextLabel>): JSX.Element => {
+  return (
+    <div className={`text-label font-label ${color} ${margin}`}>
       {text}
     </div>
   )
