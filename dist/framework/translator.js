@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { isTranslatable } from './types/elements';
 export var Translator = (function () {
     var defaultLocale = 'nl';
@@ -7,7 +6,7 @@ export var Translator = (function () {
             return text;
         }
         if (isTranslatable(text)) {
-            return _.escape(resolve(text, locale));
+            return resolve(text, locale);
         }
         throw new TypeError('Unknown text type');
     }

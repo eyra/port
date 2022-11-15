@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { isTranslatable, Text, Translatable } from './types/elements'
 
 export const Translator = (function () {
@@ -9,7 +8,7 @@ export const Translator = (function () {
       return text
     }
     if (isTranslatable(text)) {
-      return _.escape(resolve(text, locale))
+      return resolve(text, locale)
     }
     throw new TypeError('Unknown text type')
   }
