@@ -41,7 +41,7 @@ interface State {
 }
 
 export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, onChange }: Props): JSX.Element => {
-  const pageWindowlegSize = 2
+  const pageWindowlegSize = 3
 
   const query = React.useRef<string[]>([])
   const alteredRows = React.useRef<PropsUITableRow[]>(body.rows)

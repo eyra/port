@@ -23,7 +23,7 @@ import DeleteSvg from '../../../../../assets/images/delete.svg';
 import { PageIcon } from './page_icon';
 export var Table = function (_a) {
     var id = _a.id, head = _a.head, body = _a.body, _b = _a.readOnly, readOnly = _b === void 0 ? false : _b, _c = _a.pageSize, pageSize = _c === void 0 ? 7 : _c, locale = _a.locale, onChange = _a.onChange;
-    var pageWindowlegSize = 2;
+    var pageWindowlegSize = 3;
     var query = React.useRef([]);
     var alteredRows = React.useRef(body.rows);
     var filteredRows = React.useRef(alteredRows.current);

@@ -32,7 +32,7 @@ def process():
                     break
                 else:
                     meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection")) 
-                    retry_result = yield render_donation_page(platform, retry_confirmation(), progress)
+                    retry_result = yield render_donation_page(platform, retry_confirmation(platform), progress)
                     if retry_result.__type__ == 'PayloadTrue':
                         meta_data.append(("debug", f"{platform}: skip due to invalid file")) 
                         continue
@@ -72,18 +72,18 @@ def render_donation_page(platform, body, progress):
     return CommandUIRender(page)
 
 
-def retry_confirmation():
+def retry_confirmation(platform):
     text = Translatable({
-        "en": "The selected file is invalid. Do you want to select a different file?",
-        "nl": "Het geselecteerde bestaand is ongeldig. Wil je een ander bestand selecteren ?"
+        "en": f"We can not process your {platform} file, please try again if you want to choose another file.",
+        "nl": f"We kunnen uw {platform} bestand niet verwerken, probeer opnieuw als u een ander bestand wilt kiezen."
     })
     ok = Translatable({
-        "en": "Different file",
-        "nl": "Ander bestand"
+        "en": "Try again",
+        "nl": "Probeer opnieuw"
     })
     cancel = Translatable({
-        "en": "Cancel",
-        "nl": "Annuleren"
+        "en": "Continue",
+        "nl": "Verder"
     })
     return PropsUIPromptConfirm(text, ok, cancel)
 

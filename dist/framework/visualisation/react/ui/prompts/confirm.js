@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { Translator } from '../../../../translator';
 import { BodyLarge } from '../elements/text';
-import { LabelButton, PrimaryButton } from '../elements/button';
+import { PrimaryButton } from '../elements/button';
 export var Confirm = function (props) {
     var resolve = props.resolve;
     var _a = prepareCopy(props), text = _a.text, ok = _a.ok, cancel = _a.cancel;
@@ -22,7 +22,7 @@ export var Confirm = function (props) {
     function handleCancel() {
         resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFalse', value: false });
     }
-    return (_jsxs(_Fragment, { children: [_jsx(BodyLarge, { text: text, margin: 'mb-4' }), _jsxs("div", __assign({ className: 'flex flex-row gap-4' }, { children: [_jsx(PrimaryButton, { label: ok, onClick: handleOk }), _jsx(LabelButton, { label: cancel, onClick: handleCancel })] }))] }));
+    return (_jsxs(_Fragment, { children: [_jsx(BodyLarge, { text: text, margin: 'mb-4' }), _jsxs("div", __assign({ className: 'flex flex-row gap-4' }, { children: [_jsx(PrimaryButton, { label: ok, onClick: handleOk, color: 'text-grey1 bg-tertiary' }), _jsx(PrimaryButton, { label: cancel, onClick: handleCancel, color: 'text-white bg-primary' })] }))] }));
 };
 function prepareCopy(_a) {
     var text = _a.text, ok = _a.ok, cancel = _a.cancel, locale = _a.locale;

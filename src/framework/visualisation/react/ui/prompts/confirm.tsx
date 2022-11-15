@@ -3,7 +3,7 @@ import { ReactFactoryContext } from '../../factory'
 import { PropsUIPromptConfirm } from '../../../../types/prompts'
 import { Translator } from '../../../../translator'
 import { BodyLarge } from '../elements/text'
-import { LabelButton, PrimaryButton } from '../elements/button'
+import { PrimaryButton } from '../elements/button'
 
 type Props = Weak<PropsUIPromptConfirm> & ReactFactoryContext
 
@@ -23,8 +23,8 @@ export const Confirm = (props: Props): JSX.Element => {
     <>
       <BodyLarge text={text} margin='mb-4' />
       <div className='flex flex-row gap-4'>
-        <PrimaryButton label={ok} onClick={handleOk} />
-        <LabelButton label={cancel} onClick={handleCancel} />
+        <PrimaryButton label={ok} onClick={handleOk} color='text-grey1 bg-tertiary' />
+        <PrimaryButton label={cancel} onClick={handleCancel} color='text-white bg-primary' />
       </div>
     </>
   )
