@@ -12,91 +12,180 @@ var __assign = (this && this.__assign) || function () {
 import { jsxs as _jsxs, jsx as _jsx, Fragment as _Fragment } from "react/jsx-runtime";
 import _ from 'lodash';
 import React from 'react';
-import { BackButton, ForwardButton, PrimaryButton, SecondaryButton } from './button';
+import TextBundle from '../../../../text_bundle';
+import { Translator } from '../../../../translator';
+import { BackIconButton, ForwardIconButton, IconLabelButton } from './button';
 import { CheckBox } from './check_box';
 import { SearchBar } from './search_bar';
-import { BodyLarge, BodyMedium, Title6 } from './text';
+import { Caption, Label, Title3 } from './text';
+import UndoSvg from '../../../../../assets/images/undo.svg';
+import DeleteSvg from '../../../../../assets/images/delete.svg';
+import { PageIcon } from './page_icon';
 export var Table = function (_a) {
-    var id = _a.id, head = _a.head, body = _a.body, _b = _a.readOnly, readOnly = _b === void 0 ? false : _b, _c = _a.pageSize, pageSize = _c === void 0 ? 7 : _c, onChange = _a.onChange;
-    var _d = React.useState(false), editMode = _d[0], setEditMode = _d[1];
-    var _e = React.useState([]), query = _e[0], setQuery = _e[1];
-    var _f = React.useState(body.rows), alteredRows = _f[0], setAlteredRows = _f[1];
-    var _g = React.useState(alteredRows), filteredRows = _g[0], setFilteredRows = _g[1];
-    var _h = React.useState(createPages(filteredRows)), pages = _h[0], setPages = _h[1];
-    var _j = React.useState(pages[0]), currentPage = _j[0], setCurrentPage = _j[1];
-    var _k = React.useState([]), selectedRows = _k[0], setSelectedRows = _k[1];
-    function createPages(rows) {
-        if (rows.length === 0) {
-            return [{ index: 0, rows: rows }];
+    var id = _a.id, head = _a.head, body = _a.body, _b = _a.readOnly, readOnly = _b === void 0 ? false : _b, _c = _a.pageSize, pageSize = _c === void 0 ? 7 : _c, locale = _a.locale, onChange = _a.onChange;
+    var pageWindowlegSize = 2;
+    var query = React.useRef([]);
+    var alteredRows = React.useRef(body.rows);
+    var filteredRows = React.useRef(alteredRows.current);
+    var initialState = {
+        edit: false,
+        pageCount: getPageCount(),
+        page: 0,
+        pageWindow: updatePageWindow(0),
+        rows: updateRows(0),
+        selected: [],
+        deletedCount: 0,
+        visibility: {
+            search: alteredRows.current.length > pageSize,
+            delete: false,
+            undo: false,
+            table: filteredRows.current.length > 0,
+            noData: filteredRows.current.length === 0,
+            noDataLeft: false,
+            noResults: false
         }
-        return _
-            .range(0, Math.ceil(rows.length / pageSize))
-            .map(function (index) { return { index: index, rows: createPage(index, rows) }; });
+    };
+    var _d = React.useState(initialState), state = _d[0], setState = _d[1];
+    var copy = prepareCopy(locale);
+    function display(element) {
+        return visible(element) ? '' : 'hidden';
     }
-    function createPage(page, rows) {
-        var offset = page * pageSize;
-        return rows.slice(offset, offset + pageSize);
+    function visible(element) {
+        if (typeof state.visibility[element] === 'boolean') {
+            return state.visibility[element];
+        }
+        return false;
+    }
+    function updatePageWindow(currentPage) {
+        var pageWindowSize = (pageWindowlegSize * 2) + 1;
+        var pageCount = getPageCount();
+        var range = [];
+        if (pageWindowSize >= pageCount && pageCount > 0) {
+            range = _.range(0, Math.min(pageCount, pageWindowSize));
+        }
+        else if (pageWindowSize < pageCount) {
+            var maxIndex = pageCount - 1;
+            var start = void 0;
+            var end = void 0;
+            if (currentPage < pageWindowlegSize) {
+                // begin
+                start = 0;
+                end = Math.min(pageCount, pageWindowSize);
+            }
+            else if (maxIndex - currentPage <= pageWindowlegSize) {
+                // end
+                start = maxIndex - (pageWindowSize - 1);
+                end = maxIndex + 1;
+            }
+            else {
+                // middle
+                start = currentPage - pageWindowlegSize;
+                end = currentPage + pageWindowlegSize + 1;
+            }
+            range = _.range(start, end);
+        }
+        return range;
+    }
+    function getPageCount() {
+        if (filteredRows.current.length === 0) {
+            return 0;
+        }
+        return Math.ceil(filteredRows.current.length / pageSize);
+    }
+    function updateRows(currentPage) {
+        var offset = currentPage * pageSize;
+        return filteredRows.current.slice(offset, offset + pageSize);
     }
     function renderHeadRow(props) {
-        return (_jsxs("tr", { children: [editMode ? renderHeadCheck() : '', props.cells.map(function (cell, index) { return renderHeadCell(cell, index); })] }));
+        return (_jsxs("tr", { children: [state.edit ? renderHeadCheck() : '', props.cells.map(function (cell, index) { return renderHeadCell(cell, index); })] }));
     }
     function renderHeadCheck() {
-        var selected = selectedRows.length > 0 && selectedRows.length === currentPage.rows.length;
-        return (_jsx("td", { children: _jsx(CheckBox, { id: '-1', selected: selected, onSelect: function () { return handleSelectHead(); } }) }, 'check-head'));
+        var selected = state.selected.length > 0 && state.selected.length === state.rows.length;
+        return (_jsx("td", __assign({ className: 'pl-4 w-10' }, { children: _jsx(CheckBox, { id: '-1', selected: selected, onSelect: function () { return handleSelectHead(); } }) }), 'check-head'));
     }
     function renderHeadCell(props, index) {
-        return (_jsx("th", __assign({ className: 'px-2 pt-3 pb-13px text-left' }, { children: _jsx(Title6, { text: props.text, margin: '' }) }), "".concat(index)));
+        return (_jsx("th", __assign({ className: 'h-12 px-4 text-left' }, { children: _jsx("div", __assign({ className: 'font-table-header text-table text-grey1' }, { children: props.text })) }), "".concat(index)));
     }
-    function renderRows(rows) {
-        return rows.map(function (row, index) { return renderRow(row, index); });
+    function renderRows() {
+        return state.rows.map(function (row, index) { return renderRow(row, index); });
     }
     function renderRow(row, rowIndex) {
-        return (_jsxs("tr", __assign({ className: 'hover:bg-grey5' }, { children: [editMode ? renderRowCheck(row.id) : '', row.cells.map(function (cell, cellIndex) { return renderRowCell(cell, cellIndex); })] }), "".concat(rowIndex)));
+        return (_jsxs("tr", __assign({ className: 'hover:bg-grey6' }, { children: [state.edit ? renderRowCheck(row.id) : '', row.cells.map(function (cell, cellIndex) { return renderRowCell(cell, cellIndex); })] }), "".concat(rowIndex)));
     }
     function renderRowCheck(rowId) {
-        var selected = selectedRows.includes(rowId);
-        return (_jsx("td", __assign({ className: 'w-8 min-w-8' }, { children: _jsx(CheckBox, { id: rowId, selected: selected, onSelect: function () { return handleSelectRow(rowId); } }) }), "check-".concat(rowId)));
+        var selected = state.selected.includes(rowId);
+        return (_jsx("td", __assign({ className: 'pl-4' }, { children: _jsx(CheckBox, { id: rowId, selected: selected, onSelect: function () { return handleSelectRow(rowId); } }) }), "check-".concat(rowId)));
     }
     function renderRowCell(props, cellIndex) {
-        return (_jsx("td", __assign({ className: 'px-2 pt-3 pb-13px' }, { children: _jsx(BodyMedium, { text: props.text, margin: '' }) }), "".concat(cellIndex)));
+        return (_jsx("td", __assign({ className: 'h-12 px-4' }, { children: _jsx("div", __assign({ className: 'font-table-row text-table text-grey1' }, { children: props.text })) }), "".concat(cellIndex)));
+    }
+    function renderPageIcons() {
+        return (_jsx("div", __assign({ className: 'flex flex-row gap-2' }, { children: state.pageWindow.map(function (page) { return renderPageIcon(page); }) })));
+    }
+    function renderPageIcon(index) {
+        return _jsx(PageIcon, { index: index + 1, selected: state.page === index, onClick: function () { return handleNewPage(index); } }, "page-".concat(index));
+    }
+    function filterRows() {
+        if (query.current.length === 0) {
+            return alteredRows.current;
+        }
+        return alteredRows.current.filter(function (row) { return matchRow(row, query.current); });
+    }
+    function matchRow(row, query) {
+        var rowText = row.cells.map(function (cell) { return cell.text; }).join(' ');
+        return query.find(function (word) { return !rowText.includes(word); }) === undefined;
     }
     function handleSelectHead() {
-        var allRowsSelected = selectedRows.length === currentPage.rows.length;
+        var allRowsSelected = state.selected.length === state.rows.length;
         if (allRowsSelected) {
-            setSelectedRows([]);
+            setState(function (state) {
+                return __assign(__assign({}, state), { selected: [] });
+            });
         }
         else {
             handleSelectAll();
         }
     }
     function handleSelectRow(rowId) {
-        var newSelected = selectedRows.slice(0);
-        var index = selectedRows.indexOf(rowId);
-        if (index === -1) {
-            newSelected.push(rowId);
-        }
-        else {
-            newSelected.splice(index, 1);
-        }
-        setSelectedRows(newSelected);
+        setState(function (state) {
+            var selected = state.selected.slice(0);
+            var index = selected.indexOf(rowId);
+            if (index === -1) {
+                selected.push(rowId);
+            }
+            else {
+                selected.splice(index, 1);
+            }
+            return __assign(__assign({}, state), { selected: selected });
+        });
     }
     function handleSelectAll() {
-        var allRowIds = currentPage.rows.map(function (row) { return row.id; });
-        setSelectedRows(allRowIds);
+        setState(function (state) {
+            var selected = state.rows.map(function (row) { return row.id; });
+            return __assign(__assign({}, state), { selected: selected });
+        });
     }
     function handlePrevious() {
-        var index = currentPage.index === 0 ? pages.length - 1 : currentPage.index - 1;
-        setSelectedRows([]);
-        setCurrentPage(pages[index]);
+        setState(function (state) {
+            var page = state.page === 0 ? state.pageCount - 1 : state.page - 1;
+            var pageWindow = updatePageWindow(page);
+            var rows = updateRows(page);
+            return __assign(__assign({}, state), { page: page, pageWindow: pageWindow, rows: rows });
+        });
     }
     function handleNext() {
-        var index = currentPage.index === pages.length - 1 ? 0 : currentPage.index + 1;
-        setSelectedRows([]);
-        setCurrentPage(pages[index]);
+        setState(function (state) {
+            var page = state.page === state.pageCount - 1 ? 0 : state.page + 1;
+            var pageWindow = updatePageWindow(page);
+            var rows = updateRows(page);
+            return __assign(__assign({}, state), { page: page, pageWindow: pageWindow, rows: rows });
+        });
     }
     function handleDeleteSelected() {
-        var currentSelectedRows = selectedRows.slice(0);
-        var newAlteredRows = alteredRows.slice(0);
+        var currentSelectedRows = state.selected.slice(0);
+        if (currentSelectedRows.length === 0)
+            return;
+        var newAlteredRows = alteredRows.current.slice(0);
         var _loop_1 = function (rowId) {
             var index = newAlteredRows.findIndex(function (row) { return row.id === rowId; });
             if (index !== -1) {
@@ -107,36 +196,127 @@ export var Table = function (_a) {
             var rowId = currentSelectedRows_1[_i];
             _loop_1(rowId);
         }
-        updateAlteredRows(newAlteredRows, query);
-    }
-    function updateAlteredRows(alteredRows, query) {
-        var filteredRows = filterRows(alteredRows, query);
-        var newPages = createPages(filteredRows);
-        var newCurrentPageIndex = Math.min(newPages.length, currentPage.index);
-        var newCurrentPage = newPages[newCurrentPageIndex];
-        setAlteredRows(alteredRows);
-        setFilteredRows(filteredRows);
-        setPages(newPages);
-        setCurrentPage(newCurrentPage);
-        setSelectedRows([]);
-        onChange(id, alteredRows);
-    }
-    function filterRows(rows, query) {
-        if (query.length === 0) {
-            return rows;
-        }
-        return rows.filter(function (row) { return matchRow(row, query); });
-    }
-    function matchRow(row, query) {
-        var rowText = row.cells.map(function (cell) { return cell.text; }).join(' ');
-        return query.find(function (word) { return !rowText.includes(word); }) === undefined;
+        alteredRows.current = newAlteredRows;
+        filteredRows.current = filterRows();
+        setState(function (state) {
+            var pageCount = getPageCount();
+            var page = Math.max(0, Math.min(pageCount - 1, state.page));
+            var pageWindow = updatePageWindow(page);
+            var rows = updateRows(page);
+            var deletedCount = body.rows.length - alteredRows.current.length;
+            var visibility = __assign(__assign({}, state.visibility), { undo: deletedCount > 0, table: filteredRows.current.length > 0, noData: false, noDataLeft: alteredRows.current.length === 0, noResults: alteredRows.current.length > 0 && filteredRows.current.length === 0 });
+            return __assign(__assign({}, state), { page: page, pageCount: pageCount, pageWindow: pageWindow, rows: rows, deletedCount: deletedCount, selected: [], visibility: visibility });
+        });
+        onChange(id, alteredRows.current);
     }
     function handleUndo() {
-        updateAlteredRows(body.rows, query);
+        alteredRows.current = body.rows;
+        filteredRows.current = filterRows();
+        setState(function (state) {
+            var pageCount = getPageCount();
+            var page = Math.min(pageCount, state.page);
+            var pageWindow = updatePageWindow(page);
+            var rows = updateRows(state.page);
+            var visibility = __assign(__assign({}, state.visibility), { undo: false, table: filteredRows.current.length > 0, noData: false, noDataLeft: false, noResults: filteredRows.current.length === 0 });
+            return __assign(__assign({}, state), { page: page, pageCount: pageCount, pageWindow: pageWindow, rows: rows, deletedCount: 0, selected: [], visibility: visibility });
+        });
+        onChange(id, body.rows);
     }
-    function handleSearch(query) {
-        setQuery(query);
-        updateAlteredRows(alteredRows, query);
+    function handleSearch(newQuery) {
+        query.current = newQuery;
+        filteredRows.current = filterRows();
+        setState(function (state) {
+            var pageCount = getPageCount();
+            var page = Math.min(pageCount, state.page);
+            var pageWindow = updatePageWindow(page);
+            var rows = updateRows(state.page);
+            var visibility = __assign(__assign({}, state.visibility), { table: filteredRows.current.length > 0, noData: body.rows.length === 0, noDataLeft: body.rows.length > 0 && alteredRows.current.length === 0, noResults: body.rows.length > 0 && alteredRows.current.length > 0 && filteredRows.current.length === 0 });
+            return __assign(__assign({}, state), { page: page, pageCount: pageCount, pageWindow: pageWindow, rows: rows, visibility: visibility });
+        });
     }
-    return (_jsxs(_Fragment, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4' }, { children: [_jsx("div", __assign({ className: "".concat(!editMode && !readOnly ? '' : 'hidden') }, { children: _jsx(PrimaryButton, { label: 'Edit', onClick: function () { return setEditMode(true); }, color: 'bg-delete text-white' }) })), _jsx("div", __assign({ className: "".concat(editMode ? '' : 'hidden') }, { children: _jsx(PrimaryButton, { label: 'Select all', onClick: handleSelectAll }) })), _jsx("div", __assign({ className: "".concat(editMode ? '' : 'hidden') }, { children: _jsx(SecondaryButton, { label: 'Delete', onClick: handleDeleteSelected }) })), _jsx("div", __assign({ className: "".concat(editMode && body.rows.length > 0 ? '' : 'hidden') }, { children: _jsx(SecondaryButton, { label: 'Undo', onClick: handleUndo, color: 'text-grey1' }) })), _jsx("div", __assign({ className: "".concat(alteredRows.length > pageSize ? '' : 'hidden') }, { children: _jsx(SearchBar, { placeholder: 'Search', onSearch: handleSearch }) }))] })), _jsxs("div", __assign({ className: "".concat(filteredRows.length === 0 ? 'hidden' : '') }, { children: [_jsxs("table", __assign({ className: 'text-grey1 table-auto ' }, { children: [_jsx("thead", { children: renderHeadRow(head) }), _jsx("tbody", { children: renderRows(currentPage.rows) })] })), _jsxs("div", __assign({ className: "flex flex-row gap-4 mt-2 ".concat(filteredRows.length <= pageSize ? 'hidden' : '', " ") }, { children: [_jsx(BackButton, { label: 'Previous', onClick: handlePrevious }), _jsxs("div", { children: [currentPage.index + 1, " / ", pages.length] }), _jsx(ForwardButton, { label: 'Next', onClick: handleNext })] }))] })), _jsx("div", __assign({ className: "flex flex-col ".concat(alteredRows.length === 0 ? '' : 'hidden') }, { children: _jsx(BodyLarge, { text: 'Empty data set', margin: '' }) })), _jsx("div", __assign({ className: "flex flex-col ".concat(alteredRows.length > 0 && filteredRows.length === 0 ? '' : 'hidden') }, { children: _jsx(BodyLarge, { text: 'Nothing found', margin: '' }) }))] }));
+    function handleNewPage(page) {
+        setState(function (state) {
+            var rows = updateRows(page);
+            return __assign(__assign({}, state), { page: page, rows: rows });
+        });
+    }
+    function handleEditToggle() {
+        setState(function (state) {
+            var edit = !state.edit;
+            var visibility = __assign(__assign({}, state.visibility), { delete: edit });
+            return __assign(__assign({}, state), { edit: edit, visibility: visibility });
+        });
+    }
+    return (_jsxs(_Fragment, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsxs("div", __assign({ className: "flex flex-row items-center gap-2 mt-2 ".concat(body.rows.length <= pageSize ? 'hidden' : '', " ") }, { children: [_jsx(BackIconButton, { onClick: handlePrevious }), _jsx("div", { children: renderPageIcons() }), _jsx(ForwardIconButton, { onClick: handleNext })] })), _jsx("div", { className: 'flex-grow' }), _jsx(Caption, { text: copy.pages, color: 'text-grey2', margin: '' }), _jsx("div", __assign({ className: "".concat(display('search')) }, { children: _jsx(SearchBar, { placeholder: copy.searchPlaceholder, onSearch: function (query) { return handleSearch(query); } }) }))] })), _jsx("div", __assign({ className: "flex flex-col gap-4 justify-center h-full ".concat(display('table')) }, { children: _jsxs("table", __assign({ className: 'text-grey1 table-fixed divide-y divide-grey4' }, { children: [_jsx("thead", { children: renderHeadRow(head) }), _jsx("tbody", __assign({ className: 'divide-y divide-grey4' }, { children: renderRows() }))] })) })), _jsx("div", __assign({ className: "flex flex-col justify-center items-center w-full h-table bg-grey6 ".concat(display('noData')) }, { children: _jsx(Title3, { text: copy.noData, color: 'text-grey3', margin: '' }) })), _jsx("div", __assign({ className: "flex flex-col justify-center items-center w-full h-table bg-grey6 ".concat(display('noDataLeft')) }, { children: _jsx(Title3, { text: copy.noDataLeft, color: 'text-grey3', margin: '' }) })), _jsx("div", __assign({ className: "flex flex-col justify-center items-center w-full h-table bg-grey6 ".concat(display('noResults')) }, { children: _jsx(Title3, { text: copy.noResults, color: 'text-grey3', margin: '' }) })), _jsxs("div", __assign({ className: "flex flex-row items-center gap-6 mt-2 h-8 ".concat(body.rows.length === 0 ? 'hidden' : '', " ") }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(CheckBox, { id: 'edit', selected: state.edit, onSelect: handleEditToggle }), _jsx(Label, { text: copy.edit, margin: 'mt-1px' })] })), _jsx("div", __assign({ className: "".concat(display('delete'), " mt-1px") }, { children: _jsx(IconLabelButton, { label: copy.delete, color: 'text-delete', icon: DeleteSvg, onClick: handleDeleteSelected }) })), _jsx("div", { className: 'flex-grow' }), _jsx(Label, { text: copy.deleted }), _jsx("div", __assign({ className: "".concat(display('undo')) }, { children: _jsx(IconLabelButton, { label: copy.undo, color: 'text-primary', icon: UndoSvg, onClick: handleUndo }) }))] }))] }));
+    function prepareCopy(locale) {
+        return {
+            edit: Translator.translate(editLabel, locale),
+            undo: Translator.translate(undoLabel, locale),
+            noData: Translator.translate(noDataLabel, locale),
+            noDataLeft: Translator.translate(noDataLeftLabel, locale),
+            noResults: Translator.translate(noResultsLabel, locale),
+            pages: Translator.translate(pagesLabel(state.pageCount), locale),
+            delete: Translator.translate(deleteLabel, locale),
+            deleted: Translator.translate(deletedLabel(body.rows.length - alteredRows.current.length), locale),
+            searchPlaceholder: Translator.translate(searchPlaceholder, locale)
+        };
+    }
 };
+var searchPlaceholder = new TextBundle()
+    .add('en', 'Search')
+    .add('nl', 'Zoeken');
+var noDataLabel = new TextBundle()
+    .add('en', 'No information found')
+    .add('nl', 'Geen informatie gevonden');
+var noDataLeftLabel = new TextBundle()
+    .add('en', 'No information left')
+    .add('nl', 'Geen informatie overgebleven');
+var noResultsLabel = new TextBundle()
+    .add('en', 'No search results')
+    .add('nl', 'Geen zoek resultaten');
+var editLabel = new TextBundle()
+    .add('en', 'Edit table')
+    .add('nl', 'Bewerk tabel');
+var undoLabel = new TextBundle()
+    .add('en', 'Undo')
+    .add('nl', 'Herstel');
+var deleteLabel = new TextBundle()
+    .add('en', 'Delete selected')
+    .add('nl', 'Verwijder geselecteerde');
+function deletedNoneRowLabel() {
+    return new TextBundle()
+        .add('en', 'No changes made')
+        .add('nl', 'Geen aanpassingen');
+}
+function deletedRowLabel(amount) {
+    return new TextBundle()
+        .add('en', "You deleted ".concat(amount, " row"))
+        .add('nl', "Je hebt ".concat(amount, " rij verwijderd"));
+}
+function deletedRowsLabel(amount) {
+    return new TextBundle()
+        .add('en', "You deleted ".concat(amount, " rows"))
+        .add('nl', "Je hebt ".concat(amount, " rijen verwijderd"));
+}
+function deletedLabel(amount) {
+    if (amount === 0)
+        return deletedNoneRowLabel();
+    if (amount === 1)
+        return deletedRowLabel(amount);
+    return deletedRowsLabel(amount);
+}
+function singlePageLabel() {
+    return new TextBundle()
+        .add('en', '1 page')
+        .add('nl', '1 pagina');
+}
+function multiplePagesLabel(amount) {
+    return new TextBundle()
+        .add('en', "".concat(amount, " pages"))
+        .add('nl', "".concat(amount, " pagina's"));
+}
+function pagesLabel(amount) {
+    if (amount === 1)
+        return singlePageLabel();
+    return multiplePagesLabel(amount);
+}

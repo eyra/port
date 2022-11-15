@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { Translator } from '../../../../translator';
-import { Title0 } from './text';
+import { Title1 } from './text';
 function prepareCopy(_a) {
     var title = _a.title, locale = _a.locale;
     return {
@@ -9,5 +9,5 @@ function prepareCopy(_a) {
 }
 export var Header = function (props) {
     var title = prepareCopy(props).title;
-    return (_jsx(Title0, { text: title }));
+    return (_jsx(Title1, { text: title }));
 };

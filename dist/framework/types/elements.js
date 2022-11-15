@@ -6,6 +6,7 @@ export function isPropsUI(arg) {
     return isPropsUIText(arg) ||
         isPropsUIButton(arg) ||
         isPropsUISpinner(arg) ||
+        isPropsUIProgress(arg) ||
         isPropsUIHeader(arg) ||
         isPropsUITable(arg) ||
         isPropsUIPage(arg) ||
@@ -15,19 +16,30 @@ export function isPropsUI(arg) {
 export function isPropsUIText(arg) {
     return isPropsUITextTitle0(arg) ||
         isPropsUITextTitle0(arg) ||
-        isPropsUITextTitle0(arg) ||
+        isPropsUITextTitle1(arg) ||
+        isPropsUITextTitle2(arg) ||
+        isPropsUITextTitle3(arg) ||
+        isPropsUITextTitle4(arg) ||
+        isPropsUITextTitle6(arg) ||
         isPropsUITextBodyLarge(arg) ||
         isPropsUITextBodyMedium(arg) ||
-        isPropsUITextLabel(arg);
+        isPropsUITextLabel(arg) ||
+        isPropsUITextCaption(arg);
 }
 export function isPropsUITextLabel(arg) {
     return isInstanceOf(arg, 'PropsUITextLabel', ['text', 'color', 'margin']);
+}
+export function isPropsUITextCaption(arg) {
+    return isInstanceOf(arg, 'PropsUITextCaption', ['text', 'color', 'margin']);
 }
 export function isPropsUITextBodyLarge(arg) {
     return isInstanceOf(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin']);
 }
 export function isPropsUITextBodyMedium(arg) {
     return isInstanceOf(arg, 'PropsUITextBodyMedium', ['text', 'color', 'margin']);
+}
+export function isPropsUITextBodySmall(arg) {
+    return isInstanceOf(arg, 'PropsUITextBodySmall', ['text', 'color', 'margin']);
 }
 export function isPropsUITextTitle0(arg) {
     return isInstanceOf(arg, 'PropsUITextTitle0', ['text', 'color', 'margin']);
@@ -38,6 +50,12 @@ export function isPropsUITextTitle1(arg) {
 export function isPropsUITextTitle2(arg) {
     return isInstanceOf(arg, 'PropsUITextTitle2', ['text', 'color', 'margin']);
 }
+export function isPropsUITextTitle3(arg) {
+    return isInstanceOf(arg, 'PropsUITextTitle3', ['text', 'color', 'margin']);
+}
+export function isPropsUITextTitle4(arg) {
+    return isInstanceOf(arg, 'PropsUITextTitle4', ['text', 'color', 'margin']);
+}
 export function isPropsUITextTitle6(arg) {
     return isInstanceOf(arg, 'PropsUITextTitle6', ['text', 'color', 'margin']);
 }
@@ -45,8 +63,13 @@ export function isPropsUITextTitle6(arg) {
 export function isPropsUIButton(arg) {
     return isPropsUIButtonPrimary(arg) ||
         isPropsUIButtonSecundary(arg) ||
+        isPropsUIButtonBack(arg) ||
         isPropsUIButtonForward(arg) ||
-        isPropsUIButtonLabel(arg);
+        isPropsUIButtonIconBack(arg) ||
+        isPropsUIButtonIconForward(arg) ||
+        isPropsUIButtonIcon(arg) ||
+        isPropsUIButtonLabel(arg) ||
+        isPropsUIButtonIconLabel(arg);
 }
 export function isPropsUIButtonPrimary(arg) {
     return isInstanceOf(arg, 'PropsUIButtonPrimary', ['label', 'color', 'onClick']);
@@ -60,6 +83,18 @@ export function isPropsUIButtonBack(arg) {
 export function isPropsUIButtonForward(arg) {
     return isInstanceOf(arg, 'PropsUIButtonForward', ['label', 'onClick']);
 }
+export function isPropsUIButtonIconBack(arg) {
+    return isInstanceOf(arg, 'PropsUIButtonIconBack', ['onClick']);
+}
+export function isPropsUIButtonIconForward(arg) {
+    return isInstanceOf(arg, 'PropsUIButtonIconForward', ['onClick']);
+}
+export function isPropsUIButtonIcon(arg) {
+    return isInstanceOf(arg, 'PropsUIButtonIcon', ['icon', 'onClick']);
+}
+export function isPropsUIButtonIconLabel(arg) {
+    return isInstanceOf(arg, 'PropsUIButtonIconLabel', ['icon', 'label', 'color', 'alignment', 'onClick']);
+}
 export function isPropsUIButtonLabel(arg) {
     return isInstanceOf(arg, 'PropsUIButtonLabel', ['label', 'onClick']);
 }
@@ -72,8 +107,14 @@ export function isPropsUICheckBox(arg) {
 export function isPropsUISpinner(arg) {
     return isInstanceOf(arg, 'PropsUISpinner', ['color', 'spinning']);
 }
+export function isPropsUIProgress(arg) {
+    return isInstanceOf(arg, 'PropsUIProgress', ['percentage']);
+}
 export function isPropsUIHeader(arg) {
     return isInstanceOf(arg, 'PropsUIHeader', ['title']);
+}
+export function isPropsUIFooter(arg) {
+    return isInstanceOf(arg, 'PropsUIFooter', ['progressPercentage']);
 }
 export function isPropsUITable(arg) {
     return isInstanceOf(arg, 'PropsUITable', ['readOnly', 'pageSize', 'id', 'head', 'body']);

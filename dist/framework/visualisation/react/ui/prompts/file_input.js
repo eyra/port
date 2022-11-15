@@ -14,12 +14,13 @@ import * as React from 'react';
 import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
 import { PrimaryButton } from '../elements/button';
+import { BodyLarge, BodySmall } from '../elements/text';
 export var FileInput = function (props) {
-    var _a = React.useState(), selectedFile = _a[0], setSelectedFile = _a[1];
-    var _b = React.useState(true), confirmHidden = _b[0], setConfirmHidden = _b[1];
+    var _a;
+    var _b = React.useState(), selectedFile = _b[0], setSelectedFile = _b[1];
     var input = React.useRef(null);
     var resolve = props.resolve;
-    var _c = prepareCopy(props), title = _c.title, description = _c.description, extensions = _c.extensions, selectButton = _c.selectButton, continueButton = _c.continueButton;
+    var _c = prepareCopy(props), description = _c.description, note = _c.note, placeholder = _c.placeholder, extensions = _c.extensions, selectButton = _c.selectButton, continueButton = _c.continueButton;
     function handleClick() {
         var _a;
         (_a = input.current) === null || _a === void 0 ? void 0 : _a.click();
@@ -28,7 +29,6 @@ export var FileInput = function (props) {
         var files = event.target.files;
         if (files != null && files.length > 0) {
             setSelectedFile(files[0]);
-            setConfirmHidden(false);
         }
         else {
             console.log('[FileInput] Error selecting file: ' + JSON.stringify(files));
@@ -39,13 +39,14 @@ export var FileInput = function (props) {
             resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFile', value: selectedFile });
         }
     }
-    return (_jsxs(_Fragment, { children: [_jsx("div", __assign({ className: 'text-title5 font-title5 sm:text-title4 sm:font-title4 lg:text-title3 lg:font-title3 text-grey1' }, { children: title })), _jsx("div", { className: 'mt-8' }), _jsxs("div", __assign({ id: 'select-panel' }, { children: [_jsx("div", __assign({ className: 'flex-wrap text-bodylarge font-body text-grey1 text-left' }, { children: description })), _jsx("div", { className: 'mt-4' }), _jsxs("div", __assign({ className: 'flex flex-row items-center gap-4' }, { children: [_jsx("div", __assign({ className: 'flex-wrap cursor-pointer' }, { children: _jsx("div", __assign({ id: 'select-button', className: 'pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 bg-primary text-white', onClick: handleClick }, { children: selectButton })) })), _jsx("div", __assign({ className: 'flex-wrap' }, { children: _jsx("div", __assign({ id: 'selected-filename', className: 'flex-wrap text-subhead font-subhead text-grey1' }, { children: selectedFile === null || selectedFile === void 0 ? void 0 : selectedFile.name })) }))] })), _jsx("input", { ref: input, id: 'input', type: 'file', className: 'hidden', accept: extensions, onChange: handleSelect })] })), _jsx("div", { className: 'mt-10' }), _jsx("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: _jsx("div", __assign({ className: confirmHidden ? 'hidden' : '' }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleConfirm, color: 'bg-tertiary text-grey1' }) })) }))] }));
+    return (_jsx(_Fragment, { children: _jsxs("div", __assign({ id: 'select-panel' }, { children: [_jsx("div", __assign({ className: 'flex-wrap text-bodylarge font-body text-grey1 text-left' }, { children: description })), _jsx("div", { className: 'mt-8' }), _jsxs("div", __assign({ className: 'p-6 border-grey4 border-2 rounded' }, { children: [_jsx("input", { ref: input, id: 'input', type: 'file', className: 'hidden', accept: extensions, onChange: handleSelect }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(BodyLarge, { text: (_a = selectedFile === null || selectedFile === void 0 ? void 0 : selectedFile.name) !== null && _a !== void 0 ? _a : placeholder, margin: '', color: selectedFile === undefined ? 'text-grey2' : 'textgrey1' }), _jsx("div", { className: 'flex-grow' }), _jsx(PrimaryButton, { onClick: handleClick, label: selectButton, color: 'bg-tertiary text-grey1' })] }))] })), _jsx("div", { className: 'mt-4' }), _jsxs("div", __assign({ className: "".concat(selectedFile === undefined ? 'opacity-30' : 'opacity-100') }, { children: [_jsx(BodySmall, { text: note, margin: '' }), _jsx("div", { className: 'mt-8' }), _jsx("div", __assign({ className: 'flex flex-row gap-4' }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleConfirm, enabled: selectedFile !== undefined }) }))] }))] })) }));
 };
 function prepareCopy(_a) {
-    var title = _a.title, description = _a.description, extensions = _a.extensions, locale = _a.locale;
+    var description = _a.description, extensions = _a.extensions, locale = _a.locale;
     return {
-        title: Translator.translate(title, locale),
         description: Translator.translate(description, locale),
+        note: Translator.translate(note(), locale),
+        placeholder: Translator.translate(placeholder(), locale),
         extensions: extensions,
         selectButton: Translator.translate(selectButtonLabel(), locale),
         continueButton: Translator.translate(continueButtonLabel(), locale)
@@ -60,4 +61,14 @@ var selectButtonLabel = function () {
     return new TextBundle()
         .add('en', 'Choose file')
         .add('nl', 'Kies bestand');
+};
+var note = function () {
+    return new TextBundle()
+        .add('en', 'Note: The process to extract the correct data from the file is done on your own computer. No data is stored or sent yet.')
+        .add('nl', 'NB: Het proces om de juiste gegevens uit het bestand te halen gebeurt op uw eigen computer. Er worden nog geen gegevens opgeslagen of verstuurd.');
+};
+var placeholder = function () {
+    return new TextBundle()
+        .add('en', 'Choose a file')
+        .add('nl', 'Kies een bestand');
 };

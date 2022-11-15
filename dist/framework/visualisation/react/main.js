@@ -13,5 +13,5 @@ import { jsx as _jsx } from "react/jsx-runtime";
 export var Main = function (_a) {
     var elements = _a.elements;
     elements = elements.map(function (element, index) { return __assign(__assign({}, element), { key: "".concat(index) }); });
-    return (_jsx("div", __assign({ className: 'flex w-full' }, { children: _jsx("div", __assign({ className: 'flex-grow m-6 md:8 lg:m-14 max-w-sheet' }, { children: _jsx("div", __assign({ className: 'w-full' }, { children: elements })) })) })));
+    return (_jsx("div", __assign({ className: 'w-full h-full' }, { children: elements })));
 };
