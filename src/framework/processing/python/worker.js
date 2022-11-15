@@ -127,6 +127,17 @@ class PropsUIHeader:
     return dict
 
 
+class PropsUIFooter:
+  __slots__ = "progress_percentage"
+  def __init__(self, progress_percentage):
+    self.progress_percentage = progress_percentage
+  def toDict(self):
+    dict = {}
+    dict["__type__"] = "PropsUIFooter"
+    dict["progressPercentage"] = self.progress_percentage
+    return dict
+
+
 class PropsUIPromptConfirm:
   __slots__ = "text", "ok", "cancel"
   def __init__(self, text, ok, cancel):
@@ -143,10 +154,8 @@ class PropsUIPromptConfirm:
 
 
 class PropsUIPromptConsentForm:
-  __slots__ = "title", "description", "tables", "meta_tables"
-  def __init__(self, title, description, tables, meta_tables):
-    self.title = title
-    self.description = description            
+  __slots__ = "tables", "meta_tables"
+  def __init__(self, tables, meta_tables):
     self.tables = tables
     self.meta_tables = meta_tables
   def translate_tables(self):
@@ -162,8 +171,6 @@ class PropsUIPromptConsentForm:
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPromptConsentForm"
-    dict["title"] = self.title.toDict()
-    dict["description"] = self.description.toDict()
     dict["tables"] = self.translate_tables()
     dict["metaTables"] = self.translate_meta_tables()
     return dict
@@ -185,15 +192,13 @@ class PropsUIPromptConsentFormTable:
 
 
 class PropsUIPromptFileInput:
-  __slots__ = "title", "description", "extensions"
-  def __init__(self, title, description, extensions):
-    self.title = title
+  __slots__ = "description", "extensions"
+  def __init__(self, description, extensions):
     self.description = description
     self.extensions = extensions
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPromptFileInput"
-    dict["title"] = self.title.toDict()
     dict["description"] = self.description.toDict()
     dict["extensions"] = self.extensions
     return dict
@@ -215,33 +220,26 @@ class PropsUIPromptRadioInput:
 
 
 class PropsUIPageDonation:
-  __slots__ = "header", "body"
-  def __init__(self, header, body):
+  __slots__ = "platform", "header", "body", "footer"
+  def __init__(self, platform, header, body, footer):
+    self.platform = platform
     self.header = header
     self.body = body
+    self.footer = footer
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPageDonation"
+    dict["platform"] = self.platform
     dict["header"] = self.header.toDict()
     dict["body"] = self.body.toDict()
-    return dict
-
-
-class PropsUIPageStart:
-  def toDict(self):
-    dict = {}
-    dict["__type__"] = "PropsUIPageStart"
+    dict["footer"] = self.footer.toDict()
     return dict
 
 
 class PropsUIPageEnd:
-  __slots__ = "header" 
-  def __init__(self, header):
-    self.header = header
   def toDict(self):
     dict = {}
     dict["__type__"] = "PropsUIPageEnd"
-    dict["header"] = self.header.toDict()
     return dict
 
 

@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin')
 
 module.exports = {
   content: [
@@ -64,7 +65,8 @@ module.exports = {
         35: '140px'
       },
       width: {
-        logo: '23px',
+        sidebar: '320px',
+        logo: '240px',
         'logo-sm': '48px',
         sheet: '760px',
         form: '400px',
@@ -80,7 +82,9 @@ module.exports = {
         'popup-lg': '1228px'
       },
       height: {
-        logo: '32px',
+        footer: '88px',
+        logo: '110px',
+        table: 384,
         'logo-sm': '48px',
         'image-card': '200px',
         'image-preview': '90px',
@@ -91,7 +95,7 @@ module.exports = {
       },
       fontFamily: {
         title0: ['Finador-Black', 'sans-serif'],
-        title1: ['Arial', 'sans-serif'],
+        title1: ['Finador-Black', 'sans-serif'],
         title2: ['Finador-Black', 'sans-serif'],
         title3: ['Finador-Black', 'sans-serif'],
         title4: ['Finador-Black', 'sans-serif'],
@@ -104,7 +108,9 @@ module.exports = {
         button: ['Finador-Bold', 'sans-serif'],
         intro: ['Finador-Medium', 'sans-serif'],
         label: ['Finador-Bold', 'sans-serif'],
-        body: ['Finador-Light', 'sans-serif']
+        body: ['Finador-Light', 'sans-serif'],
+        'table-header': ['Finador-Bold', 'sans-serif'],
+        'table-row': ['Finador-Regular', 'sans-serif']
       },
       fontSize: {
         title0: ['64px', '68px'],
@@ -129,11 +135,13 @@ module.exports = {
         bodysmall: ['16px', '24px'],
         bodylinklarge: ['24px', '36px'],
         bodylinkmedium: ['30px', '30px'],
-        link: ['16px', '24px']
+        link: ['16px', '24px'],
+        table: ['14px', '14px']
       },
       minWidth: {
         '1/2': '50%',
-        '3/4': '75%'
+        '3/4': '75%',
+        button: '200px'
       },
       maxWidth: {
         card: '376px',
@@ -168,5 +176,23 @@ module.exports = {
       boxShadow: ['active']
     }
   },
-  plugins: []
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      const newUtilities = {
+        '.h-viewport': {
+          height: 'calc(var(--vh, 1vh) * 100)'
+        },
+        '.scrollbar-hide': {
+          /* Firefox */
+          'scrollbar-width': 'thin',
+
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          }
+        }
+      }
+      addUtilities(newUtilities)
+    })
+  ]
 }

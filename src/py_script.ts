@@ -3,18 +3,26 @@ import pandas as pd
 import zipfile
 
 def process():
-    yield render_start_page()
+    platforms = ["Twitter", "Facebook", "Instagram", "Youtube"]
 
-    platforms = ["Twitter", "Instagram", "Youtube"]
+    subflows = len(platforms)
+    steps = 2
+    step_percentage = (100/subflows)/steps
+
+    # progress in %
+    progress = 0
+
     for index, platform in enumerate(platforms):
         meta_data = []        
         meta_data.append(("debug", f"{platform}: start"))
 
+        # STEP 1: select the file
+        progress += step_percentage
         data = None
         while True:
             meta_data.append(("debug", f"{platform}: prompt file"))
             promptFile = prompt_file(platform, "application/zip, text/plain")
-            fileResult = yield render_donation_page(index+1, platform, promptFile)
+            fileResult = yield render_donation_page(platform, promptFile, progress)
             if fileResult.__type__ == 'PayloadString':
                 meta_data.append(("debug", f"{platform}: extracting file"))
                 extractionResult = doSomethingWithTheFile(platform, fileResult.value)
@@ -24,7 +32,7 @@ def process():
                     break
                 else:
                     meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection")) 
-                    retry_result = yield render_donation_page(index+1, platform, retry_confirmation())
+                    retry_result = yield render_donation_page(platform, retry_confirmation(), progress)
                     if retry_result.__type__ == 'PayloadTrue':
                         meta_data.append(("debug", f"{platform}: skip due to invalid file")) 
                         continue
@@ -35,10 +43,12 @@ def process():
                 meta_data.append(("debug", f"{platform}: skip to next step")) 
                 break
 
+        # STEP 2: ask for consent
+        progress += step_percentage
         if data is not None:
             meta_data.append(("debug", f"{platform}: prompt consent"))
             prompt = prompt_consent(platform, data, meta_data)
-            consent_result = yield render_donation_page(index+1, platform, prompt)
+            consent_result = yield render_donation_page(platform, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
                 meta_data.append(("debug", f"{platform}: donate consent data"))
                 yield donate(platform, consent_result.value)
@@ -46,26 +56,19 @@ def process():
     yield render_end_page()
 
 
-def render_start_page():
-    page = PropsUIPageStart()
-    return CommandUIRender(page)
-
-
 def render_end_page():
-    header = PropsUIHeader(Translatable({
-        "en": "Thank you",
-        "nl": "Dank je wel"
-    }))
-    page = PropsUIPageEnd(header)
+    page = PropsUIPageEnd()
     return CommandUIRender(page)
 
 
-def render_donation_page(index, platform, body):
+def render_donation_page(platform, body, progress):
     header = PropsUIHeader(Translatable({
-        "en": f"Step {index}: {platform}",
-        "nl": f"Stap {index}: {platform}"
+        "en": platform,
+        "nl": platform
     }))
-    page = PropsUIPageDonation(header, body)
+
+    footer = PropsUIFooter(progress)
+    page = PropsUIPageDonation(platform, header, body, footer)
     return CommandUIRender(page)
 
 
@@ -86,17 +89,12 @@ def retry_confirmation():
 
 
 def prompt_file(platform, extensions):
-    title = Translatable({
-        "en": f"Select {platform} file",
-        "nl": f"Selecteer {platform} bestand"
-    })
-
     description = Translatable({
         "en": "Please select this file so we can extract relevant information for our research.",
         "nl": "Je kan deze file nu selecteren zodat wij er relevante informatie uit kunnen halen voor ons onderzoek."
     })
 
-    return PropsUIPromptFileInput(title, description, extensions)
+    return PropsUIPromptFileInput(description, extensions)
 
 
 def doSomethingWithTheFile(platform, filename):
@@ -118,21 +116,12 @@ def extract_zip_contents(filename):
 
 
 def prompt_consent(id, data, meta_data):
-    title = Translatable({
-        "en": "Extracted data",
-        "nl": "Gevonden gegevens"
-    })
-
-    description = Translatable({
-        "en": "Please have a good look at the extracted data before giving consent to use this data.",
-        "nl": "Bekijk de gegevens goed voordat je consent geeft om deze te gebruiken."
-    })
 
     data_frame = pd.DataFrame(data, columns=["filename", "compressed size", "size"])
-    table = PropsUIPromptConsentFormTable("zip_content", "The zip contains the following files:", data_frame)
+    table = PropsUIPromptConsentFormTable("zip_content", "Zip file contents", data_frame)
     meta_frame = pd.DataFrame(meta_data, columns=["type", "message"])
     meta_table = PropsUIPromptConsentFormTable("log_messages", "Log messages:", meta_frame)
-    return PropsUIPromptConsentForm(title, description, [table], [meta_table])
+    return PropsUIPromptConsentForm([table], [meta_table])
 
 
 def donate(key, json_string):

@@ -1,9 +1,9 @@
 import { assert, Weak } from '../../../../helpers'
-import { PropsUITable, PropsUITableBody, PropsUITableCell, PropsUITableHead, PropsUITableRow, Translatable } from '../../../../types/elements'
+import { PropsUITable, PropsUITableBody, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable } from '../../../../types/prompts'
 import { Table } from '../elements/table'
 import { PrimaryButton } from '../elements/button'
-import { BodyLarge, Title1, Title2 } from '../elements/text'
+import { BodyLarge, Title4 } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
@@ -18,13 +18,12 @@ interface TableContext {
 }
 
 export const ConsentForm = (props: Props): JSX.Element => {
-  const [tablesIn] = React.useState<Array<PropsUITable & TableContext>>(parseTables(props.tables))
-  const [tablesOut, setTablesOut] = React.useState<Array<PropsUITable & TableContext>>(tablesIn)
-  const [metaTablesVisible, setMetaTablesVisible] = React.useState<boolean>(false)
-  const [metaTables] = React.useState<Array<PropsUITable & TableContext>>(parseTables(props.metaTables))
+  const tablesIn = React.useRef<Array<PropsUITable & TableContext>>(parseTables(props.tables))
+  const metaTables = React.useRef<Array<PropsUITable & TableContext>>(parseTables(props.metaTables))
+  const tablesOut = React.useRef<Array<PropsUITable & TableContext>>(tablesIn.current)
 
-  const { resolve } = props
-  const { title, description, donateButton } = prepareCopy(props)
+  const { locale, resolve } = props
+  const { description, donateButton } = prepareCopy(props)
 
   function rowCell (dataFrame: any, column: string, row: number): PropsUITableCell {
     const text = String(dataFrame[column][`${row}`])
@@ -63,6 +62,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   }
 
   function parseTables (tablesData: PropsUIPromptConsentFormTable[]): Array<PropsUITable & TableContext> {
+    console.log('parseTables')
     return tablesData.map((table) => parseTable(table))
   }
 
@@ -81,14 +81,14 @@ export const ConsentForm = (props: Props): JSX.Element => {
   function renderTable (table: (Weak<PropsUITable> & TableContext), readOnly = false): JSX.Element {
     return (
       <div key={table.id} className='flex flex-col gap-4 mb-4'>
-        <Title2 text={table.title} margin='' />
-        <Table {...table} readOnly={readOnly} onChange={handleTableChange} />
+        <Title4 text={table.title} margin='' />
+        <Table {...table} readOnly={readOnly} locale={locale} onChange={handleTableChange} />
       </div>
     )
   }
 
   function handleTableChange (id: string, rows: PropsUITableRow[]): void {
-    const tablesCopy = tablesOut.slice(0)
+    const tablesCopy = tablesOut.current.slice(0)
     const index = tablesCopy.findIndex(table => table.id === id)
     if (index > -1) {
       const { title, head, body: oldBody, deletedRowCount: oldDeletedRowCount } = tablesCopy[index]
@@ -96,7 +96,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
       const deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - rows.length)
       tablesCopy[index] = { __type__: 'PropsUITable', id, head, body, title, deletedRowCount }
     }
-    setTablesOut(tablesCopy)
+    tablesOut.current = tablesCopy
   }
 
   function handleDonate (): void {
@@ -114,15 +114,15 @@ export const ConsentForm = (props: Props): JSX.Element => {
   }
 
   function serializeTables (): any[] {
-    return tablesOut.map((table) => serializeTable(table))
+    return tablesOut.current.map((table) => serializeTable(table))
   }
 
   function serializeMetaTables (): any[] {
-    return metaTables.map((table) => serializeTable(table))
+    return metaTables.current.map((table) => serializeTable(table))
   }
 
   function serializeDeletedMetaData (): any {
-    const rawData = tablesOut
+    const rawData = tablesOut.current
       .filter(({ deletedRowCount }) => deletedRowCount > 0)
       .map(({ id, deletedRowCount }) => `User deleted ${deletedRowCount} rows from table: ${id}`)
 
@@ -144,13 +144,10 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   return (
     <>
-      <Title1 text={title} />
       <BodyLarge text={description} />
       <div className='flex flex-col gap-8'>
-        {tablesIn.map((table) => renderTable(table))}
-        {metaTablesVisible ? metaTables.map((table) => renderTable(table, true)) : <div />}
-        <div className='flex flex-row gap-4 mt-2'>
-          {metaTablesVisible ? '' : <PrimaryButton label='Show meta data' onClick={() => { setMetaTablesVisible(true) }} />}
+        {tablesIn.current.map((table) => renderTable(table))}
+        <div className='flex flex-row gap-4'>
           <PrimaryButton label={donateButton} onClick={handleDonate} color='bg-success text-white' />
         </div>
       </div>
@@ -159,21 +156,21 @@ export const ConsentForm = (props: Props): JSX.Element => {
 }
 
 interface Copy {
-  title: string
   description: string
   donateButton: string
 }
 
-function prepareCopy ({ title, description, locale }: Props): Copy {
+function prepareCopy ({ locale }: Props): Copy {
   return {
-    title: Translator.translate(title, locale),
     description: Translator.translate(description, locale),
-    donateButton: Translator.translate(donateButtonLabel(), locale)
+    donateButton: Translator.translate(donateButtonLabel, locale)
   }
 }
 
-const donateButtonLabel = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Yes, donate')
-    .add('nl', 'Ja, doneer')
-}
+const donateButtonLabel = new TextBundle()
+  .add('en', 'Consent')
+  .add('nl', 'Consent')
+
+const description = new TextBundle()
+  .add('en', 'Please have a good look at the extracted data before giving consent to use this data.')
+  .add('nl', 'Bekijk de gegevens goed voordat je consent geeft om deze te gebruiken.')

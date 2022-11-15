@@ -6,7 +6,11 @@ import { PropsUIPageSplashScreen } from '../../../../types/pages'
 import { ReactFactoryContext } from '../../factory'
 import { PrimaryButton } from '../elements/button'
 import { CheckBox } from '../elements/check_box'
-import { BodyLarge, Label, Title0 } from '../elements/text'
+import { BodyLarge, Label, Title1 } from '../elements/text'
+import LogoSvg from '../../../../../assets/images/logo.svg'
+import { Footer } from './templates/footer'
+import { Page } from './templates/page'
+import { Sidebar } from './templates/sidebar'
 
 interface Copy {
   title: string
@@ -43,9 +47,13 @@ export const SplashScreen = (props: Props): JSX.Element => {
     setChecked(true)
   }
 
-  return (
+  const footer: JSX.Element = <Footer />
+
+  const sidebar: JSX.Element = <Sidebar logo={LogoSvg} />
+
+  const body: JSX.Element = (
     <>
-      <Title0 text={title} />
+      <Title1 text={title} />
       <BodyLarge text={description} />
       <div className='flex flex-col gap-8'>
         <div className='flex flex-row gap-4 items-center'>
@@ -57,6 +65,14 @@ export const SplashScreen = (props: Props): JSX.Element => {
         </div>
       </div>
     </>
+  )
+
+  return (
+    <Page
+      body={body}
+      sidebar={sidebar}
+      footer={footer}
+    />
   )
 }
 
