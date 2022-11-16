@@ -1,12 +1,14 @@
 import { CommandHandler, ProcessingEngine } from '../types/modules';
 import { Response, Script } from '../types/commands';
 export default class WorkerProcessingEngine implements ProcessingEngine {
+    sessionId: String;
     worker: Worker;
     commandHandler: CommandHandler;
     script: Script;
     resolveInitialized: () => void;
     resolveContinue: () => void;
-    constructor(worker: Worker, commandHandler: CommandHandler);
+    constructor(sessionId: string, worker: Worker, commandHandler: CommandHandler);
+    trackUserStart(sessionId: string): void;
     handleEvent(event: any): void;
     start(script: Script): void;
     waitForInitialization(): Promise<void>;

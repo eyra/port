@@ -36,8 +36,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import { isCommand } from '../types/commands';
 var WorkerProcessingEngine = /** @class */ (function () {
-    function WorkerProcessingEngine(worker, commandHandler) {
+    function WorkerProcessingEngine(sessionId, worker, commandHandler) {
         var _this = this;
+        this.sessionId = sessionId;
         this.commandHandler = commandHandler;
         this.worker = worker;
         this.worker.onerror = console.log;
@@ -45,7 +46,14 @@ var WorkerProcessingEngine = /** @class */ (function () {
             console.log('[WorkerProcessingEngine] Received event from worker: ', event.data.eventType);
             _this.handleEvent(event);
         };
+        this.trackUserStart(sessionId);
     }
+    WorkerProcessingEngine.prototype.trackUserStart = function (sessionId) {
+        var key = "".concat(sessionId, "-tracking");
+        var jsonString = JSON.stringify({ message: 'user started' });
+        var command = { __type__: 'CommandSystemDonate', key: key, json_string: jsonString };
+        this.commandHandler.onCommand(command).then(function () { }, function () { });
+    };
     WorkerProcessingEngine.prototype.handleEvent = function (event) {
         var eventType = event.data.eventType;
         console.log('[ReactEngine] received eventType: ', eventType);
@@ -116,7 +124,7 @@ var WorkerProcessingEngine = /** @class */ (function () {
         this.worker.postMessage({ eventType: 'loadScript', script: script });
     };
     WorkerProcessingEngine.prototype.firstRunCycle = function () {
-        this.worker.postMessage({ eventType: 'firstRunCycle' });
+        this.worker.postMessage({ eventType: 'firstRunCycle', sessionId: this.sessionId });
     };
     WorkerProcessingEngine.prototype.nextRunCycle = function (response) {
         this.worker.postMessage({ eventType: 'nextRunCycle', response: response });
