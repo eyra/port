@@ -15,7 +15,7 @@ onmessage = (event) => {
       break
 
     case 'firstRunCycle':
-      pyScript = self.pyodide.runPython(pyWorker())
+      pyScript = self.pyodide.runPython(pyWorker(event.data.sessionId))
       runCycle(null)
       break
 
@@ -186,7 +186,7 @@ class PropsUIPromptConsentFormTable:
     dict = {}
     dict["__type__"] = "PropsUIPromptConsentFormTable"
     dict["id"] = self.id
-    dict["title"] = self.title
+    dict["title"] = self.title.toDict()
     dict["data_frame"] = self.data_frame.to_json()
     return dict
 
@@ -253,7 +253,7 @@ class Translatable:
     return dict  
 `
 
-function pyWorker () {
+function pyWorker (sessionId) {
   return `
   from collections.abc import Generator
   import json
@@ -269,7 +269,7 @@ function pyWorker () {
         return command.toDict()
     def throw(self, type=None, value=None, traceback=None):
         raise StopIteration
-  script = process()
+  script = process('${sessionId}')
   ScriptWrapper(script)
   `
 }

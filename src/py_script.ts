@@ -2,7 +2,9 @@ export const PyScript: string = `
 import pandas as pd
 import zipfile
 
-def process():
+def process(sessionId):
+    yield donate(f"{sessionId}-tracking", '[{ "message": "user entered script" }]')
+
     platforms = ["Twitter", "Facebook", "Instagram", "Youtube"]
 
     subflows = len(platforms)
@@ -51,7 +53,7 @@ def process():
             consent_result = yield render_donation_page(platform, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
                 meta_data.append(("debug", f"{platform}: donate consent data"))
-                yield donate(platform, consent_result.value)
+                yield donate(f"{sessionId}-{platform}", consent_result.value)
 
     yield render_end_page()
 
@@ -117,10 +119,20 @@ def extract_zip_contents(filename):
 
 def prompt_consent(id, data, meta_data):
 
+    table_title = Translatable({
+        "en": "Zip file contents",
+        "nl": "Inhoud zip bestand"
+    })
+
+    log_title = Translatable({
+        "en": "Log messages",
+        "nl": "Log berichten"
+    })
+
     data_frame = pd.DataFrame(data, columns=["filename", "compressed size", "size"])
-    table = PropsUIPromptConsentFormTable("zip_content", "Zip file contents", data_frame)
+    table = PropsUIPromptConsentFormTable("zip_content", table_title, data_frame)
     meta_frame = pd.DataFrame(meta_data, columns=["type", "message"])
-    meta_table = PropsUIPromptConsentFormTable("log_messages", "Log messages:", meta_frame)
+    meta_table = PropsUIPromptConsentFormTable("log_messages", log_title, meta_frame)
     return PropsUIPromptConsentForm([table], [meta_table])
 
 

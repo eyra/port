@@ -1,7 +1,8 @@
 import { CommandHandler, ProcessingEngine } from '../types/modules'
-import { CommandUIRender, isCommand, Response, Script } from '../types/commands'
+import { CommandSystemDonate, CommandUIRender, isCommand, Response, Script } from '../types/commands'
 
 export default class WorkerProcessingEngine implements ProcessingEngine {
+  sessionId: String
   worker: Worker
   commandHandler: CommandHandler
 
@@ -9,7 +10,8 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
   resolveInitialized!: () => void
   resolveContinue!: () => void
 
-  constructor (worker: Worker, commandHandler: CommandHandler) {
+  constructor (sessionId: string, worker: Worker, commandHandler: CommandHandler) {
+    this.sessionId = sessionId
     this.commandHandler = commandHandler
     this.worker = worker
     this.worker.onerror = console.log
@@ -20,6 +22,18 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
       )
       this.handleEvent(event)
     }
+
+    this.trackUserStart(sessionId)
+  }
+
+  trackUserStart (sessionId: string): void {
+    const key = `${sessionId}-tracking`
+    const jsonString = JSON.stringify({ message: 'user started' })
+    const command: CommandSystemDonate = { __type__: 'CommandSystemDonate', key, json_string: jsonString }
+    this.commandHandler.onCommand(command).then(
+      () => {},
+      () => {}
+    )
   }
 
   handleEvent (event: any): void {
@@ -92,7 +106,7 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
   }
 
   firstRunCycle (): void {
-    this.worker.postMessage({ eventType: 'firstRunCycle' })
+    this.worker.postMessage({ eventType: 'firstRunCycle', sessionId: this.sessionId })
   }
 
   nextRunCycle (response: Response): void {
