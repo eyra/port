@@ -1,12 +1,11 @@
 import { CommandHandler, ProcessingEngine } from '../types/modules'
-import { CommandSystemDonate, CommandUIRender, isCommand, Response, Script } from '../types/commands'
+import { CommandSystemDonate, CommandUIRender, isCommand, Response } from '../types/commands'
 
 export default class WorkerProcessingEngine implements ProcessingEngine {
   sessionId: String
   worker: Worker
   commandHandler: CommandHandler
 
-  script!: Script
   resolveInitialized!: () => void
   resolveContinue!: () => void
 
@@ -42,11 +41,6 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     switch (eventType) {
       case 'initialiseDone':
         console.log('[ReactEngine] received: initialiseDone')
-        this.loadScript(this.script)
-        break
-
-      case 'loadScriptDone':
-        console.log('[ReactEngine] Received: loadScriptDone')
         this.resolveInitialized()
         break
 
@@ -62,9 +56,8 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     }
   }
 
-  start (script: Script): void {
+  start (): void {
     console.log('[WorkerProcessingEngine] started')
-    this.script = script
 
     const waitForInitialization: Promise<void> = this.waitForInitialization()
     const waitForSplashScreen: Promise<void> = this.waitForSplashScreen()
@@ -96,13 +89,7 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
         (_response) => this.resolveContinue(),
         () => {}
       )
-    } else {
-      console.log('HUH?!')
     }
-  }
-
-  loadScript (script: any): void {
-    this.worker.postMessage({ eventType: 'loadScript', script })
   }
 
   firstRunCycle (): void {

@@ -60,10 +60,6 @@ var WorkerProcessingEngine = /** @class */ (function () {
         switch (eventType) {
             case 'initialiseDone':
                 console.log('[ReactEngine] received: initialiseDone');
-                this.loadScript(this.script);
-                break;
-            case 'loadScriptDone':
-                console.log('[ReactEngine] Received: loadScriptDone');
                 this.resolveInitialized();
                 break;
             case 'runCycleDone':
@@ -74,10 +70,9 @@ var WorkerProcessingEngine = /** @class */ (function () {
                 console.log('[ReactEngine] received unsupported flow event: ', eventType);
         }
     };
-    WorkerProcessingEngine.prototype.start = function (script) {
+    WorkerProcessingEngine.prototype.start = function () {
         var _this = this;
         console.log('[WorkerProcessingEngine] started');
-        this.script = script;
         var waitForInitialization = this.waitForInitialization();
         var waitForSplashScreen = this.waitForSplashScreen();
         Promise.all([waitForInitialization, waitForSplashScreen]).then(function () { _this.firstRunCycle(); }, function () { });
@@ -116,12 +111,6 @@ var WorkerProcessingEngine = /** @class */ (function () {
         if (isCommand(command)) {
             this.commandHandler.onCommand(command).then(function (_response) { return _this.resolveContinue(); }, function () { });
         }
-        else {
-            console.log('HUH?!');
-        }
-    };
-    WorkerProcessingEngine.prototype.loadScript = function (script) {
-        this.worker.postMessage({ eventType: 'loadScript', script: script });
     };
     WorkerProcessingEngine.prototype.firstRunCycle = function () {
         this.worker.postMessage({ eventType: 'firstRunCycle', sessionId: this.sessionId });
