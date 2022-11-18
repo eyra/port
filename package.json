@@ -20,7 +20,7 @@
   },
   "scripts": {
     "dev:fix:ts": "ts-standard --env jest --fix",
-    "dev:build:py": "cd src/framework/processing/py && poetry build",
+    "dev:build:py": "cd src/framework/processing/py && poetry build --format wheel",
     "dev:build:ts": "react-scripts build",
     "dev:install:py": "cp -R src/framework/processing/py/dist/. ./public",
     "dev:build": "run-s dev:fix:ts dev:build:ts dev:build:py dev:install:py",
