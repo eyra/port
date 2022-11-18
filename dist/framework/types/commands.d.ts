@@ -1,8 +1,4 @@
 import { PropsUIPage } from './pages';
-export declare type Script = string | File | URL;
-export declare function isScript(arg: any): arg is Script;
-export declare function isFile(arg: unknown): arg is File;
-export declare function isURL(arg: any): arg is URL;
 export interface Table {
     __type__: 'Table';
     id: string;

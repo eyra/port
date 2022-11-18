@@ -1,16 +1,5 @@
-import { isInstanceOf, isLike } from '../helpers'
+import { isInstanceOf } from '../helpers'
 import { isPropsUIPage, PropsUIPage } from './pages'
-
-export type Script = string | File | URL
-export function isScript (arg: any): arg is Script {
-  return typeof arg === 'string' || isFile(arg) || isURL(arg)
-}
-export function isFile (arg: unknown): arg is File {
-  return isLike<File>(arg, ['arrayBuffer', 'lastModified', 'name', 'size', 'slice', 'stream', 'text', 'type', 'webkitRelativePath'])
-}
-export function isURL (arg: any): arg is URL {
-  return isLike<URL>(arg, ['hash', 'host', 'hostname', 'href', 'origin', 'toString', 'password', 'pathname', 'port', 'protocol', 'search', 'searchParams', 'username', 'toJSON'])
-}
 
 export interface Table {
   __type__: 'Table'

@@ -1,7 +1,7 @@
-import { Script, Command, Response, CommandSystem, CommandUI } from './commands'
+import { Command, Response, CommandSystem, CommandUI } from './commands'
 
 export interface ProcessingEngine {
-  start: (script: Script) => void
+  start: () => void
   commandHandler: CommandHandler
   terminate: () => void
 }

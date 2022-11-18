@@ -16,7 +16,6 @@
       "outDir": "./dist"
   },
   "include": [
-    "src/framework",
-    "src/py_script.ts"
+    "src/framework"
   ]
 }

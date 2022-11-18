@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "port"
+version = "0.0.0"
+description = "Port package with Data Donation logic"
+authors = ["Emiel van der Veen <e.vanderveen@eyra.co>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+panda = "^0.3.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

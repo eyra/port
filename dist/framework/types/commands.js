@@ -1,14 +1,5 @@
-import { isInstanceOf, isLike } from '../helpers';
+import { isInstanceOf } from '../helpers';
 import { isPropsUIPage } from './pages';
-export function isScript(arg) {
-    return typeof arg === 'string' || isFile(arg) || isURL(arg);
-}
-export function isFile(arg) {
-    return isLike(arg, ['arrayBuffer', 'lastModified', 'name', 'size', 'slice', 'stream', 'text', 'type', 'webkitRelativePath']);
-}
-export function isURL(arg) {
-    return isLike(arg, ['hash', 'host', 'hostname', 'href', 'origin', 'toString', 'password', 'pathname', 'port', 'protocol', 'search', 'searchParams', 'username', 'toJSON']);
-}
 export function isTable(arg) {
     return isInstanceOf(arg, 'Table', ['id', 'title', 'data']);
 }

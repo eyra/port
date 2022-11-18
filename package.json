@@ -19,17 +19,20 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev:fix": "ts-standard --env jest --fix",
-    "dev:build": "react-scripts build",
+    "dev:fix:ts": "ts-standard --env jest --fix",
+    "dev:build:py": "cd src/framework/processing/py && poetry build",
+    "dev:build:ts": "react-scripts build",
+    "dev:install:py": "cp -R src/framework/processing/py/dist/. ./public",
+    "dev:build": "run-s dev:fix:ts dev:build:ts dev:build:py dev:install:py",
     "dev:start": "react-scripts start",
     "dev:test": "react-scripts test",
     "prod:clean": "rm -rf ./dist",
-    "prod:fix": "run-s dev:fix",
-    "prod:css": "NODE_ENV=production tailwindcss build -i ./src/framework/styles.css -o ./dist/styles.css --minify",
-    "prod:build": "tsc -d --project tsconfig.prod.json",
-    "prod:assets": "cp -R ./src/assets ./dist",
-    "prod": "run-s prod:fix prod:build prod:assets prod:css",
-    "ci:fix": "run-s dev:fix",
+    "prod:build:css": "NODE_ENV=production tailwindcss build -i ./src/framework/styles.css -o ./dist/styles.css --minify",
+    "prod:build:ts": "tsc -d --project tsconfig.prod.json",
+    "prod:cp:assets": "cp -R ./src/assets ./dist",
+    "prod:cp:py": "cp -R src/framework/processing/py/dist/. ./dist",
+    "prod": "run-s dev:fix:ts dev:build:py prod:build:ts prod:build:css prod:cp:py prod:cp:assets",
+    "ci:fix": "run-s dev:fix:ts",
     "ci:test": "CI=true react-scripts test"
   },
   "browserslist": {
@@ -57,7 +60,7 @@
     "project": "./tsconfig.json",
     "ignore": [
       "dist",
-      "src/framework/processing/python/worker.js"
+      "src/framework/processing/py_worker.js"
     ]
   }
 }
