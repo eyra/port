@@ -79,8 +79,8 @@ def render_donation_page(platform, body, progress):
 
 def retry_confirmation(platform):
     text = props.Translatable({
-        "en": f"We can not process your {platform} file, please try again if you want to choose another file.",
-        "nl": f"We kunnen uw {platform} bestand niet verwerken, probeer opnieuw als u een ander bestand wilt kiezen."
+        "en": f"Unfortunately, we cannot process your {platform} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
+        "nl": f"Helaas, kunnen we uw {platform} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen."
     })
     ok = props.Translatable({
         "en": "Try again",
@@ -95,8 +95,8 @@ def retry_confirmation(platform):
 
 def prompt_file(platform, extensions):
     description = props.Translatable({
-        "en": "Please select this file so we can extract relevant information for our research.",
-        "nl": "Je kan deze file nu selecteren zodat wij er relevante informatie uit kunnen halen voor ons onderzoek."
+        "en": "Please follow the download instructions and choose the file that you stored on your device.",
+        "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat."
     })
 
     return props.PropsUIPromptFileInput(description, extensions)

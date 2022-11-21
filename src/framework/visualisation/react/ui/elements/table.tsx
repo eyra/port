@@ -435,20 +435,20 @@ const searchPlaceholder = new TextBundle()
   .add('nl', 'Zoeken')
 
 const noDataLabel = new TextBundle()
-  .add('en', 'No information found')
-  .add('nl', 'Geen informatie gevonden')
+  .add('en', 'No data found')
+  .add('nl', 'Geen gegevens gevonden')
 
 const noDataLeftLabel = new TextBundle()
-  .add('en', 'No information left')
-  .add('nl', 'Geen informatie overgebleven')
+  .add('en', 'All data removed')
+  .add('nl', 'Alle gegevens verwijderd')
 
 const noResultsLabel = new TextBundle()
   .add('en', 'No search results')
   .add('nl', 'Geen zoek resultaten')
 
 const editLabel = new TextBundle()
-  .add('en', 'Edit table')
-  .add('nl', 'Bewerk tabel')
+  .add('en', 'Adjust')
+  .add('nl', 'Aanpassen')
 
 const undoLabel = new TextBundle()
   .add('en', 'Undo')
@@ -456,24 +456,24 @@ const undoLabel = new TextBundle()
 
 const deleteLabel = new TextBundle()
   .add('en', 'Delete selected')
-  .add('nl', 'Verwijder geselecteerde')
+  .add('nl', 'Verwijder selectie')
 
 function deletedNoneRowLabel (): TextBundle {
   return new TextBundle()
-    .add('en', 'No changes made')
+    .add('en', 'No adjustments')
     .add('nl', 'Geen aanpassingen')
 }
 
 function deletedRowLabel (amount: number): TextBundle {
   return new TextBundle()
-    .add('en', `You deleted ${amount} row`)
-    .add('nl', `Je hebt ${amount} rij verwijderd`)
+    .add('en', `${amount} row deleted`)
+    .add('nl', `${amount} rij verwijderd`)
 }
 
 function deletedRowsLabel (amount: number): TextBundle {
   return new TextBundle()
-    .add('en', `You deleted ${amount} rows`)
-    .add('nl', `Je hebt ${amount} rijen verwijderd`)
+    .add('en', `${amount} rows deleted`)
+    .add('nl', `${amount} rijen verwijderd`)
 }
 
 function deletedLabel (amount: number): TextBundle {

@@ -87,7 +87,7 @@ function prepareCopy ({ description, extensions, locale }: Props): Copy {
 const continueButtonLabel = (): Translatable => {
   return new TextBundle()
     .add('en', 'Continue')
-    .add('nl', 'Doorgaan')
+    .add('nl', 'Verder')
 }
 
 const selectButtonLabel = (): Translatable => {

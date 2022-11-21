@@ -1,21 +1,41 @@
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
-import { BodyMedium, Title3 } from './text'
+import { Title3 } from './text'
 import TwitterSvg from '../../../../../assets/images/twitter.svg'
 import FacebookSvg from '../../../../../assets/images/facebook.svg'
 import InstagramSvg from '../../../../../assets/images/instagram.svg'
 import YoutubeSvg from '../../../../../assets/images/youtube.svg'
 import TextBundle from '../../../../text_bundle'
+import { Bullet } from './bullet'
+
+const link: string = 'https://eyra.co'
 
 interface InstructionsProps {
   platform: string
+  locale: string
 }
 
 type Props = InstructionsProps & ReactFactoryContext
 
 export const Instructions = (props: Props): JSX.Element => {
-  const { title, text } = prepareCopy(props)
+  const { title } = prepareCopy(props)
+  const { locale } = props
   const platform = props.platform.toLowerCase()
+
+  function renderBullets (bullets: string[]): JSX.Element[] {
+    return bullets.map((bullet) => renderBullet(bullet))
+  }
+
+  function renderContent (): JSX.Element {
+    return (
+      <>
+        <div className='flex flex-col gap-4 text-bodymedium font-body text-grey2'>
+          {renderBullets(bullets[platform][locale])}
+          {links[locale]}
+        </div>
+      </>
+    )
+  }
 
   return (
     <div className='flex flex-col gap-6 p-8 border-2 border-grey4 rounded'>
@@ -27,49 +47,111 @@ export const Instructions = (props: Props): JSX.Element => {
           <img className='h-12' src={icon[platform]} />
         </div>
       </div>
-      <BodyMedium text={text} color='text-grey2' margin='' />
+      {renderContent()}
     </div>
   )
 }
 
 interface Copy {
   title: string
-  text: string
 }
 
 function prepareCopy ({ platform, locale }: Props): Copy {
-  const textBundle = text[platform.toLowerCase()]
   return {
-    title: Translator.translate(title, locale),
-    text: Translator.translate(textBundle, locale)
+    title: Translator.translate(title, locale)
   }
 }
 
 const title = new TextBundle()
-  .add('en', 'Instructions')
-  .add('nl', 'Instructies')
+  .add('en', 'Download')
+  .add('nl', 'Download')
 
-const twitterText = new TextBundle()
-  .add('en', 'If you have received an email with a link to your data from Twitter. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-  .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Twitter. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.')
+function renderBullet (text: string): JSX.Element {
+  return (
+    <Bullet frameSize='w-5 h-30px'>
+      <div>{text}</div>
+    </Bullet>
+  )
+}
 
-const facebookText = new TextBundle()
-  .add('en', 'If you have received an email with a link to your data from Facebook. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-  .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Facebook. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.')
+const bulletsTwitterEn: string[] = [
+  'Check the email that you received from Twitter',
+  'Click on the download link and store the file',
+  'Choose the stored file and continue'
+]
 
-const instagramText = new TextBundle()
-  .add('en', 'If you have received an email with a link to your data from Instagram. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-  .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Instagram. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.')
+const bulletsTwitterNl: string[] = [
+  'Ga naar de email die u ontvangen heeft van Twitter.',
+  'Klik op de link "gedownload” en sla het bestand op',
+  'Kies het bestand en ga verder.'
+]
 
-const youtubeText = new TextBundle()
-  .add('en', 'If you have received an email with a link to your data from Google. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-  .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Google. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.')
+const bulletsFacebookEn: string[] = [
+  'Check the email that you received from Facebook',
+  'Click on the download link and store the file',
+  'Choose the stored file and continue'
+]
 
-const text: Record<string, TextBundle> = {
-  twitter: twitterText,
-  facebook: facebookText,
-  instagram: instagramText,
-  youtube: youtubeText
+const bulletsFacebookNl: string[] = [
+  'Ga naar de email die u ontvangen heeft van Facebook.',
+  'Klik op de link “Je gegevens downloaden” en sla het bestand op.',
+  'Kies het bestand en ga verder.'
+]
+
+const bulletsInstagramEn: string[] = [
+  'Check the email that you received from Instagram',
+  'Click on the download link and store the file',
+  'Choose the stored file and continue'
+]
+
+const bulletsInstagramNl: string[] = [
+  'Ga naar de email die u ontvangen heeft van Instagram.',
+  'Klik op de link “Gegevens downloaden” en sla het bestand op.',
+  'Kies het bestand en ga verder.'
+]
+
+const bulletsYoutubeEn: string[] = [
+  'Check the email that you received from Google Takeout',
+  'Click on the download link and store the file',
+  'Choose the stored file and continue'
+]
+
+const bulletsYoutubeNl: string[] = [
+  'Ga naar de email die u ontvangen heeft van Google Takeout.',
+  'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
+  'Kies het bestand en ga verder.'
+]
+
+const bullets: Record<string, Record<string, string[]>> = {
+  twitter: {
+    en: bulletsTwitterEn,
+    nl: bulletsTwitterNl
+  },
+  facebook: {
+    en: bulletsFacebookEn,
+    nl: bulletsFacebookNl
+  },
+  instagram: {
+    en: bulletsInstagramEn,
+    nl: bulletsInstagramNl
+  },
+  youtube: {
+    en: bulletsYoutubeEn,
+    nl: bulletsYoutubeNl
+  }
+}
+
+const linkEn: JSX.Element = (
+  <div>Click <span className='text-primary underline'><a href={link} target='_blank' rel='noreferrer'>here</a></span> for more extensive instructions</div>
+)
+
+const linkNl: JSX.Element = (
+  <div>Klik <span className='text-primary underline'><a href={link} target='_blank' rel='noreferrer'>hier</a></span> voor uitgebreidere instructies</div>
+)
+
+const links: Record<string, JSX.Element> = {
+  en: linkEn,
+  nl: linkNl
 }
 
 const icon: Record<string, string> = {
