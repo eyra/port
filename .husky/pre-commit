@@ -1,5 +1,16 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+npm run prod:clean
 npm run prod
 npm run ci:test
+
+diff=$(git diff --name-only)
+
+if [[ ! -z "$diff" ]]; then 
+  echo ""
+  echo "Unstaged modified files detected!"
+  git diff --name-only
+  echo ""
+  exit 1
+fi
