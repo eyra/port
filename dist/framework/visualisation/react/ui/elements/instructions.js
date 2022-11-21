@@ -9,47 +9,103 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsxs as _jsxs, Fragment as _Fragment, jsx as _jsx } from "react/jsx-runtime";
 import { Translator } from '../../../../translator';
-import { BodyMedium, Title3 } from './text';
+import { Title3 } from './text';
 import TwitterSvg from '../../../../../assets/images/twitter.svg';
 import FacebookSvg from '../../../../../assets/images/facebook.svg';
 import InstagramSvg from '../../../../../assets/images/instagram.svg';
 import YoutubeSvg from '../../../../../assets/images/youtube.svg';
 import TextBundle from '../../../../text_bundle';
+import { Bullet } from './bullet';
+var link = 'https://eyra.co';
 export var Instructions = function (props) {
-    var _a = prepareCopy(props), title = _a.title, text = _a.text;
+    var title = prepareCopy(props).title;
+    var locale = props.locale;
     var platform = props.platform.toLowerCase();
-    return (_jsxs("div", __assign({ className: 'flex flex-col gap-6 p-8 border-2 border-grey4 rounded' }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-8 items-center' }, { children: [_jsx("div", __assign({ className: 'flex-grow' }, { children: _jsx(Title3, { text: title, margin: '' }) })), _jsx("div", __assign({ className: 'h-12' }, { children: _jsx("img", { className: 'h-12', src: icon[platform] }) }))] })), _jsx(BodyMedium, { text: text, color: 'text-grey2', margin: '' })] })));
+    function renderBullets(bullets) {
+        return bullets.map(function (bullet) { return renderBullet(bullet); });
+    }
+    function renderContent() {
+        return (_jsx(_Fragment, { children: _jsxs("div", __assign({ className: 'flex flex-col gap-4 text-bodymedium font-body text-grey2' }, { children: [renderBullets(bullets[platform][locale]), links[locale]] })) }));
+    }
+    return (_jsxs("div", __assign({ className: 'flex flex-col gap-6 p-8 border-2 border-grey4 rounded' }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-8 items-center' }, { children: [_jsx("div", __assign({ className: 'flex-grow' }, { children: _jsx(Title3, { text: title, margin: '' }) })), _jsx("div", __assign({ className: 'h-12' }, { children: _jsx("img", { className: 'h-12', src: icon[platform] }) }))] })), renderContent()] })));
 };
 function prepareCopy(_a) {
     var platform = _a.platform, locale = _a.locale;
-    var textBundle = text[platform.toLowerCase()];
     return {
-        title: Translator.translate(title, locale),
-        text: Translator.translate(textBundle, locale)
+        title: Translator.translate(title, locale)
     };
 }
 var title = new TextBundle()
-    .add('en', 'Instructions')
-    .add('nl', 'Instructies');
-var twitterText = new TextBundle()
-    .add('en', 'If you have received an email with a link to your data from Twitter. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-    .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Twitter. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.');
-var facebookText = new TextBundle()
-    .add('en', 'If you have received an email with a link to your data from Facebook. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-    .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Facebook. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.');
-var instagramText = new TextBundle()
-    .add('en', 'If you have received an email with a link to your data from Instagram. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-    .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Instagram. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.');
-var youtubeText = new TextBundle()
-    .add('en', 'If you have received an email with a link to your data from Google. Then click on the link and save the file. If you then select this file, profiling information will be extracted from it, which you can then view and donate.')
-    .add('nl', 'Als je een email met een link naar jouw gegevens hebt ontvangen van Google. Klik dan op de link en sla het bestand op. Als u dit bestand vervolgens selecteert dan wordt daar profiling informatie uit gehaald, die u vervolgens kunt bekijken en doneren.');
-var text = {
-    twitter: twitterText,
-    facebook: facebookText,
-    instagram: instagramText,
-    youtube: youtubeText
+    .add('en', 'Download')
+    .add('nl', 'Download');
+function renderBullet(text) {
+    return (_jsx(Bullet, __assign({ frameSize: 'w-5 h-30px' }, { children: _jsx("div", { children: text }) })));
+}
+var bulletsTwitterEn = [
+    'Check the email that you received from Twitter',
+    'Click on the download link and store the file',
+    'Choose the stored file and continue'
+];
+var bulletsTwitterNl = [
+    'Ga naar de email die u ontvangen heeft van Twitter.',
+    'Klik op de link "gedownload” en sla het bestand op',
+    'Kies het bestand en ga verder.'
+];
+var bulletsFacebookEn = [
+    'Check the email that you received from Facebook',
+    'Click on the download link and store the file',
+    'Choose the stored file and continue'
+];
+var bulletsFacebookNl = [
+    'Ga naar de email die u ontvangen heeft van Facebook.',
+    'Klik op de link “Je gegevens downloaden” en sla het bestand op.',
+    'Kies het bestand en ga verder.'
+];
+var bulletsInstagramEn = [
+    'Check the email that you received from Instagram',
+    'Click on the download link and store the file',
+    'Choose the stored file and continue'
+];
+var bulletsInstagramNl = [
+    'Ga naar de email die u ontvangen heeft van Instagram.',
+    'Klik op de link “Gegevens downloaden” en sla het bestand op.',
+    'Kies het bestand en ga verder.'
+];
+var bulletsYoutubeEn = [
+    'Check the email that you received from Google Takeout',
+    'Click on the download link and store the file',
+    'Choose the stored file and continue'
+];
+var bulletsYoutubeNl = [
+    'Ga naar de email die u ontvangen heeft van Google Takeout.',
+    'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
+    'Kies het bestand en ga verder.'
+];
+var bullets = {
+    twitter: {
+        en: bulletsTwitterEn,
+        nl: bulletsTwitterNl
+    },
+    facebook: {
+        en: bulletsFacebookEn,
+        nl: bulletsFacebookNl
+    },
+    instagram: {
+        en: bulletsInstagramEn,
+        nl: bulletsInstagramNl
+    },
+    youtube: {
+        en: bulletsYoutubeEn,
+        nl: bulletsYoutubeNl
+    }
+};
+var linkEn = (_jsxs("div", { children: ["Click ", _jsx("span", __assign({ className: 'text-primary underline' }, { children: _jsx("a", __assign({ href: link, target: '_blank', rel: 'noreferrer' }, { children: "here" })) })), " for more extensive instructions"] }));
+var linkNl = (_jsxs("div", { children: ["Klik ", _jsx("span", __assign({ className: 'text-primary underline' }, { children: _jsx("a", __assign({ href: link, target: '_blank', rel: 'noreferrer' }, { children: "hier" })) })), " voor uitgebreidere instructies"] }));
+var links = {
+    en: linkEn,
+    nl: linkNl
 };
 var icon = {
     twitter: TwitterSvg,

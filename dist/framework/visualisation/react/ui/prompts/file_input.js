@@ -55,7 +55,7 @@ function prepareCopy(_a) {
 var continueButtonLabel = function () {
     return new TextBundle()
         .add('en', 'Continue')
-        .add('nl', 'Doorgaan');
+        .add('nl', 'Verder');
 };
 var selectButtonLabel = function () {
     return new TextBundle()

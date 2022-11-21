@@ -266,37 +266,37 @@ var searchPlaceholder = new TextBundle()
     .add('en', 'Search')
     .add('nl', 'Zoeken');
 var noDataLabel = new TextBundle()
-    .add('en', 'No information found')
-    .add('nl', 'Geen informatie gevonden');
+    .add('en', 'No data found')
+    .add('nl', 'Geen gegevens gevonden');
 var noDataLeftLabel = new TextBundle()
-    .add('en', 'No information left')
-    .add('nl', 'Geen informatie overgebleven');
+    .add('en', 'All data removed')
+    .add('nl', 'Alle gegevens verwijderd');
 var noResultsLabel = new TextBundle()
     .add('en', 'No search results')
     .add('nl', 'Geen zoek resultaten');
 var editLabel = new TextBundle()
-    .add('en', 'Edit table')
-    .add('nl', 'Bewerk tabel');
+    .add('en', 'Adjust')
+    .add('nl', 'Aanpassen');
 var undoLabel = new TextBundle()
     .add('en', 'Undo')
     .add('nl', 'Herstel');
 var deleteLabel = new TextBundle()
     .add('en', 'Delete selected')
-    .add('nl', 'Verwijder geselecteerde');
+    .add('nl', 'Verwijder selectie');
 function deletedNoneRowLabel() {
     return new TextBundle()
-        .add('en', 'No changes made')
+        .add('en', 'No adjustments')
         .add('nl', 'Geen aanpassingen');
 }
 function deletedRowLabel(amount) {
     return new TextBundle()
-        .add('en', "You deleted ".concat(amount, " row"))
-        .add('nl', "Je hebt ".concat(amount, " rij verwijderd"));
+        .add('en', "".concat(amount, " row deleted"))
+        .add('nl', "".concat(amount, " rij verwijderd"));
 }
 function deletedRowsLabel(amount) {
     return new TextBundle()
-        .add('en', "You deleted ".concat(amount, " rows"))
-        .add('nl', "Je hebt ".concat(amount, " rijen verwijderd"));
+        .add('en', "".concat(amount, " rows deleted"))
+        .add('nl', "".concat(amount, " rijen verwijderd"));
 }
 function deletedLabel(amount) {
     if (amount === 0)

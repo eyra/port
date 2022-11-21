@@ -24,5 +24,5 @@ var title = new TextBundle()
     .add('en', 'Thank you')
     .add('nl', 'Bedankt');
 var text = new TextBundle()
-    .add('en', 'Thank you for your participation. You can now close this page or refresh the page to go through the flow again.')
+    .add('en', 'Thank you for your participation. You can now close the page or refresh to restart the donation flow.')
     .add('nl', 'Hartelijk dank voor uw deelname. U kunt deze pagina nu sluiten of de pagina verversen om de flow nogmaals te doorlopen.');

@@ -139,8 +139,8 @@ function prepareCopy(_a) {
     };
 }
 var donateButtonLabel = new TextBundle()
-    .add('en', 'Consent')
-    .add('nl', 'Consent');
+    .add('en', 'Donate')
+    .add('nl', 'Doneer');
 var description = new TextBundle()
-    .add('en', 'Please have a good look at the extracted data before giving consent to use this data.')
-    .add('nl', 'Bekijk de gegevens goed voordat je consent geeft om deze te gebruiken.');
+    .add('en', 'Determine whether you would like to donate the data below. Carefully check the data and adjust when required or skip if you do not want to donate. With your donation you contribute to the previously described research. Thank you in advance.')
+    .add('nl', 'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Sla deze stap over als u niet wilt doneren. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.');
