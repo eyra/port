@@ -23,7 +23,7 @@ import DeleteSvg from '../../../../../assets/images/delete.svg';
 import { PageIcon } from './page_icon';
 export var Table = function (_a) {
     var id = _a.id, head = _a.head, body = _a.body, _b = _a.readOnly, readOnly = _b === void 0 ? false : _b, _c = _a.pageSize, pageSize = _c === void 0 ? 7 : _c, locale = _a.locale, onChange = _a.onChange;
-    var pageWindowlegSize = 3;
+    var pageWindowLegSize = 3;
     var query = React.useRef([]);
     var alteredRows = React.useRef(body.rows);
     var filteredRows = React.useRef(alteredRows.current);
@@ -57,7 +57,7 @@ export var Table = function (_a) {
         return false;
     }
     function updatePageWindow(currentPage) {
-        var pageWindowSize = (pageWindowlegSize * 2) + 1;
+        var pageWindowSize = (pageWindowLegSize * 2) + 1;
         var pageCount = getPageCount();
         var range = [];
         if (pageWindowSize >= pageCount && pageCount > 0) {
@@ -67,20 +67,20 @@ export var Table = function (_a) {
             var maxIndex = pageCount - 1;
             var start = void 0;
             var end = void 0;
-            if (currentPage < pageWindowlegSize) {
+            if (currentPage < pageWindowLegSize) {
                 // begin
                 start = 0;
                 end = Math.min(pageCount, pageWindowSize);
             }
-            else if (maxIndex - currentPage <= pageWindowlegSize) {
+            else if (maxIndex - currentPage <= pageWindowLegSize) {
                 // end
                 start = maxIndex - (pageWindowSize - 1);
                 end = maxIndex + 1;
             }
             else {
                 // middle
-                start = currentPage - pageWindowlegSize;
-                end = currentPage + pageWindowlegSize + 1;
+                start = currentPage - pageWindowLegSize;
+                end = currentPage + pageWindowLegSize + 1;
             }
             range = _.range(start, end);
         }
@@ -116,8 +116,27 @@ export var Table = function (_a) {
         var selected = state.selected.includes(rowId);
         return (_jsx("td", __assign({ className: 'pl-4' }, { children: _jsx(CheckBox, { id: rowId, selected: selected, onSelect: function () { return handleSelectRow(rowId); } }) }), "check-".concat(rowId)));
     }
-    function renderRowCell(props, cellIndex) {
-        return (_jsx("td", __assign({ className: 'h-12 px-4' }, { children: _jsx("div", __assign({ className: 'font-table-row text-table text-grey1' }, { children: props.text })) }), "".concat(cellIndex)));
+    function renderRowCell(_a, cellIndex) {
+        var text = _a.text;
+        text = 'https://www.youtube.com/watch?v=npncPhsqgSk';
+        var body = isValidHttpUrl(text) ? renderRowLink(text) : renderRowText(text);
+        return (_jsx("td", __assign({ className: 'h-12 px-4' }, { children: body }), "".concat(cellIndex)));
+    }
+    function renderRowText(text) {
+        return _jsx("div", __assign({ className: 'font-table-row text-table text-grey1' }, { children: text }));
+    }
+    function renderRowLink(href) {
+        return (_jsx("div", __assign({ className: 'font-table-row text-table text-primary underline' }, { children: _jsx("a", __assign({ href: href, target: '_blank', rel: 'noreferrer', title: href }, { children: copy.link })) })));
+    }
+    function isValidHttpUrl(value) {
+        var url;
+        try {
+            url = new URL(value);
+        }
+        catch (_) {
+            return false;
+        }
+        return url.protocol === 'http:' || url.protocol === 'https:';
     }
     function renderPageIcons() {
         return (_jsx("div", __assign({ className: 'flex flex-row gap-2' }, { children: state.pageWindow.map(function (page) { return renderPageIcon(page); }) })));
@@ -258,10 +277,14 @@ export var Table = function (_a) {
             pages: Translator.translate(pagesLabel(state.pageCount), locale),
             delete: Translator.translate(deleteLabel, locale),
             deleted: Translator.translate(deletedLabel(body.rows.length - alteredRows.current.length), locale),
-            searchPlaceholder: Translator.translate(searchPlaceholder, locale)
+            searchPlaceholder: Translator.translate(searchPlaceholder, locale),
+            link: Translator.translate(link, locale)
         };
     }
 };
+var link = new TextBundle()
+    .add('en', 'Check out')
+    .add('nl', 'Bekijk');
 var searchPlaceholder = new TextBundle()
     .add('en', 'Search')
     .add('nl', 'Zoeken');

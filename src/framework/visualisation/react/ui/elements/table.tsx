@@ -41,7 +41,7 @@ interface State {
 }
 
 export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, onChange }: Props): JSX.Element => {
-  const pageWindowlegSize = 3
+  const pageWindowLegSize = 3
 
   const query = React.useRef<string[]>([])
   const alteredRows = React.useRef<PropsUITableRow[]>(body.rows)
@@ -82,7 +82,7 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
   }
 
   function updatePageWindow (currentPage: number): number[] {
-    const pageWindowSize = (pageWindowlegSize * 2) + 1
+    const pageWindowSize = (pageWindowLegSize * 2) + 1
     const pageCount = getPageCount()
 
     let range: number[] = []
@@ -94,18 +94,18 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
       let start: number
       let end: number
 
-      if (currentPage < pageWindowlegSize) {
+      if (currentPage < pageWindowLegSize) {
         // begin
         start = 0
         end = Math.min(pageCount, pageWindowSize)
-      } else if (maxIndex - currentPage <= pageWindowlegSize) {
+      } else if (maxIndex - currentPage <= pageWindowLegSize) {
         // end
         start = maxIndex - (pageWindowSize - 1)
         end = maxIndex + 1
       } else {
         // middle
-        start = currentPage - pageWindowlegSize
-        end = currentPage + pageWindowlegSize + 1
+        start = currentPage - pageWindowLegSize
+        end = currentPage + pageWindowLegSize + 1
       }
       range = _.range(start, end)
     }
@@ -174,12 +174,37 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
     )
   }
 
-  function renderRowCell (props: Weak<PropsUITableCell>, cellIndex: number): JSX.Element {
+  function renderRowCell ({ text }: Weak<PropsUITableCell>, cellIndex: number): JSX.Element {
+    text = 'https://www.youtube.com/watch?v=npncPhsqgSk'
+    const body = isValidHttpUrl(text) ? renderRowLink(text) : renderRowText(text)
+
     return (
       <td key={`${cellIndex}`} className='h-12 px-4'>
-        <div className='font-table-row text-table text-grey1'>{props.text}</div>
+        {body}
       </td>
     )
+  }
+
+  function renderRowText (text: string): JSX.Element {
+    return <div className='font-table-row text-table text-grey1'>{text}</div>
+  }
+
+  function renderRowLink (href: string): JSX.Element {
+    return (
+      <div className='font-table-row text-table text-primary underline'>
+        <a href={href} target='_blank' rel='noreferrer' title={href}>{copy.link}</a>
+      </div>
+    )
+  }
+
+  function isValidHttpUrl (value: string): boolean {
+    let url
+    try {
+      url = new URL(value)
+    } catch (_) {
+      return false
+    }
+    return url.protocol === 'http:' || url.protocol === 'https:'
   }
 
   function renderPageIcons (): JSX.Element {
@@ -413,7 +438,8 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
       pages: Translator.translate(pagesLabel(state.pageCount), locale),
       delete: Translator.translate(deleteLabel, locale),
       deleted: Translator.translate(deletedLabel(body.rows.length - alteredRows.current.length), locale),
-      searchPlaceholder: Translator.translate(searchPlaceholder, locale)
+      searchPlaceholder: Translator.translate(searchPlaceholder, locale),
+      link: Translator.translate(link, locale)
     }
   }
 }
@@ -428,7 +454,12 @@ interface Copy {
   delete: string
   deleted: string
   searchPlaceholder: string
+  link: String
 }
+
+const link = new TextBundle()
+  .add('en', 'Check out')
+  .add('nl', 'Bekijk')
 
 const searchPlaceholder = new TextBundle()
   .add('en', 'Search')
