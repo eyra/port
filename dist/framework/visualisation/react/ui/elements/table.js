@@ -118,7 +118,6 @@ export var Table = function (_a) {
     }
     function renderRowCell(_a, cellIndex) {
         var text = _a.text;
-        text = 'https://www.youtube.com/watch?v=npncPhsqgSk';
         var body = isValidHttpUrl(text) ? renderRowLink(text) : renderRowText(text);
         return (_jsx("td", __assign({ className: 'h-12 px-4' }, { children: body }), "".concat(cellIndex)));
     }

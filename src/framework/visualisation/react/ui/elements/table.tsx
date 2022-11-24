@@ -175,7 +175,6 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
   }
 
   function renderRowCell ({ text }: Weak<PropsUITableCell>, cellIndex: number): JSX.Element {
-    text = 'https://www.youtube.com/watch?v=npncPhsqgSk'
     const body = isValidHttpUrl(text) ? renderRowLink(text) : renderRowText(text)
 
     return (
