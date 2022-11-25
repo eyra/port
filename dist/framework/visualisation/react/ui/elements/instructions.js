@@ -18,7 +18,10 @@ import InstagramSvg from '../../../../../assets/images/instagram.svg';
 import YoutubeSvg from '../../../../../assets/images/youtube.svg';
 import TextBundle from '../../../../text_bundle';
 import { Bullet } from './bullet';
-var link = 'https://eyra.co';
+var linkTwitter = 'https://eyra.co';
+var linkFacebook = 'https://eyra.co';
+var linkInstagram = 'https://eyra.co';
+var linkYoutube = 'https://eyra.co';
 export var Instructions = function (props) {
     var title = prepareCopy(props).title;
     var locale = props.locale;
@@ -27,7 +30,7 @@ export var Instructions = function (props) {
         return bullets.map(function (bullet) { return renderBullet(bullet); });
     }
     function renderContent() {
-        return (_jsx(_Fragment, { children: _jsxs("div", __assign({ className: 'flex flex-col gap-4 text-bodymedium font-body text-grey2' }, { children: [renderBullets(bullets[platform][locale]), links[locale]] })) }));
+        return (_jsx(_Fragment, { children: _jsxs("div", __assign({ className: 'flex flex-col gap-4 text-bodymedium font-body text-grey2' }, { children: [renderBullets(bullets[platform][locale]), links[platform][locale]] })) }));
     }
     return (_jsxs("div", __assign({ className: 'flex flex-col gap-6 p-8 border-2 border-grey4 rounded' }, { children: [_jsxs("div", __assign({ className: 'flex flex-row gap-8 items-center' }, { children: [_jsx("div", __assign({ className: 'flex-grow' }, { children: _jsx(Title3, { text: title, margin: '' }) })), _jsx("div", __assign({ className: 'h-12' }, { children: _jsx("img", { className: 'h-12', src: icon[platform] }) }))] })), renderContent()] })));
 };
@@ -101,11 +104,29 @@ var bullets = {
         nl: bulletsYoutubeNl
     }
 };
-var linkEn = (_jsxs("div", { children: ["Click ", _jsx("span", __assign({ className: 'text-primary underline' }, { children: _jsx("a", __assign({ href: link, target: '_blank', rel: 'noreferrer' }, { children: "here" })) })), " for more extensive instructions"] }));
-var linkNl = (_jsxs("div", { children: ["Klik ", _jsx("span", __assign({ className: 'text-primary underline' }, { children: _jsx("a", __assign({ href: link, target: '_blank', rel: 'noreferrer' }, { children: "hier" })) })), " voor uitgebreidere instructies"] }));
+function linkEn(link) {
+    return _jsxs("div", { children: ["Click ", _jsx("span", __assign({ className: 'text-primary underline' }, { children: _jsx("a", __assign({ href: link, target: '_blank', rel: 'noreferrer' }, { children: "here" })) })), " for more extensive instructions"] });
+}
+function linkNl(link) {
+    return _jsxs("div", { children: ["Klik ", _jsx("span", __assign({ className: 'text-primary underline' }, { children: _jsx("a", __assign({ href: link, target: '_blank', rel: 'noreferrer' }, { children: "hier" })) })), " voor uitgebreidere instructies"] });
+}
 var links = {
-    en: linkEn,
-    nl: linkNl
+    twitter: {
+        en: linkEn(linkTwitter),
+        nl: linkNl(linkTwitter)
+    },
+    facebook: {
+        en: linkEn(linkFacebook),
+        nl: linkNl(linkFacebook)
+    },
+    instagram: {
+        en: linkEn(linkInstagram),
+        nl: linkNl(linkInstagram)
+    },
+    youtube: {
+        en: linkEn(linkYoutube),
+        nl: linkNl(linkYoutube)
+    }
 };
 var icon = {
     twitter: TwitterSvg,

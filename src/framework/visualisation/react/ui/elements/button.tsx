@@ -95,7 +95,7 @@ export const IconLabelButton = ({ icon, label, color = 'text-grey1', alignment =
 
 export const LabelButton = ({ label, color = 'text-grey1', onClick }: Weak<PropsUIButtonLabel>): JSX.Element => {
   return (
-    <div className={`pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer bg-opacity-0 ${color}`} onClick={onClick}>
+    <div className={`pt-15px pb-15px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer bg-opacity-0 ${color}`} onClick={onClick}>
       <div id='confirm-button' className='flex-wrap'>
         {label}
       </div>

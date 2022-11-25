@@ -53,5 +53,5 @@ export var IconLabelButton = function (_a) {
 };
 export var LabelButton = function (_a) {
     var label = _a.label, _b = _a.color, color = _b === void 0 ? 'text-grey1' : _b, onClick = _a.onClick;
-    return (_jsx("div", __assign({ className: "pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer bg-opacity-0 ".concat(color), onClick: onClick }, { children: _jsx("div", __assign({ id: 'confirm-button', className: 'flex-wrap' }, { children: label })) })));
+    return (_jsx("div", __assign({ className: "pt-15px pb-15px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer bg-opacity-0 ".concat(color), onClick: onClick }, { children: _jsx("div", __assign({ id: 'confirm-button', className: 'flex-wrap' }, { children: label })) })));
 };

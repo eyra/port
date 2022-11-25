@@ -95,8 +95,8 @@ def retry_confirmation(platform):
 
 def prompt_file(platform, extensions):
     description = props.Translatable({
-        "en": "Please follow the download instructions and choose the file that you stored on your device.",
-        "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat."
+        "en": f"Please follow the download instructions and choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a {platform} file. ",
+        "nl": f"Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat. Als u geen {platform} bestand heeft klik dan op “Overslaan” rechts onder."
     })
 
     return props.PropsUIPromptFileInput(description, extensions)

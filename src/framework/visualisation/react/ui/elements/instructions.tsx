@@ -8,7 +8,10 @@ import YoutubeSvg from '../../../../../assets/images/youtube.svg'
 import TextBundle from '../../../../text_bundle'
 import { Bullet } from './bullet'
 
-const link: string = 'https://eyra.co'
+const linkTwitter: string = 'https://eyra.co'
+const linkFacebook: string = 'https://eyra.co'
+const linkInstagram: string = 'https://eyra.co'
+const linkYoutube: string = 'https://eyra.co'
 
 interface InstructionsProps {
   platform: string
@@ -31,7 +34,7 @@ export const Instructions = (props: Props): JSX.Element => {
       <>
         <div className='flex flex-col gap-4 text-bodymedium font-body text-grey2'>
           {renderBullets(bullets[platform][locale])}
-          {links[locale]}
+          {links[platform][locale]}
         </div>
       </>
     )
@@ -141,17 +144,31 @@ const bullets: Record<string, Record<string, string[]>> = {
   }
 }
 
-const linkEn: JSX.Element = (
-  <div>Click <span className='text-primary underline'><a href={link} target='_blank' rel='noreferrer'>here</a></span> for more extensive instructions</div>
-)
+function linkEn (link: string): JSX.Element {
+  return <div>Click <span className='text-primary underline'><a href={link} target='_blank' rel='noreferrer'>here</a></span> for more extensive instructions</div>
+}
 
-const linkNl: JSX.Element = (
-  <div>Klik <span className='text-primary underline'><a href={link} target='_blank' rel='noreferrer'>hier</a></span> voor uitgebreidere instructies</div>
-)
+function linkNl (link: string): JSX.Element {
+  return <div>Klik <span className='text-primary underline'><a href={link} target='_blank' rel='noreferrer'>hier</a></span> voor uitgebreidere instructies</div>
+}
 
-const links: Record<string, JSX.Element> = {
-  en: linkEn,
-  nl: linkNl
+const links: Record<string, Record<string, JSX.Element>> = {
+  twitter: {
+    en: linkEn(linkTwitter),
+    nl: linkNl(linkTwitter)
+  },
+  facebook: {
+    en: linkEn(linkFacebook),
+    nl: linkNl(linkFacebook)
+  },
+  instagram: {
+    en: linkEn(linkInstagram),
+    nl: linkNl(linkInstagram)
+  },
+  youtube: {
+    en: linkEn(linkYoutube),
+    nl: linkNl(linkYoutube)
+  }
 }
 
 const icon: Record<string, string> = {
