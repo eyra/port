@@ -58,10 +58,10 @@ export const SplashScreen = (props: Props): JSX.Element => {
           You are about to start the process of donating your data to research institute ASCoR at Amsterdam University. The data that we ask you to donate will be used for academic research to gain insight into how social media platforms work.
         </div>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          We will walk you through this process step by step. During this process no data is stored or sent to ASCoR. You can delete rows from the data before donating. Data will only be donated and stored when you click “Yes, donate” on the page that shows your data.
+          We will walk you through this process step by step. During this process no data is stored or sent to ASCoR. You can delete rows from the data before donating. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
         </div>
         <div className='mb-6 text-bodylarge font-body text-grey1'>
-          When you click “<span className='font-bodybold'>Yes, donate</span>”:
+          By clicking the button “<span className='font-bodybold'>Yes, donate</span>”:
         </div>
         <div className='flex flex-col gap-3 mb-6'>
           <Bullet>
@@ -91,7 +91,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
           We leggen u stap voor stap wat er van u verwacht wordt. Tijdens deze stappen worden geen gegevens opgeslagen of naar ASCoR verstuurd. U kunt zelf rijen uit uw data verwijderen die u niet wilt doneren. Pas als u de vraag krijgt of u de gegevens wilt doneren en u op de knop “Ja, doneer” klikt, worden de gegevens gedoneerd en opgeslagen.
         </div>
         <div className='mb-4'>
-          Als u in de volgende schermen op de knop “<span className='font-bodybold'>Ja, doneer</span>” klikt:
+          Door op de knop “<span className='font-bodybold'>Ja, doneer</span>” te klikken:
         </div>
         <div className='flex flex-col gap-3 mb-6'>
           <Bullet>
