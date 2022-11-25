@@ -2,7 +2,7 @@ import { assert, Weak } from '../../../../helpers'
 import { PropsUITable, PropsUITableBody, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable } from '../../../../types/prompts'
 import { Table } from '../elements/table'
-import { PrimaryButton } from '../elements/button'
+import { LabelButton, PrimaryButton } from '../elements/button'
 import { BodyLarge, Title4 } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
@@ -23,7 +23,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   const tablesOut = React.useRef<Array<PropsUITable & TableContext>>(tablesIn.current)
 
   const { locale, resolve } = props
-  const { description, donateButton } = prepareCopy(props)
+  const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
 
   function rowCell (dataFrame: any, column: string, row: number): PropsUITableCell {
     const text = String(dataFrame[column][`${row}`])
@@ -104,6 +104,10 @@ export const ConsentForm = (props: Props): JSX.Element => {
     resolve?.({ __type__: 'PayloadJSON', value })
   }
 
+  function handleCancel (): void {
+    resolve?.({ __type__: 'PayloadFalse', value: false })
+  }
+
   function serializeConsentData (): string {
     const array = serializeTables().concat(serializeMetaData())
     return JSON.stringify(array)
@@ -147,8 +151,12 @@ export const ConsentForm = (props: Props): JSX.Element => {
       <BodyLarge text={description} />
       <div className='flex flex-col gap-8'>
         {tablesIn.current.map((table) => renderTable(table))}
-        <div className='flex flex-row gap-4'>
-          <PrimaryButton label={donateButton} onClick={handleDonate} color='bg-success text-white' />
+        <div>
+          <BodyLarge margin='' text={donateQuestion} />
+          <div className='flex flex-row gap-4 mt-4 mb-4'>
+            <PrimaryButton label={donateButton} onClick={handleDonate} color='bg-success text-white' />
+            <LabelButton label={cancelButton} onClick={handleCancel} color='text-grey1' />
+          </div>
         </div>
       </div>
     </>
@@ -157,20 +165,32 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
 interface Copy {
   description: string
+  donateQuestion: string
   donateButton: string
+  cancelButton: string
 }
 
 function prepareCopy ({ locale }: Props): Copy {
   return {
     description: Translator.translate(description, locale),
-    donateButton: Translator.translate(donateButtonLabel, locale)
+    donateQuestion: Translator.translate(donateQuestionLabel, locale),
+    donateButton: Translator.translate(donateButtonLabel, locale),
+    cancelButton: Translator.translate(cancelButtonLabel, locale)
   }
 }
 
+const donateQuestionLabel = new TextBundle()
+  .add('en', 'Do you want to donate the above data?')
+  .add('nl', 'Wilt u de bovenstaande gegevens doneren?')
+
 const donateButtonLabel = new TextBundle()
-  .add('en', 'Donate')
-  .add('nl', 'Doneer')
+  .add('en', 'Yes, donate')
+  .add('nl', 'Ja, doneer')
+
+const cancelButtonLabel = new TextBundle()
+  .add('en', 'No')
+  .add('nl', 'Nee')
 
 const description = new TextBundle()
-  .add('en', 'Determine whether you would like to donate the data below. Carefully check the data and adjust when required or skip if you do not want to donate. With your donation you contribute to the previously described research. Thank you in advance.')
-  .add('nl', 'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Sla deze stap over als u niet wilt doneren. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.')
+  .add('en', 'Determine whether you would like to donate the data below. Carefully check the data and adjust when required. With your donation you contribute to the previously described research. Thank you in advance.')
+  .add('nl', 'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.')

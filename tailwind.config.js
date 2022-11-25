@@ -110,6 +110,7 @@ module.exports = {
         intro: ['Finador-Medium', 'sans-serif'],
         label: ['Finador-Bold', 'sans-serif'],
         body: ['Finador-Light', 'sans-serif'],
+        bodybold: ['Finador-Medium', 'sans-serif'],
         'table-header': ['Finador-Bold', 'sans-serif'],
         'table-row': ['Finador-Regular', 'sans-serif']
       },
