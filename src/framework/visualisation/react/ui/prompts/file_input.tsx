@@ -11,6 +11,7 @@ import { BodyLarge, BodySmall } from '../elements/text'
 type Props = Weak<PropsUIPromptFileInput> & ReactFactoryContext
 
 export const FileInput = (props: Props): JSX.Element => {
+  const [waiting, setWaiting] = React.useState<boolean>(false)
   const [selectedFile, setSelectedFile] = React.useState<File>()
   const input = React.useRef<HTMLInputElement>(null)
 
@@ -31,7 +32,8 @@ export const FileInput = (props: Props): JSX.Element => {
   }
 
   function handleConfirm (): void {
-    if (selectedFile !== undefined) {
+    if (selectedFile !== undefined && !waiting) {
+      setWaiting(true)
       resolve?.({ __type__: 'PayloadFile', value: selectedFile })
     }
   }
@@ -56,7 +58,7 @@ export const FileInput = (props: Props): JSX.Element => {
           <BodySmall text={note} margin='' />
           <div className='mt-8' />
           <div className='flex flex-row gap-4'>
-            <PrimaryButton label={continueButton} onClick={handleConfirm} enabled={selectedFile !== undefined} />
+            <PrimaryButton label={continueButton} onClick={handleConfirm} enabled={selectedFile !== undefined} spinning={waiting} />
           </div>
         </div>
       </div>

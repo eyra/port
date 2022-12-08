@@ -17,10 +17,11 @@ import { PrimaryButton } from '../elements/button';
 import { BodyLarge, BodySmall } from '../elements/text';
 export var FileInput = function (props) {
     var _a;
-    var _b = React.useState(), selectedFile = _b[0], setSelectedFile = _b[1];
+    var _b = React.useState(false), waiting = _b[0], setWaiting = _b[1];
+    var _c = React.useState(), selectedFile = _c[0], setSelectedFile = _c[1];
     var input = React.useRef(null);
     var resolve = props.resolve;
-    var _c = prepareCopy(props), description = _c.description, note = _c.note, placeholder = _c.placeholder, extensions = _c.extensions, selectButton = _c.selectButton, continueButton = _c.continueButton;
+    var _d = prepareCopy(props), description = _d.description, note = _d.note, placeholder = _d.placeholder, extensions = _d.extensions, selectButton = _d.selectButton, continueButton = _d.continueButton;
     function handleClick() {
         var _a;
         (_a = input.current) === null || _a === void 0 ? void 0 : _a.click();
@@ -35,11 +36,12 @@ export var FileInput = function (props) {
         }
     }
     function handleConfirm() {
-        if (selectedFile !== undefined) {
+        if (selectedFile !== undefined && !waiting) {
+            setWaiting(true);
             resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFile', value: selectedFile });
         }
     }
-    return (_jsx(_Fragment, { children: _jsxs("div", __assign({ id: 'select-panel' }, { children: [_jsx("div", __assign({ className: 'flex-wrap text-bodylarge font-body text-grey1 text-left' }, { children: description })), _jsx("div", { className: 'mt-8' }), _jsxs("div", __assign({ className: 'p-6 border-grey4 border-2 rounded' }, { children: [_jsx("input", { ref: input, id: 'input', type: 'file', className: 'hidden', accept: extensions, onChange: handleSelect }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(BodyLarge, { text: (_a = selectedFile === null || selectedFile === void 0 ? void 0 : selectedFile.name) !== null && _a !== void 0 ? _a : placeholder, margin: '', color: selectedFile === undefined ? 'text-grey2' : 'textgrey1' }), _jsx("div", { className: 'flex-grow' }), _jsx(PrimaryButton, { onClick: handleClick, label: selectButton, color: 'bg-tertiary text-grey1' })] }))] })), _jsx("div", { className: 'mt-4' }), _jsxs("div", __assign({ className: "".concat(selectedFile === undefined ? 'opacity-30' : 'opacity-100') }, { children: [_jsx(BodySmall, { text: note, margin: '' }), _jsx("div", { className: 'mt-8' }), _jsx("div", __assign({ className: 'flex flex-row gap-4' }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleConfirm, enabled: selectedFile !== undefined }) }))] }))] })) }));
+    return (_jsx(_Fragment, { children: _jsxs("div", __assign({ id: 'select-panel' }, { children: [_jsx("div", __assign({ className: 'flex-wrap text-bodylarge font-body text-grey1 text-left' }, { children: description })), _jsx("div", { className: 'mt-8' }), _jsxs("div", __assign({ className: 'p-6 border-grey4 border-2 rounded' }, { children: [_jsx("input", { ref: input, id: 'input', type: 'file', className: 'hidden', accept: extensions, onChange: handleSelect }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 items-center' }, { children: [_jsx(BodyLarge, { text: (_a = selectedFile === null || selectedFile === void 0 ? void 0 : selectedFile.name) !== null && _a !== void 0 ? _a : placeholder, margin: '', color: selectedFile === undefined ? 'text-grey2' : 'textgrey1' }), _jsx("div", { className: 'flex-grow' }), _jsx(PrimaryButton, { onClick: handleClick, label: selectButton, color: 'bg-tertiary text-grey1' })] }))] })), _jsx("div", { className: 'mt-4' }), _jsxs("div", __assign({ className: "".concat(selectedFile === undefined ? 'opacity-30' : 'opacity-100') }, { children: [_jsx(BodySmall, { text: note, margin: '' }), _jsx("div", { className: 'mt-8' }), _jsx("div", __assign({ className: 'flex flex-row gap-4' }, { children: _jsx(PrimaryButton, { label: continueButton, onClick: handleConfirm, enabled: selectedFile !== undefined, spinning: waiting }) }))] }))] })) }));
 };
 function prepareCopy(_a) {
     var description = _a.description, extensions = _a.extensions, locale = _a.locale;
