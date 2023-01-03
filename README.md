@@ -574,9 +574,9 @@ The examples are based on the example script that can be found here: [src/framew
         import "port/dist/styles.css";
         ```
 
-        In this example imports are resolved by Webpack (worker-loader, css-loader, and file-loader). 
+        In this example imports are resolved by Webpack (worker-loader, css-loader, and file-loader). Make sure to include the correct config in your `webpack.config.js`:
 
-        ```json
+        ```Javascript
         module: {
             rules: [
                 {
