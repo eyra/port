@@ -570,10 +570,12 @@ Note: don't forget to import this new worker file in your server code
 
 ## Custom integration
 
+If you want to use your own server solution (in stead of Next), please follow the instuctions below:
+
 <details>
 <summary>Add Port app as dependency</summary>
 <br>
-Make sure to link your forked Port app as a dependency in your web server code. If you use `npm` add a dependency in `package.json`:
+Make sure to link your forked Port app as a dependency in your web server code. If `npm` is your dependency manager, add a dependency in `package.json` as follows:
 
 ```json
 "dependencies": {
@@ -599,7 +601,7 @@ import "port/dist/port-0.0.0-py3-none-any.whl";
 import "port/dist/styles.css";
 ```
 
-In this example imports are resolved by Webpack (worker-loader, css-loader, and file-loader). Make sure to include the correct config in your `webpack.config.js`:
+In this example above imports can be resolved by Webpack (worker-loader, css-loader, and file-loader). Make sure to include the correct config in your `webpack.config.js`:
 
 ```Javascript
 module: {
@@ -683,7 +685,7 @@ Workers can not be reused over sessions. Re-run code above for every new donatio
 Code in [Javascript types](src/framework/types) and [Python api](src/framework/processing/py/port/api/) are currently created by hand. Since both of them are implementions of the same model we will seek the opportunity in the future to define this model in a more abstract way and generate the needed Javascript and Python code accordingly.
 
 ### React
-The project is a react app created by [create-react-app](https://create-react-app.dev). This is not set in stone for the future but it was a nice way to speed up the development process in the beginning. Using this strongly opinionated setup hides most of the configuration. It uses [w   ebpack](https://webpack.js.org/concepts) to bundle and serve the app. 
+The project is a react app created by [create-react-app](https://create-react-app.dev). This is not set in stone for the future but it was a nice way to speed up the development process in the beginning. Using this strongly opinionated setup hides most of the configuration. It uses [webpack](https://webpack.js.org/concepts) to bundle and serve the app. 
 
 ### Code style
 The project uses [ts-standard](https://github.com/standard/ts-standard) for managing the code style. This is a TypeScript Style Guide, with linter and automatic code fixer based on StandardJS.
