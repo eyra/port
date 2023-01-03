@@ -1,5 +1,5 @@
 import { PropsUIRadioItem, Text } from './elements';
-export declare type PropsUIPrompt = PropsUIPromptFileInput | PropsUIPromptRadioInput | PropsUIPromptConsentForm;
+export declare type PropsUIPrompt = PropsUIPromptFileInput | PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptConfirm;
 export declare function isPropsUIPrompt(arg: any): arg is PropsUIPrompt;
 export interface PropsUIPromptConfirm {
     __type__: 'PropsUIPromptConfirm';
