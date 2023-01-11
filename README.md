@@ -94,12 +94,12 @@ See: [src/framework/types](src/framework/types)
     | Payload  | Description |
     | ------------- | ------------- |
     | Void | Command without user input as a response |
-    | True | Positieve user input, eg: Ok button in confirm prompt |
-    | False | Negative user input, eg: Cancel button in confirm prompt |
+    | True | Positive user input (e.g. Ok button in confirm prompt) |
+    | False | Negative user input (e.g. Cancel button in confirm prompt) |
     | Error | Unexpected problem when handling command |
     | String | String result |
-    | File | Only used in Javascript. This is intercepted in [py_worker.js](src/framework/processing/py_worker.js) and translated into a String (filename) while the bytes of the file are written to Pyodide file system |
-    | JSON | User input structured as JSON. Used to return consent data back from consent form |
+    | File | Only used in Javascript. This is intercepted in [py_worker.js](src/framework/processing/py_worker.js) and translated into a String (filename), while the bytes of the file are written to the Pyodide file system |
+    | JSON | User input structured as JSON, used to return the consent data from the consent form |
 
     Payloads are part of a Response back to the Python script after sending commands:
 
@@ -110,7 +110,7 @@ See: [src/framework/types](src/framework/types)
         payload: Payload
     }
     ```
-    Responses are intercepted in [py_worker.js](src/framework/processing/py_worker.js) and only the payload is returned to the Python script. Payloads don't have a Python representation in the [api](src/framework/processing/py/port/api) yet. They are translated into a dictionary (default Pyodide behaviour).
+    Responses are intercepted in [py_worker.js](src/framework/processing/py_worker.js) and only the payload is returned to the Python script. Payloads don't have a Python representation in the [API](src/framework/processing/py/port/api) yet. They are translated into a dictionary (default Pyodide behaviour).
 
 ## Python-Javascript interoperability
 
@@ -118,11 +118,11 @@ See: [src/framework/processing/py/port](src/framework/processing/py/port)
 
 * [ScriptWrapper](src/framework/processing/py/port/main.py) 
 
-    This object is used in in [main](src/framework/processing/py/port/main.py) to wrap the `process` generator function in your script. It translates incoming Javascript and outgoing Python commands. 
+    This object is used in [main](src/framework/processing/py/port/main.py) to wrap the `process` generator function in your script. It translates incoming Javascript and outgoing Python commands. 
 
-* [Api](src/framework/processing/py/port/api) 
+* [API](src/framework/processing/py/port/api) 
 
-    - [commands.py](src/framework/processing/py/port/api/commands.py): Defines commands, pages and prompts used to communicate from Python script to `VisualisationEngine` and `System`.
+    - [commands.py](src/framework/processing/py/port/api/commands.py): Defines commands, pages and prompts that are used to communicate from the Python script to the `VisualisationEngine` and `System`.
     - [props.py](src/framework/processing/py/port/api/commands.py): Defines property objects for pages and prompts
 
 ## Python script examples
@@ -152,7 +152,7 @@ def process(sessionId):
 </details>
 
 <details>
-<summary>Api imports</summary>
+<summary>API imports</summary>
 
 ```Python
 from port.api.props as props
@@ -267,14 +267,14 @@ yield CommandSystemDonate(tracking_key, data)
 ## Code instructions
 
 <details>
-<summary>Change copy</summary>
+<summary>Change copy (texts shown on the web pages)</summary>
 <br>
 The app has two types of copy:
 
 * Dynamic copy: part of the [Python script](src/framework/processing/py/port/script.py)
 * Static copy: part of [React components](src/framework/visualisation/react/ui)
 
-The Translatable object plays a central role and has a [Python](src/framework/processing/py/port/api/props.py) and a [Typescript](src/framework/types/elements.ts) implementation
+Currently two languages are supported (Dutch and English). The Translatable object plays a central role and has a [Python](src/framework/processing/py/port/api/props.py) and a [Typescript](src/framework/types/elements.ts) implementation
 
 From Python code copy can be used as follows:
 
@@ -322,7 +322,7 @@ const staticCopy = (): Translatable => {
 <details>
 <summary>Add new prompt</summary>
 <br>
-Add the properties for the prompt in [src/framework/types/prompts.ts](src/framework/types/prompts.ts) with the following template:
+Add the properties of the prompt in [src/framework/types/prompts.ts](src/framework/types/prompts.ts) with the following template:
 
 ```Typescript
 export type PropsUIPrompt =
@@ -472,7 +472,7 @@ export default class Assembly {
 <details>
 <summary>Implement support for alternative script language</summary>
 <br>
-To support alternative for Python scripts, create a Javascript file (eg: `my_worker.js`) in [src/framework/processing](src/framework/processing) with the following template:
+To support an alternative for Python scripts, create a Javascript file (eg: `my_worker.js`) in [src/framework/processing](src/framework/processing) with the following template:
 
 ```Javascript
 onmessage = (event) => {
@@ -510,7 +510,7 @@ function runCycle (payload) {
 }
 ``` 
 
-Change implementation of [index.tsx](src/index.tsx) to support your new worker file:
+Change the implementation of [index.tsx](src/index.tsx) to support your new worker file:
 
 ```Typescript
 const workerFile = new URL('./framework/processing/my_worker.js', import.meta.url)
