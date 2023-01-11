@@ -84,8 +84,8 @@ See: [src/framework/types](src/framework/types)
 
     | Command  | Description |
     | ------------- | ------------- |
-    | Render | File selection |
-    | Donate | Multiple choice question |
+    | Render | Render the page |
+    | Donate | Save the extracted data |
 
     Commands can be send from the Python script using the `yield` keyword. 
 
