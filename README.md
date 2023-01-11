@@ -1,15 +1,15 @@
 # Port
 
-Port is a research tool that will enable individuals to donate their digital trace data to academic research in a secure, transparent, and privacy-protecting manner. 
+Port is a research tool that enables individuals to donate their digital trace data for academic research in a secure, transparent, and privacy-preserving way. 
 
 ## Digital Data Donation Infrastructure (D3I)
 
 The D3i project is funded by PDI-SSH and is a collaboration between six Dutch universities and Eyra.
 
-The consortium is composed by researchers from:
+The consortium is composed of researchers from:
 
 * University of Amsterdam
-* Radboud University 
+* Radboud University Nijmegen 
 * VU Amsterdam
 * Utrecht University
 * Tilburg University
@@ -17,7 +17,7 @@ The consortium is composed by researchers from:
 
 ## D3i Pilot
 
-The first phase of the project (ended in december 2022) resulted in a MVP solution to run one Port app on top of a Next bundle. This Next + Port combi can be released as a Docker image and deployed on [Azure Web App Service](https://azure.microsoft.com/en-us/products/app-service/web).
+The first phase of the project ended in december 2022 and resulted in an MVP solution to run one Port app on top of a Next bundle. This Next + Port combi can be released as a Docker image and deployed on [Azure Web App Service](https://azure.microsoft.com/en-us/products/app-service/web).
 
 ## Development setup 
 
@@ -59,33 +59,33 @@ See: [src/framework/types](src/framework/types)
     | Module  | Description |
     | ------------- | ------------- |
     | ProcessingEngine | Responsible for processing donation flows |
-    | VisualizationEngine | Responsible for presenation UI accepting user input |
-    | CommandHandler | decoupling between ProcessingEngine and VisualizationEngine |
-    | System | Callback interface for System Commands (eg: Donation) |
+    | VisualizationEngine | Responsible for presenting the UI and accepting user input |
+    | CommandHandler | Decoupling of ProcessingEngine and VisualizationEngine |
+    | System | Callback interface for System Commands (e.g. Donation) |
 
 * [Pages](src/framework/types/pages.ts)
 
     | Page  | Description |
     | ------------- | ------------- |
-    | SplashScreen | Opening page that is rendered before the Python script is even loaded with GDPR consent logic |
-    | Donation | This page uses several prompts to get a file from the user and consent to donate extracted data |
-    | End | Closing page with instructions how to continue |
+    | SplashScreen | First page that is rendered before the Python script is loaded with GDPR consent logic |
+    | Donation | Page that uses several prompts to get a file from the user and consent to donate the extracted data |
+    | End | Final page with instructions on how to continue |
 
 * [Prompts](src/framework/types/prompts.ts)
 
     | Prompt  | Description |
     | ------------- | ------------- |
     | FileInput | File selection |
-    | RadioInput | Multiple choise question |
+    | RadioInput | Multiple choice question |
     | ConsentForm | Displays extracted data in tables and asks for user consent |
-    | Confirm | General dialog to ask extra confirmation from the Python script |
+    | Confirm | General dialog to ask for extra confirmation |
 
 * [Commands](src/framework/types/commands.ts)
 
     | Command  | Description |
     | ------------- | ------------- |
     | Render | File selection |
-    | Donate | Multiple choise question |
+    | Donate | Multiple choice question |
 
     Commands can be send from the Python script using the `yield` keyword. 
 
