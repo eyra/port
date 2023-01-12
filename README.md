@@ -551,7 +551,7 @@ Note: don't forget to import this new worker file in your server code
 
 3. Integration with Next
 
-    To run the Port app on top of Next locally see: 
+    To run the Port app on top of Next locally see: https://github.com/eyra/mono/blob/d3i/latest/PORT.md
 
 ## Release instructions
 
