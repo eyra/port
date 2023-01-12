@@ -4,7 +4,7 @@ Port is a research tool that enables individuals to donate their digital trace d
 
 ## Digital Data Donation Infrastructure (D3I)
 
-The D3i project is funded by PDI-SSH and is a collaboration between six Dutch universities and Eyra.
+The D3i project is funded by the PDI-SSH and is a collaboration between six Dutch universities and Eyra.
 
 The consortium is composed of researchers from:
 
@@ -17,7 +17,7 @@ The consortium is composed of researchers from:
 
 ## D3i Pilot
 
-The first phase of the project ended in december 2022 and resulted in an MVP solution to run one Port app on top of a Next bundle. This Next + Port combi can be released as a Docker image and deployed on [Azure Web App Service](https://azure.microsoft.com/en-us/products/app-service/web).
+The first phase of the project ended in December 2022 and resulted in an MVP solution to run one Port app on top of a Next bundle. This Next + Port combi can be released as a Docker image and deployed on [Azure Web App Service](https://azure.microsoft.com/en-us/products/app-service/web).
 
 ## Development setup 
 
