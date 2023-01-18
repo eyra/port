@@ -131,7 +131,7 @@ In Port, a data donation flow is determined by a Python script. A typical data d
 
 1. Prompt the participant to submit a file
 2. Handling the results from step 1. This is the step where you can extract the data you are interested in.
-3. The extracted data is presented on screen encompanied with consent button. After consent is given, the data is sent to a storage location of the researcher.
+3. The extracted data is presented on screen accompanied with a consent button. After consent is given, the data is sent to a storage location of the researcher.
 
 A flow like this can be created with a Python script making use of predetermined building blocks. 
 The examples on how you could use these blocks are outlined in detail below.
