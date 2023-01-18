@@ -127,8 +127,16 @@ See: [src/framework/processing/py/port](src/framework/processing/py/port)
 
 ## Python script examples
 
-The examples are based on the example script that can be found here: [src/framework/processing/py/port/script.py](src/framework/processing/py/port/script.py)
+In Port, a data donation flow is determined by a Python script. A typical data donation flow consists of these steps:
 
+1. Prompt the participant to submit a file
+2. Handling the results from step 1. This is the step where you can extract the data you are interested in.
+3. The extracted data is presented on screen encompanied with consent button. After consent is given, the data is sent to a storage location of the researcher.
+
+A flow like this can be created with a Python script making use of predetermined building blocks. 
+The examples on how you could use these blocks are outlined in detail below.
+
+The examples are based on the example script that can be found here: [src/framework/processing/py/port/script.py](src/framework/processing/py/port/script.py). We recommend you changing that script to fit your personal needs.
 
 <details>
     <summary>Main function</summary>
@@ -227,6 +235,8 @@ if result.__type__ == "PayloadString":
     # File selected
     filename = result.value
     zipfile = zipfile.ZipFile(filename)
+
+    # Extract the data you are interested contained in zipfile
     ...
 else:
     # No file selected
