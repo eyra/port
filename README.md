@@ -223,6 +223,17 @@ page = props.PropsUIPageDonation(platform, header, body, footer)
 ```
 </details>
 
+<summary>Create page with radio buttons</summary>
+
+```Python   
+header = props.PropsUIHeader(title)
+footer = props.PropsUIFooter(progress)
+body = props.PropsUIPromptRadioInput(title, description, [{"id": 0, "value": "Selection 1"}, {"id": 1, "value": "Selection 2"}])
+page = props.PropsUIPageDonation(platform, header, body, footer)
+```
+
+</details>
+
 <details>
 <summary>Handling file input result</summary>
 
