@@ -223,6 +223,7 @@ page = props.PropsUIPageDonation(platform, header, body, footer)
 ```
 </details>
 
+<details>
 <summary>Create page with radio buttons</summary>
 
 ```Python   
