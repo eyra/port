@@ -1,13 +1,12 @@
 import re
 from typing import Tuple
 import unicodedata
-
 import logging 
+import zipfile
 
 import pandas as pd
 
-
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 SIMPLIFIED_REGEXES = [
@@ -75,7 +74,7 @@ def generate_regexes(simplified_regexes):
             try:
                 simplified_regex = simplified_regex.replace(code, REGEX_CODES[code])
             except KeyError:
-                logging.error(f"Could not find regular expression for: {code}")
+                logger.error(f"Could not find regular expression for: {code}")
 
         final_regexes.append(simplified_regex)
 
@@ -114,11 +113,21 @@ def create_data_point_from_chat(chat: str, regex) -> dict[str, str]:
     return {"date": date, "name": name, "chat_message": chat_message}
 
 
-def remove_empty_chats(df: pd.DataFrame) -> None:
+def remove_empty_chats(df: pd.DataFrame) -> pd.DataFrame:
     """
     Removes all rows from the chat dataframe where no regex matched
     """
-    df.drop(df[df.chat_message == ""].index, inplace=True)
+    df = df.drop(df[df.chat_message == ""].index)
+    df = df.reset_index(drop=True)
+    return df
+
+def filter_username(df: pd.DataFrame, username: str) -> pd.DataFrame:
+    """
+    Extracts unique usersnames from chat dataframe
+    """
+    df.drop(df[df.name != username].index)
+    df = df.reset_index(drop=True)
+    return df
 
 
 def extract_users(df: pd.DataFrame) -> list[str]:
@@ -126,13 +135,6 @@ def extract_users(df: pd.DataFrame) -> list[str]:
     Extracts unique usersnames from chat dataframe
     """
     return list(set(df["name"]))
-
-
-def filter_username(df: pd.DataFrame, username: str) -> None:
-    """
-    Extracts unique usersnames from chat dataframe
-    """
-    df.drop(df[df.name != username].index, inplace=True)
     
 
 def determine_regex_from_chat(lines: list[str]) -> str:
@@ -145,13 +147,13 @@ def determine_regex_from_chat(lines: list[str]) -> str:
     for index, line in enumerate(lines):
         for regex in REGEXES:
             if re.match(regex, line):
-                logging.debug(f"Matched regex: {regex}")
+                logger.debug(f"Matched regex: {regex}")
                 return regex
 
         if index > length_lines:
             break
 
-    logging.error(f"No matching regex found:")
+    logger.error(f"No matching regex found:")
     raise Exception(f"No matching regex found")
 
 
@@ -166,17 +168,28 @@ def construct_message(current_line: str, next_line: str, regex: str) -> Tuple[bo
     if match_next_line:
         return True, current_line
     else:
-        current_line = current_line + next_line
+        current_line = current_line + " " + next_line
         current_line = current_line.replace("\n", " ")
         return False, current_line
 
 
 def read_chat_file(path_to_chat_file: str) -> list[str]:
     try:
-        with open(path_to_chat_file) as f:
-            lines = f.readlines()
-            lines = [remove_unwanted_characters(line) for line in lines]
-            return lines
+        if zipfile.is_zipfile(path_to_chat_file):
+
+          with zipfile.ZipFile(path_to_chat_file) as z:
+            file_list = z.namelist()
+            print(f"{file_list}")
+            with z.open(file_list[0]) as f:
+                lines = f.readlines()
+                lines = [line.decode("utf-8") for line in lines]
+
+        else:
+            with open(path_to_chat_file, encoding="utf-8") as f:
+                lines = f.readlines()
+
+        lines = [remove_unwanted_characters(line) for line in lines]
+        return lines
 
     except Exception as e:
         raise e
@@ -218,21 +231,22 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
                 out.append(data_point)
                 break
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
 
     finally:
         return pd.DataFrame(out)
 
 
-##### Try it out!
 
-PATH_TO_CHAT = "/home/turbo/Downloads/WhatsApp-chat met Niek De Schipper.txt"
-PATH_TO_CHAT = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan/_chat.txt"        
-df = parse_chat(PATH_TO_CHAT)
-remove_empty_chats(df)
-extract_users(df)
-
-df
-
-
+#PATH_1 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan.zip"
+#PATH_2 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan/_chat.txt"
+#PATH_3 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/WhatsApp-chat met Niek De Schipper.txt"
+####
+####parse_chat(PATH_1)
+####parse_chat(PATH_2)
+#df = parse_chat(PATH_3)
+#df
+#df = remove_empty_chats(df)
+#df
+#df
 

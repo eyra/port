@@ -1,9 +1,11 @@
-import port.api.props as props
-from port.api.commands import (CommandSystemDonate, CommandUIRender)
+import zipfile
+import logging
 
 import pandas as pd
-import zipfile
 
+import port.api.props as props
+from port.api.commands import (CommandSystemDonate, CommandUIRender)
+import port.whatsapp
 
 def process(sessionId):
     yield donate(f"{sessionId}-tracking", '[{ "message": "user entered script" }]')
@@ -23,36 +25,41 @@ def process(sessionId):
 
         # STEP 1: select the file
         progress += step_percentage
-        data = None
+
         while True:
             meta_data.append(("debug", f"{platform}: prompt file"))
             promptFile = prompt_file(platform, "application/zip, text/plain")
             fileResult = yield render_donation_page(platform, promptFile, progress)
             if fileResult.__type__ == 'PayloadString':
                 meta_data.append(("debug", f"{platform}: extracting file"))
-                extractionResult = doSomethingWithTheFile(platform, fileResult.value)
-                if extractionResult != 'invalid':
+
+                df_with_chats = port.whatsapp.parse_chat(fileResult.value)
+
+                if not df_with_chats.empty:
                     meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
-                    data = extractionResult
+                    df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
+                
                     break
+                #else:
+                #    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))
+                #    retry_result = yield render_donation_page(platform, retry_confirmation(platform), progress)
+                #    if retry_result.__type__ == 'PayloadTrue':
+                #        meta_data.append(("debug", f"{platform}: skip due to invalid file"))
+                #        continue
+                #    else:
+                #        meta_data.append(("debug", f"{platform}: retry prompt file"))
+                #        break
                 else:
-                    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))
-                    retry_result = yield render_donation_page(platform, retry_confirmation(platform), progress)
-                    if retry_result.__type__ == 'PayloadTrue':
-                        meta_data.append(("debug", f"{platform}: skip due to invalid file"))
-                        continue
-                    else:
-                        meta_data.append(("debug", f"{platform}: retry prompt file"))
-                        break
+                    print("CRASHHHHH")
             else:
                 meta_data.append(("debug", f"{platform}: skip to next step"))
                 break
 
         # STEP 2: ask for consent
         progress += step_percentage
-        if data is not None:
+        if not df_with_chats.empty:
             meta_data.append(("debug", f"{platform}: prompt consent"))
-            prompt = prompt_consent(platform, data, meta_data)
+            prompt = prompt_consent(platform, df_with_chats, meta_data)
             consent_result = yield render_donation_page(platform, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
                 meta_data.append(("debug", f"{platform}: donate consent data"))
@@ -102,25 +109,8 @@ def prompt_file(platform, extensions):
     return props.PropsUIPromptFileInput(description, extensions)
 
 
-def doSomethingWithTheFile(platform, filename):
-    return extract_zip_contents(filename)
 
-
-def extract_zip_contents(filename):
-    names = []
-    try:
-        file = zipfile.ZipFile(filename)
-        data = []
-        for name in file.namelist():
-            names.append(name)
-            info = file.getinfo(name)
-            data.append((name, info.compress_size, info.file_size))
-        return data
-    except zipfile.error:
-        return "invalid"
-
-
-def prompt_consent(id, data, meta_data):
+def prompt_consent(id, data_frame, meta_data):
 
     table_title = props.Translatable({
         "en": "Zip file contents",
@@ -132,7 +122,6 @@ def prompt_consent(id, data, meta_data):
         "nl": "Log berichten"
     })
 
-    data_frame = pd.DataFrame(data, columns=["filename", "compressed size", "size"])
     table = props.PropsUIPromptConsentFormTable("zip_content", table_title, data_frame)
     meta_frame = pd.DataFrame(meta_data, columns=["type", "message"])
     meta_table = props.PropsUIPromptConsentFormTable("log_messages", log_title, meta_frame)
