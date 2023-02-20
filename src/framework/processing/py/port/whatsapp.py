@@ -130,8 +130,11 @@ def filter_username(df: pd.DataFrame, username: str) -> pd.DataFrame:
     """
     Extracts unique usersnames from chat dataframe
     """
-    df.drop(df[df.name != username].index)
+    print('filter_username pre', df.to_string())
+    df = df.drop(df[df.name != username].index)
     df = df.reset_index(drop=True)
+    print('filter_username post', df.to_string())
+
     return df
 
 

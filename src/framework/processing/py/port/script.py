@@ -10,12 +10,12 @@ import port.whatsapp
 def process(sessionId):
     yield donate(f"{sessionId}-tracking", '[{ "message": "user entered script" }]')
 
-    platforms = ["Whatsapp"]
+    platforms = ["Whatsapp","Whatsapp","Whatsapp","Whatsapp","Whatsapp"]
 
     subflows = len(platforms)
     steps = 2
     step_percentage = (100/subflows)/steps
-
+    counter = 0
     # progress in %
     progress = 0
 
@@ -25,11 +25,11 @@ def process(sessionId):
 
         # STEP 1: select the file
         progress += step_percentage
-
+        counter = counter + 1
         while True:
             meta_data.append(("debug", f"{platform}: prompt file"))
             promptFile = prompt_file(platform, "application/zip, text/plain")
-            fileResult = yield render_donation_page(platform, promptFile, progress)
+            fileResult = yield render_donation_page(platform,counter, promptFile, progress)
             if fileResult.__type__ == 'PayloadString':
                 meta_data.append(("debug", f"{platform}: extracting file"))
 
@@ -38,11 +38,13 @@ def process(sessionId):
                 if not df_with_chats.empty:
                     meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
                     df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
+                    #filter username
+                    df_with_chats = port.whatsapp.filter_username(df_with_chats,'Bojan')
 
                     break
                 #else:
                 #    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))
-                #    retry_result = yield render_donation_page(platform, retry_confirmation(platform), progress)
+                #    retry_result = yield render_donation_page(platform,counter, retry_confirmation(platform), progress)
                 #    if retry_result.__type__ == 'PayloadTrue':
                 #        meta_data.append(("debug", f"{platform}: skip due to invalid file"))
                 #        continue
@@ -60,7 +62,7 @@ def process(sessionId):
         if not df_with_chats.empty:
             meta_data.append(("debug", f"{platform}: prompt consent"))
             prompt = prompt_consent(platform, df_with_chats, meta_data)
-            consent_result = yield render_donation_page(platform, prompt, progress)
+            consent_result = yield render_donation_page(platform,counter, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
                 meta_data.append(("debug", f"{platform}: donate consent data"))
                 yield donate(f"{sessionId}-{platform}", consent_result.value)
@@ -73,11 +75,13 @@ def render_end_page():
     return CommandUIRender(page)
 
 
-def render_donation_page(platform, body, progress):
+def render_donation_page(platform,counter, body, progress):
     header = props.PropsUIHeader(props.Translatable({
-        "en": platform,
-        "nl": platform
+        "en": platform + ' Conversation ' + str(counter),
+        "nl": platform + ' Conversatie ' + str(counter)
     }))
+
+    # radiobutton = props.PropsUIPromptRadioInput("bla","desc","itemssss")
 
     footer = props.PropsUIFooter(progress)
     page = props.PropsUIPageDonation(platform, header, body, footer)
