@@ -1,10 +1,12 @@
 import re
 from typing import Tuple
 import unicodedata
-import logging 
+import logging
 import zipfile
 
 import pandas as pd
+import port.PrivacyFilter as pfltr
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -30,10 +32,10 @@ SIMPLIFIED_REGEXES = [
     r"^%m-%d-%y %H:%M - %name: %chat_message$",
     r"^%m-%d-%y, %H:%M - %name: %chat_message$",
     r"^%m-%d-%y, %H:%M , %name: %chat_message$",
-    r"^%m/%d/%y, %H:%M , %name: %chat_message$", 
+    r"^%m/%d/%y, %H:%M , %name: %chat_message$",
     r"^%d-%m-%y, %H:%M , %name: %chat_message$",
     r"^%d/%m/%y, %H:%M , %name: %chat_message$",
-    r"^%d.%m.%y %H:%M – %name: %chat_message$", 
+    r"^%d.%m.%y %H:%M – %name: %chat_message$",
     r"^%m.%d.%y, %H:%M – %name: %chat_message$",
     r"^%m.%d.%y %H:%M – %name: %chat_message$",
     r"^\[%d.%m.%y %H:%M:%S\] %name: %chat_message$",
@@ -57,11 +59,14 @@ REGEX_CODES = {
     "%name": r"(?P<name>[^:]*)",
     "%chat_message": r"(?P<chat_message>.*)"
 }
+start = time.time()
+pfilter = pfltr.PrivacyFilter()
+pfilter.initialize_from_file()
+print('\nInitialisation time PrivacyFilter : %4.0f msec' % ((time.time() - start) * 1000))
 
-    
 def generate_regexes(simplified_regexes):
     """
-    Create the complete regular expression by substituting 
+    Create the complete regular expression by substituting
     REGEX_CODES into SIMPLIFIED_REGEXES
 
     """
@@ -105,10 +110,10 @@ def create_data_point_from_chat(chat: str, regex) -> dict[str, str]:
     else:
         result = {}
 
-    # Construct data 
+    # Construct data
     date = '-'.join([result.get("year", ""), result.get("month", ""), result.get("day", "")])
     name = result.get("name", "")
-    chat_message = result.get("chat_message", "")
+    chat_message = pfilter.filter(result.get("chat_message", ""))
 
     return {"date": date, "name": name, "chat_message": chat_message}
 
@@ -135,7 +140,7 @@ def extract_users(df: pd.DataFrame) -> list[str]:
     Extracts unique usersnames from chat dataframe
     """
     return list(set(df["name"]))
-    
+
 
 def determine_regex_from_chat(lines: list[str]) -> str:
     """
@@ -249,4 +254,3 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
 #df = remove_empty_chats(df)
 #df
 #df
-

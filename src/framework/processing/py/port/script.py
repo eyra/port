@@ -10,7 +10,7 @@ import port.whatsapp
 def process(sessionId):
     yield donate(f"{sessionId}-tracking", '[{ "message": "user entered script" }]')
 
-    platforms = ["Twitter", "Facebook", "Instagram", "Youtube"]
+    platforms = ["Whatsapp"]
 
     subflows = len(platforms)
     steps = 2
@@ -38,7 +38,7 @@ def process(sessionId):
                 if not df_with_chats.empty:
                     meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
                     df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
-                
+
                     break
                 #else:
                 #    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))

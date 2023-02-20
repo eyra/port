@@ -3,6 +3,7 @@ import { ReactFactoryContext } from '../../factory'
 import { Title3 } from './text'
 import TwitterSvg from '../../../../../assets/images/twitter.svg'
 import FacebookSvg from '../../../../../assets/images/facebook.svg'
+import WhatsappSvg from '../../../../../assets/images/whatsapp.svg'
 import InstagramSvg from '../../../../../assets/images/instagram.svg'
 import YoutubeSvg from '../../../../../assets/images/youtube.svg'
 import TextBundle from '../../../../text_bundle'
@@ -10,6 +11,7 @@ import { Bullet } from './bullet'
 
 const linkTwitter: string = 'https://eyra.co'
 const linkFacebook: string = 'https://eyra.co'
+const linkWhatsapp: string = 'https://eyra.co'
 const linkInstagram: string = 'https://eyra.co'
 const linkYoutube: string = 'https://eyra.co'
 
@@ -101,6 +103,20 @@ const bulletsFacebookNl: string[] = [
   'Kies het bestand en ga verder.'
 ]
 
+
+const bulletsWhatsappEn: string[] = [
+  'Check the email that you received from Whatsapp',
+  'Click on the download link and store the file',
+  'Choose the stored file and continue'
+]
+
+
+const bulletsWhatsappNl: string[] = [
+  'Ga naar de email die u ontvangen heeft van Whatsapp.',
+  'Klik op de link “Je gegevens downloaden” en sla het bestand op.',
+  'Kies het bestand en ga verder.'
+]
+
 const bulletsInstagramEn: string[] = [
   'Check the email that you received from Instagram',
   'Click on the download link and store the file',
@@ -134,6 +150,10 @@ const bullets: Record<string, Record<string, string[]>> = {
     en: bulletsFacebookEn,
     nl: bulletsFacebookNl
   },
+  whatsapp: {
+    en: bulletsWhatsappEn,
+    nl: bulletsWhatsappNl
+  },
   instagram: {
     en: bulletsInstagramEn,
     nl: bulletsInstagramNl
@@ -161,6 +181,10 @@ const links: Record<string, Record<string, JSX.Element>> = {
     en: linkEn(linkFacebook),
     nl: linkNl(linkFacebook)
   },
+  whatsapp: {
+    en: linkEn(linkWhatsapp),
+    nl: linkNl(linkWhatsapp)
+  },
   instagram: {
     en: linkEn(linkInstagram),
     nl: linkNl(linkInstagram)
@@ -174,6 +198,7 @@ const links: Record<string, Record<string, JSX.Element>> = {
 const icon: Record<string, string> = {
   twitter: TwitterSvg,
   facebook: FacebookSvg,
+  whatsapp: WhatsappSvg,
   instagram: InstagramSvg,
   youtube: YoutubeSvg
 }

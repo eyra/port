@@ -14,6 +14,7 @@ import { Translator } from '../../../../translator';
 import { Title3 } from './text';
 import TwitterSvg from '../../../../../assets/images/twitter.svg';
 import FacebookSvg from '../../../../../assets/images/facebook.svg';
+import WhatsappSvg from '../../../../../assets/images/whatsapp.svg';
 import InstagramSvg from '../../../../../assets/images/instagram.svg';
 import YoutubeSvg from '../../../../../assets/images/youtube.svg';
 import TextBundle from '../../../../text_bundle';
@@ -131,6 +132,7 @@ var links = {
 var icon = {
     twitter: TwitterSvg,
     facebook: FacebookSvg,
+    whataspp: WhatsappSvg,
     instagram: InstagramSvg,
     youtube: YoutubeSvg
 };
