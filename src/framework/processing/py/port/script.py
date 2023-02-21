@@ -31,28 +31,25 @@ def process(sessionId):
             promptFile = prompt_file(platform, "application/zip, text/plain")
             fileResult = yield render_donation_page(platform,counter, promptFile, progress)
             if fileResult.__type__ == 'PayloadString':
-                meta_data.append(("debug", f"{platform}: extracting file"))
 
+                meta_data.append(("debug", f"{platform}: extracting file"))
                 df_with_chats = port.whatsapp.parse_chat(fileResult.value)
 
                 if not df_with_chats.empty:
                     meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
+
                     df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
-                    #filter username
-                    df_with_chats = port.whatsapp.filter_username(df_with_chats,'Bojan')
+                    selection = yield prompt_radio_menu(platform, progress, df_with_chats)
+
+                    # filter username
+                    df_with_chats = port.whatsapp.filter_username(df_with_chats, selection.value)
 
                     break
-                #else:
-                #    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))
-                #    retry_result = yield render_donation_page(platform,counter, retry_confirmation(platform), progress)
-                #    if retry_result.__type__ == 'PayloadTrue':
-                #        meta_data.append(("debug", f"{platform}: skip due to invalid file"))
-                #        continue
-                #    else:
-                #        meta_data.append(("debug", f"{platform}: retry prompt file"))
-                #        break
                 else:
+                    # See https://github.com/d3i-infra/port-d3i-pilot/blob/master/src/framework/processing/py/port/script.py
+                    # For possiblities on error handling
                     print("CRASHHHHH")
+
             else:
                 meta_data.append(("debug", f"{platform}: skip to next step"))
                 break
@@ -62,12 +59,36 @@ def process(sessionId):
         if not df_with_chats.empty:
             meta_data.append(("debug", f"{platform}: prompt consent"))
             prompt = prompt_consent(platform, df_with_chats, meta_data)
-            consent_result = yield render_donation_page(platform,counter, prompt, progress)
+            consent_result = yield render_donation_page(platform, counter, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
                 meta_data.append(("debug", f"{platform}: donate consent data"))
                 yield donate(f"{sessionId}-{platform}", consent_result.value)
 
     yield render_end_page()
+
+
+
+def prompt_radio_menu(platform, progress, df_with_chats):
+    title = props.Translatable({
+        "en": f"Title",
+        "nl": f"Title"
+    })
+    description = props.Translatable({
+        "en": f"Description",
+        "nl": f"Description"
+    })
+    header = props.PropsUIHeader(props.Translatable({
+        "en": "Header",
+        "nl": "Header"
+    }))
+
+    list_with_users = port.whatsapp.extract_users(df_with_chats)
+    print(list_with_users)
+    radio_input = [{"id": index, "value": username} for index, username in enumerate(list_with_users)]
+    body = props.PropsUIPromptRadioInput(title, description, radio_input)
+    footer = props.PropsUIFooter(progress)
+    page = props.PropsUIPageDonation(platform, header, body, footer)
+    return CommandUIRender(page)
 
 
 def render_end_page():
