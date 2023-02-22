@@ -1,8 +1,3 @@
-import zipfile
-import logging
-
-import pandas as pd
-
 import port.api.props as props
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 import port.whatsapp
@@ -19,49 +14,46 @@ def process(sessionId):
     # progress in %
     progress = 0
 
-    for index, platform in enumerate(platforms):
-        meta_data = []
-        meta_data.append(("debug", f"{platform}: start"))
+    for _, platform in enumerate(platforms):
 
-        # STEP 1: select the file
+        data = None
         progress += step_percentage
         counter = counter + 1
+
         while True:
-            meta_data.append(("debug", f"{platform}: prompt file"))
             promptFile = prompt_file(platform, "application/zip, text/plain")
-            fileResult = yield render_donation_page(platform,counter, promptFile, progress)
+            fileResult = yield render_donation_page(platform, counter, promptFile, progress)
             if fileResult.__type__ == 'PayloadString':
 
-                meta_data.append(("debug", f"{platform}: extracting file"))
                 df_with_chats = port.whatsapp.parse_chat(fileResult.value)
 
+                # If data extracted was successful
                 if not df_with_chats.empty:
-                    meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
 
                     df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
                     selection = yield prompt_radio_menu(platform, progress, df_with_chats)
 
-                    # filter username
+                    # steps after selection
                     df_with_chats = port.whatsapp.filter_username(df_with_chats, selection.value)
-
+                    df_with_chats = port.whatsapp.remove_name_column(df_with_chats)
+                    data = df_with_chats
                     break
+                # If not enter retry flow
                 else:
-                    # See https://github.com/d3i-infra/port-d3i-pilot/blob/master/src/framework/processing/py/port/script.py
-                    # For possiblities on error handling
-                    print("CRASHHHHH")
-
+                    retry_result = yield render_donation_page(platform, counter, retry_confirmation(platform), progress)
+                    if retry_result.__type__ == "PayloadTrue":
+                        continue
+                    else:
+                        break
             else:
-                meta_data.append(("debug", f"{platform}: skip to next step"))
                 break
 
         # STEP 2: ask for consent
         progress += step_percentage
-        if not df_with_chats.empty:
-            meta_data.append(("debug", f"{platform}: prompt consent"))
-            prompt = prompt_consent(platform, df_with_chats, meta_data)
+        if not (data is None):
+            prompt = prompt_consent(data)
             consent_result = yield render_donation_page(platform, counter, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
-                meta_data.append(("debug", f"{platform}: donate consent data"))
                 yield donate(f"{sessionId}-{platform}", consent_result.value)
 
     yield render_end_page()
@@ -69,6 +61,7 @@ def process(sessionId):
 
 
 def prompt_radio_menu(platform, progress, df_with_chats):
+
     title = props.Translatable({
         "en": f"Title",
         "nl": f"Title"
@@ -83,7 +76,6 @@ def prompt_radio_menu(platform, progress, df_with_chats):
     }))
 
     list_with_users = port.whatsapp.extract_users(df_with_chats)
-    print(list_with_users)
     radio_input = [{"id": index, "value": username} for index, username in enumerate(list_with_users)]
     body = props.PropsUIPromptRadioInput(title, description, radio_input)
     footer = props.PropsUIFooter(progress)
@@ -135,22 +127,15 @@ def prompt_file(platform, extensions):
 
 
 
-def prompt_consent(id, data_frame, meta_data):
+def prompt_consent(data_frame):
 
     table_title = props.Translatable({
         "en": "Zip file contents",
         "nl": "Inhoud zip bestand"
     })
 
-    log_title = props.Translatable({
-        "en": "Log messages",
-        "nl": "Log berichten"
-    })
-
     table = props.PropsUIPromptConsentFormTable("zip_content", table_title, data_frame)
-    meta_frame = pd.DataFrame(meta_data, columns=["type", "message"])
-    meta_table = props.PropsUIPromptConsentFormTable("log_messages", log_title, meta_frame)
-    return props.PropsUIPromptConsentForm([table], [meta_table])
+    return props.PropsUIPromptConsentForm([table], [])
 
 
 def donate(key, json_string):

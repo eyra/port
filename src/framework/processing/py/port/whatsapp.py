@@ -145,6 +145,14 @@ def extract_users(df: pd.DataFrame) -> list[str]:
     return list(set(df["name"]))
 
 
+def remove_name_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extracts unique usersnames from chat dataframe
+    """
+    df = df.drop(columns=["name"])
+    return df
+
+
 def determine_regex_from_chat(lines: list[str]) -> str:
     """
     Read lines of chat return the first regex that matches
@@ -245,7 +253,6 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
         return pd.DataFrame(out)
 
 
-
 #PATH_1 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan.zip"
 #PATH_2 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan/_chat.txt"
 #PATH_3 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/WhatsApp-chat met Niek De Schipper.txt"
@@ -256,4 +263,4 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
 #df
 #df = remove_empty_chats(df)
 #df
-#df
+#
