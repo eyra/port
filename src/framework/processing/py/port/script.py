@@ -32,12 +32,12 @@ def process(sessionId):
 
                     df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
                     selection = yield prompt_radio_menu(platform, progress, df_with_chats)
-
-                    # steps after selection
-                    df_with_chats = port.whatsapp.filter_username(df_with_chats, selection.value)
-                    df_with_chats = port.whatsapp.remove_name_column(df_with_chats)
-                    data = df_with_chats
-                    break
+                    if selection.__type__ == "PayloadString":
+                        # steps after selection
+                        df_with_chats = port.whatsapp.filter_username(df_with_chats, selection.value)
+                        df_with_chats = port.whatsapp.remove_name_column(df_with_chats)
+                        data = df_with_chats
+                        break
                 # If not enter retry flow
                 else:
                     retry_result = yield render_donation_page(platform, counter, retry_confirmation(platform), progress)
