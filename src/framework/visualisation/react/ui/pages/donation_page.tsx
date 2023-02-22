@@ -13,7 +13,6 @@ import { ConsentForm } from '../prompts/consent_form'
 import { FileInput } from '../prompts/file_input'
 import { RadioInput } from '../prompts/radio_input'
 import { Footer } from './templates/footer'
-import { Sidebar } from './templates/sidebar'
 import LogoSvg from '../../../../../assets/images/logo.svg'
 import { Page } from './templates/page'
 import { Progress } from '../elements/progress'
@@ -59,14 +58,7 @@ export const DonationPage = (props: Props): JSX.Element => {
     />
   )
 
-  const sidebar: JSX.Element = (
-    <Sidebar
-      logo={LogoSvg}
-      content={
-        <Instructions platform={platform} locale={locale} />
-      }
-    />
-  )
+
 
   const body: JSX.Element = (
     <>
@@ -78,7 +70,6 @@ export const DonationPage = (props: Props): JSX.Element => {
   return (
     <Page
       body={body}
-      sidebar={sidebar}
       footer={footer}
     />
   )

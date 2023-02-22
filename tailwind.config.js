@@ -66,7 +66,6 @@ module.exports = {
         35: '140px'
       },
       width: {
-        sidebar: '320px',
         logo: '240px',
         'logo-sm': '48px',
         sheet: '760px',
