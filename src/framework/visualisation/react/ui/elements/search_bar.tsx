@@ -4,6 +4,14 @@ import { PropsUISearchBar } from '../../../../types/elements'
 import _ from 'lodash'
 
 export const SearchBar = ({ placeholder, debounce = 1000, onSearch }: Weak<PropsUISearchBar>): JSX.Element => {
+
+
+  function handleKeyPress (event: React.KeyboardEvent<HTMLInputElement>): void  {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  }
+
   function handleChange (event: React.ChangeEvent<HTMLInputElement>): void {
     const words = event.target.value.split(/\s+/)
     onSearch(words)
@@ -20,6 +28,7 @@ export const SearchBar = ({ placeholder, debounce = 1000, onSearch }: Weak<Props
           name='query'
           type='search'
           onChange={handleChangeDebounced}
+          onKeyPress={handleKeyPress}
         />
       </div>
     </form>
