@@ -1,8 +1,25 @@
-class PropsUIHeader:
-    __slots__ = "title"
+from dataclasses import dataclass
+from typing import TypedDict
 
-    def __init__(self, title):
-        self.title = title
+import pandas as pd
+
+
+class Translations(TypedDict):
+    en: str
+    nl: str
+
+
+@dataclass
+class Translatable:
+    translations: Translations
+
+    def toDict(self):
+        return self.__dict__.copy()
+
+
+@dataclass
+class PropsUIHeader:
+    title: Translatable
 
     def toDict(self):
         dict = {}
@@ -11,26 +28,22 @@ class PropsUIHeader:
         return dict
 
 
+@dataclass
 class PropsUIFooter:
-    __slots__ = "progress_percentage"
-
-    def __init__(self, progress_percentage):
-        self.progress_percentage = progress_percentage
+    progressPercentage: float
 
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIFooter"
-        dict["progressPercentage"] = self.progress_percentage
+        dict["progressPercentage"] = self.progressPercentage
         return dict
 
 
+@dataclass
 class PropsUIPromptConfirm:
-    __slots__ = "text", "ok", "cancel"
-
-    def __init__(self, text, ok, cancel):
-        self.text = text
-        self.ok = ok
-        self.cancel = cancel
+    text: Translatable
+    ok: Translatable
+    cancel: Translatable
 
     def toDict(self):
         dict = {}
@@ -41,12 +54,24 @@ class PropsUIPromptConfirm:
         return dict
 
 
-class PropsUIPromptConsentForm:
-    __slots__ = "tables", "meta_tables"
+@dataclass
+class PropsUIPromptConsentFormTable:
+    id: str
+    title: Translatable
+    data_frame: pd.DataFrame
 
-    def __init__(self, tables, meta_tables):
-        self.tables = tables
-        self.meta_tables = meta_tables
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIPromptConsentFormTable"
+        dict["id"] = self.id
+        dict["title"] = self.title.toDict()
+        dict["data_frame"] = self.data_frame.to_json()
+        return dict
+
+@dataclass
+class PropsUIPromptConsentForm:
+    tables: list[PropsUIPromptConsentFormTable]
+    meta_tables: list[PropsUIPromptConsentFormTable]
 
     def translate_tables(self):
         output = []
@@ -68,29 +93,10 @@ class PropsUIPromptConsentForm:
         return dict
 
 
-class PropsUIPromptConsentFormTable:
-    __slots__ = "id", "title", "data_frame"
-
-    def __init__(self, id, title, data_frame):
-        self.id = id
-        self.title = title
-        self.data_frame = data_frame
-
-    def toDict(self):
-        dict = {}
-        dict["__type__"] = "PropsUIPromptConsentFormTable"
-        dict["id"] = self.id
-        dict["title"] = self.title.toDict()
-        dict["data_frame"] = self.data_frame.to_json()
-        return dict
-
-
+@dataclass
 class PropsUIPromptFileInput:
-    __slots__ = "description", "extensions"
-
-    def __init__(self, description, extensions):
-        self.description = description
-        self.extensions = extensions
+    description: Translatable
+    extensions: str
 
     def toDict(self):
         dict = {}
@@ -100,13 +106,16 @@ class PropsUIPromptFileInput:
         return dict
 
 
-class PropsUIPromptRadioInput:
-    __slots__ = "title", "description", "items"
+class RadioItem(TypedDict):
+    id: int
+    value: str
 
-    def __init__(self, title, description, items):
-        self.title = title
-        self.description = description
-        self.items = items
+
+@dataclass
+class PropsUIPromptRadioInput:
+    title: Translatable
+    description: Translatable
+    items = list[RadioItem]
 
     def toDict(self):
         dict = {}
@@ -117,14 +126,12 @@ class PropsUIPromptRadioInput:
         return dict
 
 
+@dataclass
 class PropsUIPageDonation:
-    __slots__ = "platform", "header", "body", "footer"
-
-    def __init__(self, platform, header, body, footer):
-        self.platform = platform
-        self.header = header
-        self.body = body
-        self.footer = footer
+    platform: str
+    header: PropsUIHeader
+    body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm
+    footer: PropsUIFooter
 
     def toDict(self):
         dict = {}
@@ -140,16 +147,4 @@ class PropsUIPageEnd:
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPageEnd"
-        return dict
-
-
-class Translatable:
-    __slots__ = "translations"
-
-    def __init__(self, translations):
-        self.translations = translations
-
-    def toDict(self):
-        dict = {}
-        dict["translations"] = self.translations
         return dict
