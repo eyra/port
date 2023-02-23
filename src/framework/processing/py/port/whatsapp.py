@@ -1,5 +1,5 @@
 import re
-from typing import Tuple
+from typing import Tuple, TypedDict
 import unicodedata
 import logging
 import zipfile
@@ -100,7 +100,14 @@ def remove_unwanted_characters(s: str) -> str:
     return s
 
 
-def create_data_point_from_chat(chat: str, regex) -> dict[str, str]:
+
+class Datapoint(TypedDict):
+    date: str
+    name: str
+    chat_message: str
+
+
+def create_data_point_from_chat(chat: str, regex) -> Datapoint:
     """
     Construct data point from chat messages
     """
@@ -108,7 +115,7 @@ def create_data_point_from_chat(chat: str, regex) -> dict[str, str]:
     if result:
         result = result.groupdict()
     else:
-        result = {}
+        return Datapoint(date="", name="", chat_message="")
 
     # Construct data
     date = '-'.join([result.get("year", ""), result.get("month", ""), result.get("day", "")])
@@ -116,7 +123,7 @@ def create_data_point_from_chat(chat: str, regex) -> dict[str, str]:
     message = pfilter.filter(result.get("chat_message", ""))
     chat_message = '['+date+']: ' + message
 
-    return {"date": date, "name": name, "chat_message": chat_message}
+    return Datapoint(date=date, name=name, chat_message=chat_message)
 
 
 def remove_empty_chats(df: pd.DataFrame) -> pd.DataFrame:
@@ -180,7 +187,6 @@ def determine_regex_from_chat(lines: list[str]) -> str:
 
     logger.error(f"No matching regex found:")
     raise Exception(f"No matching regex found")
-
 
 
 def construct_message(current_line: str, next_line: str, regex: str) -> Tuple[bool, str]:
