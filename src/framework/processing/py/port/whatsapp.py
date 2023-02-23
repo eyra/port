@@ -113,7 +113,8 @@ def create_data_point_from_chat(chat: str, regex) -> dict[str, str]:
     # Construct data
     date = '-'.join([result.get("year", ""), result.get("month", ""), result.get("day", "")])
     name = result.get("name", "")
-    chat_message = pfilter.filter(result.get("chat_message", ""))
+    message = pfilter.filter(result.get("chat_message", ""))
+    chat_message = '['+date+']: ' + message
 
     return {"date": date, "name": name, "chat_message": chat_message}
 
@@ -150,6 +151,14 @@ def remove_name_column(df: pd.DataFrame) -> pd.DataFrame:
     Extracts unique usersnames from chat dataframe
     """
     df = df.drop(columns=["name"])
+    return df
+
+
+def remove_date_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extracts unique usersnames from chat dataframe
+    """
+    df = df.drop(columns=["date"])
     return df
 
 

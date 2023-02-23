@@ -31,11 +31,13 @@ def process(sessionId):
                 if not df_with_chats.empty:
 
                     df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
-                    selection = yield prompt_radio_menu(platform, progress, df_with_chats)
+                    selection = yield prompt_radio_menu(platform, counter, progress, df_with_chats)
                     if selection.__type__ == "PayloadString":
                         # steps after selection
                         df_with_chats = port.whatsapp.filter_username(df_with_chats, selection.value)
                         df_with_chats = port.whatsapp.remove_name_column(df_with_chats)
+                        df_with_chats = port.whatsapp.remove_date_column(df_with_chats)
+
                         data = df_with_chats
                         break
                 # If not enter retry flow
@@ -60,19 +62,19 @@ def process(sessionId):
 
 
 
-def prompt_radio_menu(platform, progress, df_with_chats):
+def prompt_radio_menu(platform, counter, progress, df_with_chats):
 
     title = props.Translatable({
-        "en": f"Title",
-        "nl": f"Title"
+        "en": f"",
+        "nl": f""
     })
     description = props.Translatable({
-        "en": f"Description",
-        "nl": f"Description"
+        "en": f"Please select your username",
+        "nl": f"Selecteer uw gebruikersnaam"
     })
     header = props.PropsUIHeader(props.Translatable({
-        "en": "Header",
-        "nl": "Header"
+        "en": 'Conversation ' + str(counter),
+        "nl": 'Gesprek ' + str(counter)
     }))
 
     list_with_users = port.whatsapp.extract_users(df_with_chats)
@@ -90,11 +92,10 @@ def render_end_page():
 
 def render_donation_page(platform,counter, body, progress):
     header = props.PropsUIHeader(props.Translatable({
-        "en": platform + ' Conversation ' + str(counter),
-        "nl": platform + ' Conversatie ' + str(counter)
+        "en": 'Conversation ' + str(counter),
+        "nl": 'Conversation ' + str(counter)
     }))
 
-    # radiobutton = props.PropsUIPromptRadioInput("bla","desc","itemssss")
 
     footer = props.PropsUIFooter(progress)
     page = props.PropsUIPageDonation(platform, header, body, footer)

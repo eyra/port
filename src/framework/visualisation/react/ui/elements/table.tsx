@@ -41,7 +41,7 @@ interface State {
 }
 
 export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, onChange }: Props): JSX.Element => {
-  const pageWindowLegSize = 3
+  const pageWindowLegSize = 2
 
   const query = React.useRef<string[]>([])
   const alteredRows = React.useRef<PropsUITableRow[]>(body.rows)
@@ -377,7 +377,7 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
 
   return (
     <>
-      <div className='flex flex-row gap-4 items-center'>
+      <div className='flex flex-row gap-2 items-center'>
         <div className={`flex flex-row items-center gap-2 mt-2 ${body.rows.length <= pageSize ? 'hidden' : ''} `}>
           <BackIconButton onClick={handlePrevious} />
           <div>
@@ -386,10 +386,20 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
           <ForwardIconButton onClick={handleNext} />
         </div>
         <div className='flex-grow' />
-        <Caption text={copy.pages} color='text-grey2' margin='' />
+
+
+      </div>
+      <div className='flex flex-row gap-4 items-center'>
+        <div className={`flex flex-row items-center gap-2 mt-2 ${body.rows.length <= pageSize ? 'hidden' : ''} `}>
+
         <div className={`${display('search')}`}>
           <SearchBar placeholder={copy.searchPlaceholder} onSearch={(query) => handleSearch(query)} />
         </div>
+        <Caption text={copy.pages} color='text-grey2' margin='' />
+        <div className='flex-grow' />
+
+        </div>
+
       </div>
       <div className={`flex flex-col gap-4 justify-center h-full ${display('table')}`}>
         <table className='text-grey1 table-fixed divide-y divide-grey4'>
@@ -418,11 +428,17 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
         <div className={`${display('delete')} mt-1px`}>
           <IconLabelButton label={copy.delete} color='text-delete' icon={DeleteSvg} onClick={handleDeleteSelected} />
         </div>
-        <div className='flex-grow' />
+
+      </div>
+      <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
+        <div className='flex flex-row gap-4 items-center'>
         <Label text={copy.deleted} />
         <div className={`${display('undo')}`}>
           <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
         </div>
+        </div>
+
+
       </div>
     </>
   )
@@ -481,7 +497,7 @@ const editLabel = new TextBundle()
   .add('nl', 'Aanpassen')
 
 const undoLabel = new TextBundle()
-  .add('en', 'Undo')
+  .add('en', 'Undo all changes')
   .add('nl', 'Herstel')
 
 const deleteLabel = new TextBundle()

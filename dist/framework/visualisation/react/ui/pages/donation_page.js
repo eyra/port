@@ -45,7 +45,6 @@ export var DonationPage = function (props) {
         resolve === null || resolve === void 0 ? void 0 : resolve({ __type__: 'PayloadFalse', value: false });
     }
     var footer = (_jsx(Footer, { middle: _jsx(Progress, { percentage: props.footer.progressPercentage }), right: _jsxs("div", __assign({ className: 'flex flex-row' }, { children: [_jsx("div", { className: 'flex-grow' }), _jsx(ForwardButton, { label: forwardButton, onClick: handleSkip })] })) }));
-    var sidebar = (_jsx(Sidebar, { logo: LogoSvg, content: _jsx(Instructions, { platform: platform, locale: locale }) }));
     var body = (_jsxs(_Fragment, { children: [_jsx(Title1, { text: title }), renderBody(props)] }));
     return (_jsx(Page, { body: body, sidebar: sidebar, footer: footer }));
 };

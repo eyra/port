@@ -71,6 +71,6 @@ var note = function () {
 };
 var placeholder = function () {
     return new TextBundle()
-        .add('en', 'Choose a file')
-        .add('nl', 'Kies een bestand');
+        .add('en', 'Whatsapp file selection')
+        .add('nl', 'Whatsapp-bestandsselectie');
 };
