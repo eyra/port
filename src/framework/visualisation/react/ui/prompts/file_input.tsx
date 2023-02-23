@@ -47,9 +47,11 @@ export const FileInput = (props: Props): JSX.Element => {
         <div className='mt-8' />
         <div className='p-6 border-grey4 border-2 rounded'>
           <input ref={input} id='input' type='file' className='hidden' accept={extensions} onChange={handleSelect} />
-          <div className='flex flex-row gap-4 items-center'>
+          <div className='flex flex-row gap-4 mb-4 items-center'>
             <BodyLarge text={selectedFile?.name ?? placeholder} margin='' color={selectedFile === undefined ? 'text-grey2' : 'textgrey1'} />
             <div className='flex-grow' />
+          </div>
+          <div className='flex flex-row gap-4 items-center'>
             <PrimaryButton onClick={handleClick} label={selectButton} color='bg-tertiary text-grey1' />
           </div>
         </div>
@@ -106,6 +108,6 @@ const note = (): Translatable => {
 
 const placeholder = (): Translatable => {
   return new TextBundle()
-    .add('en', 'Choose a file')
-    .add('nl', 'Kies een bestand')
+    .add('en', 'Whatsapp file selection')
+    .add('nl', 'Whatsapp-bestandsselectie')
 }
