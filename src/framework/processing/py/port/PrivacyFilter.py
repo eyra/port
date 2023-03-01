@@ -8,7 +8,7 @@ class PrivacyFilter:
 
     def __init__(self):
         # case sensitive or not? regarding recognizing names
-        self.keyword_processor = KeywordProcessor(case_sensitive=True)
+        self.keyword_processor = KeywordProcessor(case_sensitive=False)
         self.url_re = None
         self.initialised = False
         self.nr_keywords = 0

@@ -148,12 +148,13 @@ def split_dataframe(df: pd.DataFrame, row_count: int) -> list[pd.DataFrame]:
     """
     Split a pandas DataFrame into multiple based on a preset row_count.
     """
+    print('split_dataframe test')
     # Calculate the number of splits needed.
     num_splits = int(len(df) / row_count) + (len(df) % row_count > 0)
-    
+
     # Split the DataFrame into chunks of size row_count.
-    df_splits = [df[i*row_count:(i+1)*row_count] for i in range(num_splits)]
-    
+    df_splits = [df[i*row_count:(i+1)*row_count].reset_index(drop=True) for i in range(num_splits)]
+
     return df_splits
 
 
@@ -286,7 +287,7 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
 ####
 #df = parse_chat(PATH_1)
 ####parse_chat(PATH_2)
-#df_with_chats = df 
+#df_with_chats = df
 #
 #df_with_chats = filter_username(df_with_chats, "Niek")
 #df_with_chats = remove_name_column(df_with_chats)
