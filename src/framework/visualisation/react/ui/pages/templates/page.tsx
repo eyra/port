@@ -13,7 +13,7 @@ export const Page = (props: PageProps): JSX.Element => {
       </div>
       <div className='h-footer'>
         {props.footer}
-      </ div>
+      </div>
     </div>
   )
 }

@@ -58,8 +58,6 @@ export const DonationPage = (props: Props): JSX.Element => {
     />
   )
 
-
-
   const body: JSX.Element = (
     <>
       <Title1 text={title} />

@@ -15,7 +15,6 @@ export const EndPage = (props: Props): JSX.Element => {
 
   const footer: JSX.Element = <Footer />
 
-
   const body: JSX.Element = (
     <>
       <Title1 text={title} />

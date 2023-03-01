@@ -387,16 +387,15 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
         </div>
         <div className='flex-grow' />
 
-
       </div>
       <div className='flex flex-row gap-4 items-center'>
         <div className={`flex flex-row items-center gap-2 mt-2 ${body.rows.length <= pageSize ? 'hidden' : ''} `}>
 
-        <div className={`${display('search')}`}>
-          <SearchBar placeholder={copy.searchPlaceholder} onSearch={(query) => handleSearch(query)} />
-        </div>
-        <Caption text={copy.pages} color='text-grey2' margin='' />
-        <div className='flex-grow' />
+          <div className={`${display('search')}`}>
+            <SearchBar placeholder={copy.searchPlaceholder} onSearch={(query) => handleSearch(query)} />
+          </div>
+          <Caption text={copy.pages} color='text-grey2' margin='' />
+          <div className='flex-grow' />
 
         </div>
 
@@ -432,12 +431,11 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
       </div>
       <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
         <div className='flex flex-row gap-4 items-center'>
-        <Label text={copy.deleted} />
-        <div className={`${display('undo')}`}>
-          <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
+          <Label text={copy.deleted} />
+          <div className={`${display('undo')}`}>
+            <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
+          </div>
         </div>
-        </div>
-
 
       </div>
     </>

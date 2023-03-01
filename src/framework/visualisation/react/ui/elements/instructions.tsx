@@ -103,13 +103,11 @@ const bulletsFacebookNl: string[] = [
   'Kies het bestand en ga verder.'
 ]
 
-
 const bulletsWhatsappEn: string[] = [
   'Check the email that you received from Whatsapp',
   'Click on the download link and store the file',
   'Choose the stored file and continue'
 ]
-
 
 const bulletsWhatsappNl: string[] = [
   'Ga naar de email die u ontvangen heeft van Whatsapp.',

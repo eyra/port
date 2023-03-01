@@ -14,7 +14,7 @@ function footerLinks (): JSX.Element {
   )
 }
 
-export const Footer = ({ left = footerLinks(), middle , right }: FooterProps): JSX.Element => {
+export const Footer = ({ left = footerLinks(), middle, right }: FooterProps): JSX.Element => {
   return (
     <>
       <div className='h-full flex flex-col justify-center'>
