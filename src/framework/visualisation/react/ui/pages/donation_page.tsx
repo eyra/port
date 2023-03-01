@@ -13,16 +13,17 @@ import { ConsentForm } from '../prompts/consent_form'
 import { FileInput } from '../prompts/file_input'
 import { RadioInput } from '../prompts/radio_input'
 import { Footer } from './templates/footer'
-import LogoSvg from '../../../../../assets/images/logo.svg'
+// import LogoSvg from '../../../../../assets/images/logo.svg'
 import { Page } from './templates/page'
 import { Progress } from '../elements/progress'
-import { Instructions } from '../elements/instructions'
+// import { Instructions } from '../elements/instructions'
 
 type Props = Weak<PropsUIPageDonation> & ReactFactoryContext
 
 export const DonationPage = (props: Props): JSX.Element => {
   const { title, forwardButton } = prepareCopy(props)
-  const { platform, locale, resolve } = props
+  // const { platform, locale, resolve } = props
+  const { locale, resolve } = props
 
   function renderBody (props: Props): JSX.Element {
     const context = { locale: locale, resolve: props.resolve }
