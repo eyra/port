@@ -37,8 +37,9 @@ def process(sessionId):
                         df_with_chats = port.whatsapp.filter_username(df_with_chats, selection.value)
                         df_with_chats = port.whatsapp.remove_name_column(df_with_chats)
                         df_with_chats = port.whatsapp.remove_date_column(df_with_chats)
+                        list_with_df_with_chats = port.whatsapp.split_dataframe(df_with_chats, 5000)
 
-                        data = df_with_chats
+                        data = list_with_df_with_chats
                         break
                 # If not enter retry flow
                 else:
@@ -128,15 +129,17 @@ def prompt_file(platform, extensions):
 
 
 
-def prompt_consent(data_frame):
+def prompt_consent(list_with_df_with_chats):
 
     table_title = props.Translatable({
         "en": "Zip file contents",
         "nl": "Inhoud zip bestand"
     })
 
-    table = props.PropsUIPromptConsentFormTable("zip_content", table_title, data_frame)
-    return props.PropsUIPromptConsentForm([table], [])
+    table_list = [props.PropsUIPromptConsentFormTable(f"zip_content: {index}", table_title, df) 
+        for index, df in enumerate(list_with_df_with_chats)]
+
+    return props.PropsUIPromptConsentForm(table_list, [])
 
 
 def donate(key, json_string):

@@ -138,12 +138,24 @@ def filter_username(df: pd.DataFrame, username: str) -> pd.DataFrame:
     """
     Extracts unique usersnames from chat dataframe
     """
-    print('filter_username pre', df.to_string())
     df = df.drop(df[df.name != username].index)
     df = df.reset_index(drop=True)
-    print('filter_username post', df.to_string())
 
     return df
+
+
+def split_dataframe(df: pd.DataFrame, row_count: int) -> list[pd.DataFrame]:
+    """
+    Split a pandas DataFrame into multiple based on a preset row_count.
+    """
+    # Calculate the number of splits needed.
+    num_splits = int(len(df) / row_count) + (len(df) % row_count > 0)
+    
+    # Split the DataFrame into chunks of size row_count.
+    df_splits = [df[i*row_count:(i+1)*row_count] for i in range(num_splits)]
+    
+    return df_splits
+
 
 
 def extract_users(df: pd.DataFrame) -> list[str]:
@@ -268,14 +280,20 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
         return pd.DataFrame(out)
 
 
-#PATH_1 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan.zip"
+#PATH_1 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/WhatsApp Chat - Roos 2.0.zip"
 #PATH_2 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/whatsapp_bojan/_chat.txt"
 #PATH_3 = "/home/turbo/ddp-inspector/example_ddps/whatsapp/WhatsApp-chat met Niek De Schipper.txt"
 ####
-####parse_chat(PATH_1)
+#df = parse_chat(PATH_1)
 ####parse_chat(PATH_2)
-#df = parse_chat(PATH_3)
-#df
-#df = remove_empty_chats(df)
-#df
+#df_with_chats = df 
 #
+#df_with_chats = filter_username(df_with_chats, "Niek")
+#df_with_chats = remove_name_column(df_with_chats)
+#df_with_chats = remove_date_column(df_with_chats)
+#list_with_df_with_chats = split_dataframe(df_with_chats, 5000)
+#len(list_with_df_with_chats)
+#
+#list_with_df_with_chats[1].reset_index(drop=True)
+#
+#[(index, object) for index, object in enumerate([3,2,1])]
