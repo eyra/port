@@ -225,9 +225,15 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
     return alteredRows.current.filter((row) => matchRow(row, query.current))
   }
 
-  function matchRow (row: PropsUITableRow, query: string[]): boolean {
+  function matchRow (row: PropsUITableRow, query: string[], caseSensitive: boolean = false): boolean {
     const rowText = row.cells.map((cell) => cell.text).join(' ')
-    return query.find((word) => !rowText.includes(word)) === undefined
+    if (caseSensitive) {
+      return query.find((word) => !rowText.includes(word)) === undefined
+    } else {
+      const rowTextLowerCase = rowText.toLowerCase()
+      const queryLowerCase = query.map(word => word.toLowerCase())
+      return queryLowerCase.find(word => !rowTextLowerCase.includes(word)) === undefined
+    }
   }
 
   function handleSelectHead (): void {
