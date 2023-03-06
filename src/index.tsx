@@ -5,7 +5,7 @@ import LocalSystem from './local_system'
 
 const rootElement = document.getElementById('root') as HTMLElement
 
-const locale = 'en'
+const locale = 'nl'
 const system = new LocalSystem()
 const workerFile = new URL('./framework/processing/py_worker.js', import.meta.url)
 const worker = new Worker(workerFile)
