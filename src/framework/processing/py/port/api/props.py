@@ -1,8 +1,37 @@
-class PropsUIHeader:
-    __slots__ = "title"
+from dataclasses import dataclass
+from typing import TypedDict
 
-    def __init__(self, title):
-        self.title = title
+import pandas as pd
+
+
+class Translations(TypedDict):
+    """Typed dict containing text that is  display in a speficic language
+
+    Attributes:
+        en: English string to display
+        nl: Dutch string to display
+    """
+    en: str
+    nl: str
+
+
+@dataclass
+class Translatable:
+    """Wrapper class for Translations""" 
+    translations: Translations
+
+    def toDict(self):
+        return self.__dict__.copy()
+
+
+@dataclass
+class PropsUIHeader:
+    """Page header
+
+    Attributes:
+        title: title of the page
+    """
+    title: Translatable
 
     def toDict(self):
         dict = {}
@@ -11,26 +40,37 @@ class PropsUIHeader:
         return dict
 
 
+@dataclass
 class PropsUIFooter:
-    __slots__ = "progress_percentage"
+    """Page footer
 
-    def __init__(self, progress_percentage):
-        self.progress_percentage = progress_percentage
+    Attributes:
+        progressPercentage: float indicating the progress in the flow
+    """
+    progressPercentage: float
 
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIFooter"
-        dict["progressPercentage"] = self.progress_percentage
+        dict["progressPercentage"] = self.progressPercentage
         return dict
 
 
+@dataclass
 class PropsUIPromptConfirm:
-    __slots__ = "text", "ok", "cancel"
+    """Retry submitting a file page
 
-    def __init__(self, text, ok, cancel):
-        self.text = text
-        self.ok = ok
-        self.cancel = cancel
+    Prompt the user if they want to submit a new file. 
+    This can be used in case a file could not be processed. 
+
+    Attributes:
+        text: message to display
+        ok: message to display if the user wants to try again
+        cancel: message to display if the user wants to continue regardless
+    """
+    text: Translatable
+    ok: Translatable
+    cancel: Translatable
 
     def toDict(self):
         dict = {}
@@ -41,12 +81,37 @@ class PropsUIPromptConfirm:
         return dict
 
 
-class PropsUIPromptConsentForm:
-    __slots__ = "tables", "meta_tables"
+@dataclass
+class PropsUIPromptConsentFormTable:
+    """Table to be shown to the participant prior to donation 
 
-    def __init__(self, tables, meta_tables):
-        self.tables = tables
-        self.meta_tables = meta_tables
+    Attributes:
+        id: a unique string to itentify the table after donation
+        title: title of the table
+        data_frame: table to be shown
+    """
+    id: str
+    title: Translatable
+    data_frame: pd.DataFrame
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIPromptConsentFormTable"
+        dict["id"] = self.id
+        dict["title"] = self.title.toDict()
+        dict["data_frame"] = self.data_frame.to_json()
+        return dict
+
+@dataclass
+class PropsUIPromptConsentForm:
+    """Tables to be shown to the participant prior to donation 
+
+    Attributes:
+        tables: a list of tables
+        meta_tables: a list of optional tables, for example for logging data
+    """
+    tables: list[PropsUIPromptConsentFormTable]
+    meta_tables: list[PropsUIPromptConsentFormTable]
 
     def translate_tables(self):
         output = []
@@ -68,29 +133,16 @@ class PropsUIPromptConsentForm:
         return dict
 
 
-class PropsUIPromptConsentFormTable:
-    __slots__ = "id", "title", "data_frame"
-
-    def __init__(self, id, title, data_frame):
-        self.id = id
-        self.title = title
-        self.data_frame = data_frame
-
-    def toDict(self):
-        dict = {}
-        dict["__type__"] = "PropsUIPromptConsentFormTable"
-        dict["id"] = self.id
-        dict["title"] = self.title.toDict()
-        dict["data_frame"] = self.data_frame.to_json()
-        return dict
-
-
+@dataclass
 class PropsUIPromptFileInput:
-    __slots__ = "description", "extensions"
+    """Prompt the user to submit a file
 
-    def __init__(self, description, extensions):
-        self.description = description
-        self.extensions = extensions
+    Attributes:
+        description: text with an explanation
+        extensions: accepted mime types, example: "application/zip, text/plain"
+    """
+    description: Translatable
+    extensions: str
 
     def toDict(self):
         dict = {}
@@ -100,13 +152,31 @@ class PropsUIPromptFileInput:
         return dict
 
 
-class PropsUIPromptRadioInput:
-    __slots__ = "title", "description", "items"
+class RadioItem(TypedDict):
+    """Radio button
 
-    def __init__(self, title, description, items):
-        self.title = title
-        self.description = description
-        self.items = items
+    Attributes:
+        id: id of radio button
+        value: text to be displayed
+    """
+    id: int
+    value: str
+
+
+@dataclass
+class PropsUIPromptRadioInput:
+    """Radio group
+
+    This radio group can be used get a mutiple choice answer from a user
+
+    Attributes:
+        title: title of the radio group
+        description: short description of the radio group
+        items: a list of radio buttons
+    """
+    title: Translatable
+    description: Translatable
+    items = list[RadioItem]
 
     def toDict(self):
         dict = {}
@@ -117,14 +187,20 @@ class PropsUIPromptRadioInput:
         return dict
 
 
+@dataclass
 class PropsUIPageDonation:
-    __slots__ = "platform", "header", "body", "footer"
+    """A multi-purpose page that gets shown to the user
 
-    def __init__(self, platform, header, body, footer):
-        self.platform = platform
-        self.header = header
-        self.body = body
-        self.footer = footer
+    Attributes:
+        platform: the platform name the user is curently in the process of donating data from
+        header: page header
+        body: main body of the page, see the individual classes for an explanation
+        footer: page footer
+    """
+    platform: str
+    header: PropsUIHeader
+    body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm
+    footer: PropsUIFooter
 
     def toDict(self):
         dict = {}
@@ -137,19 +213,8 @@ class PropsUIPageDonation:
 
 
 class PropsUIPageEnd:
+    """An ending page to show the user they are done"""
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPageEnd"
-        return dict
-
-
-class Translatable:
-    __slots__ = "translations"
-
-    def __init__(self, translations):
-        self.translations = translations
-
-    def toDict(self):
-        dict = {}
-        dict["translations"] = self.translations
         return dict
