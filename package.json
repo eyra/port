@@ -30,7 +30,8 @@
     "prod:cp:py": "cp -R src/framework/processing/py/dist/. ./dist",
     "prod": "run-s dev:fix:ts dev:build:py prod:build:ts prod:build:css prod:cp:py prod:cp:assets",
     "ci:fix": "run-s dev:fix:ts",
-    "ci:test": "CI=true react-scripts test"
+    "ci:test": "CI=true react-scripts test",
+    "watch": "npm run dev:start & nodemon --ext py --exec \"npm run dev:build:py && npm run dev:install:py\""
   },
   "browserslist": {
     "production": [
@@ -45,14 +46,15 @@
     ]
   },
   "devDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
     "@types/lodash": "^4.14.185",
     "autoprefixer": "^10.4.12",
     "husky": "^8.0.1",
+    "nodemon": "^2.0.20",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.16",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
     "tailwindcss": "^3.1.8",
     "ts-standard": "^11.0.0"
   },
