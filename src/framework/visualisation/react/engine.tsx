@@ -40,7 +40,10 @@ export default class ReactEngine implements VisualisationEngine {
     })
   }
 
-  terminate (): void {}
+  terminate (): void {
+    console.log('[ReactEngine] stopped')
+    this.root.unmount()
+  }
 
   renderElements (elements: JSX.Element[]): void {
     this.root.render(<Main elements={elements} />)
