@@ -1,65 +1,241 @@
-import port.api.props as props
-from port.api.commands import (CommandSystemDonate, CommandUIRender)
+import logging
+import json
+import io
+import inspect
 
 import pandas as pd
-import zipfile
+
+import port.api.props as props
+import port.unzipddp as unzipddp
+import port.netflix as netflix
+from port.api.commands import (CommandSystemDonate, CommandUIRender)
+
+LOG_STREAM = io.StringIO()
+
+logging.basicConfig(
+    stream=LOG_STREAM,
+    level=logging.INFO,
+    format="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S%z",
+)
+
+LOGGER = logging.getLogger("yolo")
+
+TABLE_TITLES = {
+    "netflix_ratings": props.Translatable(
+        {
+            "en": "Ratings you gave according to Netlix:",
+            "nl": "Jouw beoordelingen volgens Netflix:",
+        }
+    ),
+}
 
 
 def process(sessionId):
-    yield donate(f"{sessionId}-tracking", '[{ "message": "user entered script" }]')
-
-    platforms = ["Twitter", "Facebook", "Instagram", "Youtube"]
-
-    subflows = len(platforms)
-    steps = 2
-    step_percentage = (100/subflows)/steps
+    LOGGER.info("Starting the donation flow")
+    yield donate_logs(f"{sessionId}-tracking")
 
     # progress in %
+    subflows = 1
+    steps = 2
+    step_percentage = (100 / subflows) / steps
     progress = 0
+    progress += step_percentage
 
-    for index, platform in enumerate(platforms):
-        meta_data = []
-        meta_data.append(("debug", f"{platform}: start"))
+    platform_name = "Netflix"
+    data = None
 
-        # STEP 1: select the file
-        progress += step_percentage
-        data = None
-        while True:
-            meta_data.append(("debug", f"{platform}: prompt file"))
-            promptFile = prompt_file(platform, "application/zip, text/plain")
-            fileResult = yield render_donation_page(platform, promptFile, progress)
-            if fileResult.__type__ == 'PayloadString':
-                meta_data.append(("debug", f"{platform}: extracting file"))
-                extractionResult = doSomethingWithTheFile(platform, fileResult.value)
-                if extractionResult != 'invalid':
-                    meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
-                    data = extractionResult
-                    break
-                else:
-                    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))
-                    retry_result = yield render_donation_page(platform, retry_confirmation(platform), progress)
-                    if retry_result.__type__ == 'PayloadTrue':
-                        meta_data.append(("debug", f"{platform}: skip due to invalid file"))
-                        continue
+    while True:
+        LOGGER.info("Prompt for file for %s", platform_name)
+        yield donate_logs(f"{sessionId}-tracking")
+
+        promptFile = prompt_file("application/zip, text/plain", platform_name)
+        file_result = yield render_donation_page(platform_name, promptFile, progress)
+        selected_user = ""
+
+        if file_result.__type__ == "PayloadString":
+            validation = netflix.validate_zip(file_result.value)
+
+            # Flow logic
+            # Happy flow: valid DDP, user could be selected
+            # Retry flow 1: No user was selected, cause multiple reasons see code
+            # Retry flow 2: No valid Netflix DDP was found
+
+            if validation.ddp_category is not None:
+                LOGGER.info("Payload for %s", platform_name)
+                yield donate_logs(f"{sessionId}-tracking")
+
+                # Extract the user
+                users = extract_users(file_result.value)
+                if len(users) == 1:
+                    selected_user = users[0]
+                    extraction_result = extract_netflix(file_result.value, selected_user)
+                    data = extraction_result
+                elif len(users) > 1:
+                    selection = yield prompt_radio_menu_select_username(users, progress)
+                    # If user skips during this process, selected_user remains equal to ""
+                    if selection.__type__ == "PayloadString":
+                        selected_user = selection.value
+                        extraction_result = extract_netflix(file_result.value, selected_user)
+                        data = extraction_result
                     else:
-                        meta_data.append(("debug", f"{platform}: retry prompt file"))
-                        break
-            else:
-                meta_data.append(("debug", f"{platform}: skip to next step"))
-                break
+                        LOGGER.info("User skipped during user selection")
+                        pass
+                else:
+                    LOGGER.info("No users could be found in DDP")
+                    pass
+
+            # Enter retry flow, reason: if DDP was not a Netflix DDP
+            if validation.ddp_category is None:
+                LOGGER.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
+                yield donate_logs(f"{sessionId}-tracking")
+                retry_result = yield render_donation_page(platform_name, retry_confirmation(platform_name), progress)
+
+                if retry_result.__type__ == "PayloadTrue":
+                    continue
+                else:
+                    LOGGER.info("Skipped during retry ending flow")
+                    yield donate_logs(f"{sessionId}-tracking")
+                    break
+
+            # Enter retry flow, reason: valid DDP but no users could be extracted
+            if selected_user == "":
+                LOGGER.info("Selected user is empty after selection, enter retry flow")
+                yield donate_logs(f"{sessionId}-tracking")
+                retry_result = yield render_donation_page(platform_name, retry_confirmation(platform_name), progress)
+
+                if retry_result.__type__ == "PayloadTrue":
+                    continue
+                else:
+                    LOGGER.info("Skipped during retry ending flow")
+                    yield donate_logs(f"{sessionId}-tracking")
+                    break
+
+        else:
+            LOGGER.info("Skipped at file selection ending flow")
+            yield donate_logs(f"{sessionId}-tracking")
+            break
 
         # STEP 2: ask for consent
         progress += step_percentage
+
         if data is not None:
-            meta_data.append(("debug", f"{platform}: prompt consent"))
-            prompt = prompt_consent(platform, data, meta_data)
-            consent_result = yield render_donation_page(platform, prompt, progress)
+            LOGGER.info("Prompt consent; %s", platform_name)
+            yield donate_logs(f"{sessionId}-tracking")
+            prompt = prompt_consent(platform_name, data)
+            consent_result = yield render_donation_page(platform_name, prompt, progress)
+
             if consent_result.__type__ == "PayloadJSON":
-                meta_data.append(("debug", f"{platform}: donate consent data"))
-                yield donate(f"{sessionId}-{platform}", consent_result.value)
+                LOGGER.info("Data donated; %s", platform_name)
+                yield donate_logs(f"{sessionId}-tracking")
+                yield donate(platform_name, consent_result.value)
+            else:
+                LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
+                yield donate_logs(f"{sessionId}-tracking")
+
+            break
 
     yield render_end_page()
 
+
+##################################################################
+# helper functions
+
+def prompt_consent(platform_name, data):
+    table_list = []
+
+    for k, v in data.items():
+        df = v["data"]
+        table = props.PropsUIPromptConsentFormTable(f"{platform_name}_{k}", v["title"], df)
+        table_list.append(table)
+
+    return props.PropsUIPromptConsentForm(table_list, [])
+
+
+def return_empty_result_set():
+    result = {}
+
+    df = pd.DataFrame(["No data found"], columns=["No data found"])
+    result["empty"] = {"data": df, "title": TABLE_TITLES["empty_result_set"]}
+
+    return result
+
+
+def donate_logs(key):
+    log_string = LOG_STREAM.getvalue()  # read the log stream
+
+    if log_string:
+        log_data = log_string.split("\n")
+    else:
+        log_data = ["no logs"]
+
+    return donate(key, json.dumps(log_data))
+
+
+def extract_users(netflix_zip):
+    """
+    Reads viewing activity and extracts users from the first column
+    returns list[str]
+    """
+    b = unzipddp.extract_file_from_zip(netflix_zip, "ViewingActivity.csv")
+    df = unzipddp.read_csv_from_bytes_to_df(b)
+    users = netflix.extract_users_from_df(df)
+    return users
+
+
+def prompt_radio_menu_select_username(users, progress):
+    """
+    Prompt selection menu to select which user you are
+    """
+
+    title = props.Translatable({ "en": "Select", "nl": "Select" })
+    description = props.Translatable({ "en": "Please select your username", "nl": "Selecteer uw gebruikersnaam" })
+
+    header = props.PropsUIHeader(props.Translatable({"en": "Select", "nl": "Select"}))
+    radio_items = [{"id": i, "value": username} for i, username in enumerate(users)]
+    body = props.PropsUIPromptRadioInput(title, description, radio_items)
+    footer = props.PropsUIFooter(progress)
+
+    page = props.PropsUIPageDonation("Netflix", header, body, footer)
+
+    return CommandUIRender(page)
+
+
+##################################################################
+# Extraction functions
+
+def extract_netflix(netflix_zip, selected_user):
+    result = {}
+
+    # Extract the ratings
+    ratings_bytes = unzipddp.extract_file_from_zip(netflix_zip, "Ratings.csv")
+    df = unzipddp.read_csv_from_bytes_to_df(ratings_bytes)
+    if not df.empty:
+        df = netflix.filter_user(df, selected_user)
+        result["ratings"] = {"data": df, "title": TABLE_TITLES["netflix_ratings"]}
+
+    # Extract the viewing activity
+    viewing_activity_bytes = unzipddp.extract_file_from_zip(netflix_zip, "ViewingActivity.csv")
+    df = unzipddp.read_csv_from_bytes_to_df(viewing_activity_bytes)
+
+    if not df.empty:
+        df = netflix.filter_user(df, selected_user)
+        df_list = netflix.split_dataframe(df, 5000)
+        for i, df in enumerate(df_list):
+            index = i + 1
+            title_translatable = props.Translatable(
+                {
+                    "en": f"Your viewing activity according to Netlix {index}:",
+                    "nl": f"Jouw kijk activiteit volgens Netflix {index}:",
+                }
+            )
+            result[f"viewing_activity_{index}"] = {"data": df, "title": title_translatable}
+
+    return result
+
+
+##########################################
+# Functions provided by Eyra did not change
 
 def render_end_page():
     page = props.PropsUIPageEnd()
@@ -67,10 +243,7 @@ def render_end_page():
 
 
 def render_donation_page(platform, body, progress):
-    header = props.PropsUIHeader(props.Translatable({
-        "en": platform,
-        "nl": platform
-    }))
+    header = props.PropsUIHeader(props.Translatable({"en": platform, "nl": platform}))
 
     footer = props.PropsUIFooter(progress)
     page = props.PropsUIPageDonation(platform, header, body, footer)
@@ -78,65 +251,25 @@ def render_donation_page(platform, body, progress):
 
 
 def retry_confirmation(platform):
-    text = props.Translatable({
-        "en": f"Unfortunately, we cannot process your {platform} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
-        "nl": f"Helaas, kunnen we uw {platform} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen."
-    })
-    ok = props.Translatable({
-        "en": "Try again",
-        "nl": "Probeer opnieuw"
-    })
-    cancel = props.Translatable({
-        "en": "Continue",
-        "nl": "Verder"
-    })
+    text = props.Translatable(
+        {
+            "en": f"Unfortunately, we could not process your {platform} file. If you are sure that you selected the correct file, press Continue. To select a different file, press Try again.",
+            "nl": f"Helaas, kunnen we uw {platform} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen."
+        }
+    )
+    ok = props.Translatable({"en": "Try again", "nl": "Probeer opnieuw"})
+    cancel = props.Translatable({"en": "Continue", "nl": "Verder"})
     return props.PropsUIPromptConfirm(text, ok, cancel)
 
 
-def prompt_file(platform, extensions):
-    description = props.Translatable({
-        "en": f"Please follow the download instructions and choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a {platform} file. ",
-        "nl": f"Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat. Als u geen {platform} bestand heeft klik dan op “Overslaan” rechts onder."
-    })
-
+def prompt_file(extensions, platform):
+    description = props.Translatable(
+        {
+            "en": f"Please follow the download instructions and choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a file from {platform}.",
+            "nl": f"Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat. Als u geen {platform} bestand heeft klik dan op “Overslaan” rechts onder."
+        }
+    )
     return props.PropsUIPromptFileInput(description, extensions)
-
-
-def doSomethingWithTheFile(platform, filename):
-    return extract_zip_contents(filename)
-
-
-def extract_zip_contents(filename):
-    names = []
-    try:
-        file = zipfile.ZipFile(filename)
-        data = []
-        for name in file.namelist():
-            names.append(name)
-            info = file.getinfo(name)
-            data.append((name, info.compress_size, info.file_size))
-        return data
-    except zipfile.error:
-        return "invalid"
-
-
-def prompt_consent(id, data, meta_data):
-
-    table_title = props.Translatable({
-        "en": "Zip file contents",
-        "nl": "Inhoud zip bestand"
-    })
-
-    log_title = props.Translatable({
-        "en": "Log messages",
-        "nl": "Log berichten"
-    })
-
-    data_frame = pd.DataFrame(data, columns=["filename", "compressed size", "size"])
-    table = props.PropsUIPromptConsentFormTable("zip_content", table_title, data_frame)
-    meta_frame = pd.DataFrame(meta_data, columns=["type", "message"])
-    meta_table = props.PropsUIPromptConsentFormTable("log_messages", log_title, meta_frame)
-    return props.PropsUIPromptConsentForm([table], [meta_table])
 
 
 def donate(key, json_string):

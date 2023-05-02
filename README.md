@@ -1,3 +1,7 @@
+# Port pilot with data from Netflix
+
+This repository contains the code for running the Netflix D3I pilot at the Utrecht Data School with [port](https://github.com/eyra/port).
+
 # Port
 
 Port is a research tool that enables individuals to donate their digital trace data for academic research in a secure, transparent, and privacy-preserving way. 
