@@ -1,6 +1,5 @@
 """
 DDP extract Netflix module
-
 """
 from pathlib import Path
 import logging
@@ -73,12 +72,10 @@ def extract_users_from_df(df: pd.DataFrame) -> list[str]:
     
 def filter_user(df: pd.DataFrame, selected_user: str) -> pd.DataFrame:
     """
-    Keep only the rows where the first column of df is equal to
-    selected_user
+    Keep only the rows where the first column of df
+    is equal to selected_user
     """
-
     df =  df.loc[df.iloc[:, 0] == selected_user].reset_index(drop=True)
-    print(df)
     return df
 
     

@@ -1,7 +1,6 @@
 import logging
 import json
 import io
-import inspect
 
 import pandas as pd
 
@@ -19,7 +18,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%dT%H:%M:%S%z",
 )
 
-LOGGER = logging.getLogger("yolo")
+LOGGER = logging.getLogger("script")
 
 TABLE_TITLES = {
     "netflix_ratings": props.Translatable(
@@ -31,9 +30,9 @@ TABLE_TITLES = {
 }
 
 
-def process(sessionId):
+def process(session_id):
     LOGGER.info("Starting the donation flow")
-    yield donate_logs(f"{sessionId}-tracking")
+    yield donate_logs(f"{session_id}-tracking")
 
     # progress in %
     subflows = 1
@@ -47,7 +46,7 @@ def process(sessionId):
 
     while True:
         LOGGER.info("Prompt for file for %s", platform_name)
-        yield donate_logs(f"{sessionId}-tracking")
+        yield donate_logs(f"{session_id}-tracking")
 
         promptFile = prompt_file("application/zip, text/plain", platform_name)
         file_result = yield render_donation_page(platform_name, promptFile, progress)
@@ -57,13 +56,14 @@ def process(sessionId):
             validation = netflix.validate_zip(file_result.value)
 
             # Flow logic
-            # Happy flow: valid DDP, user could be selected
-            # Retry flow 1: No user was selected, cause multiple reasons see code
+            # Happy flow: Valid DDP, user could be selected
+            # Retry flow 1: No user was selected, cause could be for multiple reasons see code
             # Retry flow 2: No valid Netflix DDP was found
+            # Retry flows are separated for clarity and you can provide different messages to the user
 
             if validation.ddp_category is not None:
                 LOGGER.info("Payload for %s", platform_name)
-                yield donate_logs(f"{sessionId}-tracking")
+                yield donate_logs(f"{session_id}-tracking")
 
                 # Extract the user
                 users = extract_users(file_result.value)
@@ -88,32 +88,32 @@ def process(sessionId):
             # Enter retry flow, reason: if DDP was not a Netflix DDP
             if validation.ddp_category is None:
                 LOGGER.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
-                yield donate_logs(f"{sessionId}-tracking")
+                yield donate_logs(f"{session_id}-tracking")
                 retry_result = yield render_donation_page(platform_name, retry_confirmation(platform_name), progress)
 
                 if retry_result.__type__ == "PayloadTrue":
                     continue
                 else:
                     LOGGER.info("Skipped during retry ending flow")
-                    yield donate_logs(f"{sessionId}-tracking")
+                    yield donate_logs(f"{session_id}-tracking")
                     break
 
             # Enter retry flow, reason: valid DDP but no users could be extracted
             if selected_user == "":
                 LOGGER.info("Selected user is empty after selection, enter retry flow")
-                yield donate_logs(f"{sessionId}-tracking")
+                yield donate_logs(f"{session_id}-tracking")
                 retry_result = yield render_donation_page(platform_name, retry_confirmation(platform_name), progress)
 
                 if retry_result.__type__ == "PayloadTrue":
                     continue
                 else:
                     LOGGER.info("Skipped during retry ending flow")
-                    yield donate_logs(f"{sessionId}-tracking")
+                    yield donate_logs(f"{session_id}-tracking")
                     break
 
         else:
             LOGGER.info("Skipped at file selection ending flow")
-            yield donate_logs(f"{sessionId}-tracking")
+            yield donate_logs(f"{session_id}-tracking")
             break
 
         # STEP 2: ask for consent
@@ -121,17 +121,17 @@ def process(sessionId):
 
         if data is not None:
             LOGGER.info("Prompt consent; %s", platform_name)
-            yield donate_logs(f"{sessionId}-tracking")
+            yield donate_logs(f"{session_id}-tracking")
             prompt = prompt_consent(platform_name, data)
             consent_result = yield render_donation_page(platform_name, prompt, progress)
 
             if consent_result.__type__ == "PayloadJSON":
                 LOGGER.info("Data donated; %s", platform_name)
-                yield donate_logs(f"{sessionId}-tracking")
+                yield donate_logs(f"{session_id}-tracking")
                 yield donate(platform_name, consent_result.value)
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
-                yield donate_logs(f"{sessionId}-tracking")
+                yield donate_logs(f"{session_id}-tracking")
 
             break
 
@@ -139,9 +139,13 @@ def process(sessionId):
 
 
 ##################################################################
-# helper functions
+# helpers
 
 def prompt_consent(platform_name, data):
+    """
+    Assembles all donated data in consent form tables
+    data is the result from extract_netflix()
+    """
     table_list = []
 
     for k, v in data.items():
@@ -163,7 +167,6 @@ def return_empty_result_set():
 
 def donate_logs(key):
     log_string = LOG_STREAM.getvalue()  # read the log stream
-
     if log_string:
         log_data = log_string.split("\n")
     else:
@@ -190,8 +193,8 @@ def prompt_radio_menu_select_username(users, progress):
 
     title = props.Translatable({ "en": "Select", "nl": "Select" })
     description = props.Translatable({ "en": "Please select your username", "nl": "Selecteer uw gebruikersnaam" })
-
     header = props.PropsUIHeader(props.Translatable({"en": "Select", "nl": "Select"}))
+
     radio_items = [{"id": i, "value": username} for i, username in enumerate(users)]
     body = props.PropsUIPromptRadioInput(title, description, radio_items)
     footer = props.PropsUIFooter(progress)
@@ -205,6 +208,10 @@ def prompt_radio_menu_select_username(users, progress):
 # Extraction functions
 
 def extract_netflix(netflix_zip, selected_user):
+    """
+    Main data extraction function
+    Assemble all extraction logic here, results are stored in a dict
+    """
     result = {}
 
     # Extract the ratings
