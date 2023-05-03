@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 DDP_CATEGORIES = [
     DDPCategory(
-        id="html",
+        id="csv",
         ddp_filetype=DDPFiletype.CSV,
         language=Language.EN,
         known_files=["MyList.csv", "ViewingActivity.csv", "SearchHistory.csv", "IndicatedPreferences.csv", "PlaybackRelatedEvents.csv", "InteractiveTitles.csv", "Ratings.csv", "GamePlaySession.txt", "IpAddressesLogin.csv", "IpAddressesAccountCreation.txt", "IpAddressesStreaming.csv", "Additional Information.pdf", "MessagesSentByNetflix.csv", "SocialMediaConnections.txt", "AccountDetails.csv", "ProductCancellationSurvey.txt", "CSContact.csv", "ChatTranscripts.csv", "Cover sheet.pdf", "Devices.csv", "ParentalControlsRestrictedTitles.txt", "AvatarHistory.csv", "Profiles.csv", "Clickstream.csv", "BillingHistory.csv"]
@@ -31,9 +31,15 @@ STATUS_CODES = [
     StatusCode(id=1, description="Bad zipfile", message="Bad zipfile"),
 ]
 
+
 def validate_zip(zfile: Path) -> ValidateInput:
     """
     Validates the input of an Instagram zipfile
+
+    NOTE FOR KASPER:
+    This function sets a validation object generated with ValidateInput
+    This validation object can be read later on to infer possible problems with the zipfile
+    I dont like this design myself, but I also havent found any alternatives that are better
     """
 
     validate = ValidateInput(STATUS_CODES, DDP_CATEGORIES)
@@ -70,6 +76,7 @@ def extract_users_from_df(df: pd.DataFrame) -> list[str]:
 
     return out
     
+
 def filter_user(df: pd.DataFrame, selected_user: str) -> pd.DataFrame:
     """
     Keep only the rows where the first column of df

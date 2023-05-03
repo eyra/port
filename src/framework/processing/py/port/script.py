@@ -56,7 +56,7 @@ def process(session_id):
             validation = netflix.validate_zip(file_result.value)
 
             # Flow logic
-            # Happy flow: Valid DDP, user could be selected
+            # Happy flow: Valid DDP, user was set selected
             # Retry flow 1: No user was selected, cause could be for multiple reasons see code
             # Retry flow 2: No valid Netflix DDP was found
             # Retry flows are separated for clarity and you can provide different messages to the user
@@ -73,7 +73,6 @@ def process(session_id):
                     data = extraction_result
                 elif len(users) > 1:
                     selection = yield prompt_radio_menu_select_username(users, progress)
-                    # If user skips during this process, selected_user remains equal to ""
                     if selection.__type__ == "PayloadString":
                         selected_user = selection.value
                         extraction_result = extract_netflix(file_result.value, selected_user)
@@ -119,6 +118,7 @@ def process(session_id):
         # STEP 2: ask for consent
         progress += step_percentage
 
+        # Something got extracted
         if data is not None:
             LOGGER.info("Prompt consent; %s", platform_name)
             yield donate_logs(f"{session_id}-tracking")
@@ -127,8 +127,8 @@ def process(session_id):
 
             if consent_result.__type__ == "PayloadJSON":
                 LOGGER.info("Data donated; %s", platform_name)
-                yield donate_logs(f"{session_id}-tracking")
                 yield donate(platform_name, consent_result.value)
+                yield donate_logs(f"{session_id}-tracking")
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
                 yield donate_logs(f"{session_id}-tracking")
