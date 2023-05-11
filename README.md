@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/eyra/port">
-    <img width="60%" height="60%" src="./public/port_logo.svg">
+    <img width="40%" height="40%" src="./public/port_logo.svg">
   </a>
 </p>
 
@@ -8,65 +8,72 @@
 
 Port is a research tool that enables individuals to donate their digital trace data for academic research in a secure, transparent, and privacy-preserving way. 
 
-Data donation allows researchers to invite participants to share their DDPs. A major challenge is however that DDPs potentially contain very sensitive data, and often not all data is needed to answer the specific research question under investigation. To circumvent these challenges, an alternative framework was developed: 
+Data donation allows researchers to invite participants to share their DDPs. 
+A major challenge is however that DDPs potentially contain very sensitive data, and often not all data is needed to answer the specific research question under investigation. 
+To circumvent these challenges, an alternative framework was developed: 
 
 1. The research participant requests their personal DDP at the platform of interest.
 2. They download it onto their own personal device. 
 3. By means of local processing, only the features of interest to the researcher are extracted from that DDP. 
 4. The participant inspects the extracted features after which they can consent (or decline) to donate. 
 
+To allow for the local processing (step 3) to take place, we developed the software Port. 
+Port creates a frontend that guides participants through the data donation steps. 
 
-To allow for the local processing step to take place, we developed the software Port. 
-Port is open-source and allows for researchers to fully configure their own data donation study. It creates a website that guides participants through the data donation steps. Researchers can tailor this website to their own DDPs of interest and process these in their desired ways. We have both a free open-source version available that you can configure yourself, or you can use our SURF configuration. Please see Port for more details.
+Port is open-source and allows for researchers to fully configure their own data donation study.
 
+Note: Port is only a frontend. In order for it to be able to functional for an actual live study, it needs to be hosted with a server and integrate with a solution to store and retrieve the donated data. 
+This repository will discuss a some readily available options.
 
-## Digital Data Donation Infrastructure (D3I)
+## Installation
 
-The D3i project is funded by the PDI-SSH and is a collaboration between six Dutch universities and Eyra.
-
-The consortium is composed of researchers from:
-
-* University of Amsterdam
-* Radboud University Nijmegen 
-* VU Amsterdam
-* Utrecht University
-* Tilburg University
-* Erasmus University Rotterdam
-
-## D3i Pilot
-
-The first phase of the project ended in December 2022 and resulted in an MVP solution to run one Port app on top of a Next bundle. This Next + Port combi can be released as a Docker image and deployed on [Azure Web App Service](https://azure.microsoft.com/en-us/products/app-service/web).
-
-## Development setup 
+In order to start a local instance of Port go through the following steps:
 
 0. Pre-requisites
 
-    * Fork and clone this repo
-    * Install [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-    * Must-have knowledge:
-        * Python
-        * Javascript
-        * [Typescript](https://www.typescriptlang.org/docs)
-    * Should-have knowledge:
-        * [Tailwind CSS](https://tailwindcss.com/docs/installation)
-        * [React](https://reactjs.org/docs/getting-started.html)
-    * Could-have knowledge:
-        * [Create React App](https://create-react-app.dev)
-        * [webpack](https://webpack.js.org/concepts)
+    * Fork or clone this repo
+    * Install [Node.js](https://nodejs.org/en)
+    * Install [Python](https://www.python.org/) and [Poetry](https://python-poetry.org/)
         
 1. Install dependencies:
 
     ```sh
+    cd ./port
     npm install
     ```
 
 2. Start the local web server (with hotloading enabled):
 
     ```sh
-    npm run dev:start
+    npm run watch
     ```
 
-3. Go to the browser: [http://localhost:3000](http://localhost:3000).
+3. If the installation went correctly you can now go to the browser: [http://localhost:3000](http://localhost:3000).
+
+
+## How to use Port
+
+A reseacher can implement their own data donation study by writing a Python script.
+This Python scripts has 2 main purposes:
+
+1. It determines the data donation flow. i.e. what screens (for example a file prompt) does the participant gets to see and when
+2. It determines what data gets extract from the participants submission. Here is were Python really shines, you can use most data extraction methods you are familiar with! (As long as it's available in [Pyodide](https://pyodide.org/en/stable/))
+
+A typical script includes the following steps:
+
+1. Prompt the participant to submit a file
+2. Handling the results from step 1. This is the step where you can extract the data you are interested in.
+3. The extracted data is presented on screen accompanied with a consent button. After consent is given, the data is sent to a storage location of the researcher.
+
+An examples are based on the example script that can be found here: [src/framework/processing/py/port/script.py](src/framework/processing/py/port/script.py). We recommend you changing that script to fit your personal needs.
+
+
+A flow like this can be created with a Python script making use of predetermined building blocks. 
+The examples on how you could use these blocks are outlined in detail below.
+
+The examples are based on the example script that can be found here: [src/framework/processing/py/port/script.py](src/framework/processing/py/port/script.py). We recommend you changing that script to fit your personal needs.
+
+
 
 ## Data model
 
@@ -732,3 +739,22 @@ The project uses [ts-standard](https://github.com/standard/ts-standard) for mana
 
 ### Pre-commit hooks
 Before committing to github [Husky](https://github.com/typicode/husky) runs all the necessary scripts to make sure the code conforms to `ts-standard`, all the tests run green, and the `dist` folder is up-to-date.
+
+
+
+## Digital Data Donation Infrastructure (D3I)
+
+The D3i project is funded by the PDI-SSH and is a collaboration between six Dutch universities and Eyra.
+
+The consortium is composed of researchers from:
+
+* University of Amsterdam
+* Radboud University Nijmegen 
+* VU Amsterdam
+* Utrecht University
+* Tilburg University
+* Erasmus University Rotterdam
+
+## D3i Pilot
+
+The first phase of the project ended in December 2022 and resulted in an MVP solution to run one Port app on top of a Next bundle. This Next + Port combi can be released as a Docker image and deployed on [Azure Web App Service](https://azure.microsoft.com/en-us/products/app-service/web).
