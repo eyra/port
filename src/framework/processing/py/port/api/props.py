@@ -176,7 +176,7 @@ class PropsUIPromptRadioInput:
     """
     title: Translatable
     description: Translatable
-    items = list[RadioItem]
+    items: list[RadioItem]
 
     def toDict(self):
         dict = {}

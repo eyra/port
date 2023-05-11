@@ -76,7 +76,10 @@ var ReactEngine = /** @class */ (function () {
             });
         });
     };
-    ReactEngine.prototype.terminate = function () { };
+    ReactEngine.prototype.terminate = function () {
+        console.log('[ReactEngine] stopped');
+        this.root.unmount();
+    };
     ReactEngine.prototype.renderElements = function (elements) {
         this.root.render(_jsx(Main, { elements: elements }));
     };

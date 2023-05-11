@@ -1,5 +1,5 @@
 import { PropsUIFooter, PropsUIHeader } from './elements';
-import { PropsUIPromptFileInput, PropsUIPromptConfirm, PropsUIPromptConsentForm } from './prompts';
+import { PropsUIPromptFileInput, PropsUIPromptConfirm, PropsUIPromptConsentForm, PropsUIPromptRadioInput } from './prompts';
 export declare type PropsUIPage = PropsUIPageSplashScreen | PropsUIPageDonation | PropsUIPageEnd;
 export declare function isPropsUIPage(arg: any): arg is PropsUIPage;
 export interface PropsUIPageSplashScreen {
@@ -10,7 +10,7 @@ export interface PropsUIPageDonation {
     __type__: 'PropsUIPageDonation';
     platform: string;
     header: PropsUIHeader;
-    body: PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptConsentForm;
+    body: PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptConsentForm | PropsUIPromptRadioInput;
     footer: PropsUIFooter;
 }
 export declare function isPropsUIPageDonation(arg: any): arg is PropsUIPageDonation;

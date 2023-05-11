@@ -55,10 +55,10 @@ export const SplashScreen = (props: Props): JSX.Element => {
     <>
       <div className='text-bodylarge font-body text-grey1'>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          You are about to start the process of donating your data to research institute ASCoR at Amsterdam University. The data that we ask you to donate will be used for academic research to gain insight into how social media platforms work.
+          You are about to start the process of donating your data to a research institute. The data that we ask you to donate will be used for academic research to gain insight into how platforms work.
         </div>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          We will walk you through this process step by step. During this process no data is stored or sent to ASCoR. You can delete rows from the data before donating. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
+          We will walk you through this process step by step. During this process no data is stored or sent to a server. You can delete rows from the data before donating. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
         </div>
         <div className='mb-6 text-bodylarge font-body text-grey1'>
           By clicking the button “<span className='font-bodybold'>Yes, donate</span>”:
@@ -71,7 +71,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
             <div>you are aware that when your data is used for academic publications, or made publicly available in some other form, this will be anonymous.</div>
           </Bullet>
           <Bullet>
-            <div>you are aware that you have the right to withdraw your permission within 7 days by contacting Panel Inzicht.</div>
+            <div>you are aware that you have the right to withdraw your permission.</div>
           </Bullet>
         </div>
         <div className='mb-10'>
@@ -85,10 +85,10 @@ export const SplashScreen = (props: Props): JSX.Element => {
     <>
       <div className='text-bodylarge font-body text-grey1'>
         <div className='mb-4'>
-          U kunt zo uw gegevens gaan doneren voor een onderzoek van onderzoeksinstituut ASCoR aan de Universiteit van Amsterdam. De gegevens die we u vragen te doneren worden gebruikt voor wetenschappelijke onderzoek om inzicht te krijgen in de werkwijze van sociale media.
+          U kunt zo uw gegevens gaan doneren voor een onderzoek van een onderzoeksinstituut. De gegevens die we u vragen te doneren worden gebruikt voor wetenschappelijke onderzoek om inzicht te krijgen in de werkwijze van sociale media.
         </div>
         <div className='mb-4'>
-          We leggen u stap voor stap wat er van u verwacht wordt. Tijdens deze stappen worden geen gegevens opgeslagen of naar ASCoR verstuurd. U kunt zelf rijen uit uw data verwijderen die u niet wilt doneren. Pas als u de vraag krijgt of u de gegevens wilt doneren en u op de knop “Ja, doneer” klikt, worden de gegevens gedoneerd en opgeslagen.
+          We leggen u stap voor stap wat er van u verwacht wordt. Tijdens deze stappen worden geen gegevens opgeslagen of naar een server verstuurd. U kunt zelf rijen uit uw data verwijderen die u niet wilt doneren. Pas als u de vraag krijgt of u de gegevens wilt doneren en u op de knop “Ja, doneer” klikt, worden de gegevens gedoneerd en opgeslagen.
         </div>
         <div className='mb-4'>
           Door op de knop “<span className='font-bodybold'>Ja, doneer</span>” te klikken:
@@ -101,7 +101,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
             <div>Geeft u aan te weten dat als uw gegevens worden gebruikt in wetenschappelijke publicaties, of deze op een andere manier openbaar worden gemaakt, dit dan anoniem gebeurt.</div>
           </Bullet>
           <Bullet>
-            <div>Geeft u aan te weten dat u het recht hebt om uw toestemming binnen 7 dagen in te trekken door contact met Panel Inzicht op te nemen.</div>
+            <div>Geeft u aan te weten dat u het recht hebt om uw toestemming binnen in te trekken.</div>
           </Bullet>
         </div>
         <div className='mb-10'>
