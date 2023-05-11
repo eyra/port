@@ -243,7 +243,7 @@ In order to do a data donation study with Port you have several options:
 
     For instructions on running [Next](https://github.com/d3i-infra/port-d3i-pilot) + Port see: https://github.com/eyra/mono/blob/d3i/latest/PORT.md 
 
-### Port + Portserver (Not Recommended)
+### Port + Portserver (Not recommended)
 
 1. Create production code
 
