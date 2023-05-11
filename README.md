@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/eyra/port">
-    <img width="60%" height="60%" src="https://raw.githubusercontent.com/public/port_logo.svg">
+    <img width="60%" height="60%" src="./public/port_logo.svg">
   </a>
 </p>
 
