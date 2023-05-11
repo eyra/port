@@ -1,6 +1,24 @@
-# Port
+<p align="center">
+  <a href="https://github.com/eyra/port">
+    <img width="60%" height="60%" src="https://raw.githubusercontent.com/public/port_logo.svg">
+  </a>
+</p>
+
+# Port: A frontend for data donation
 
 Port is a research tool that enables individuals to donate their digital trace data for academic research in a secure, transparent, and privacy-preserving way. 
+
+Data donation allows researchers to invite participants to share their DDPs. A major challenge is however that DDPs potentially contain very sensitive data, and often not all data is needed to answer the specific research question under investigation. To circumvent these challenges, an alternative framework was developed: 
+
+1. The research participant requests their personal DDP at the platform of interest.
+2. They download it onto their own personal device. 
+3. By means of local processing, only the features of interest to the researcher are extracted from that DDP. 
+4. The participant inspects the extracted features after which they can consent (or decline) to donate. 
+
+
+To allow for the local processing step to take place, we developed the software Port. 
+Port is open-source and allows for researchers to fully configure their own data donation study. It creates a website that guides participants through the data donation steps. Researchers can tailor this website to their own DDPs of interest and process these in their desired ways. We have both a free open-source version available that you can configure yourself, or you can use our SURF configuration. Please see Port for more details.
+
 
 ## Digital Data Donation Infrastructure (D3I)
 
