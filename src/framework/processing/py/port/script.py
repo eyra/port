@@ -5,8 +5,11 @@ import io
 import pandas as pd
 
 import port.api.props as props
+import port.helpers as helpers
 import port.unzipddp as unzipddp
 import port.netflix as netflix
+
+
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
 
 LOG_STREAM = io.StringIO()
@@ -42,7 +45,7 @@ def process(session_id):
     progress += step_percentage
 
     platform_name = "Netflix"
-    data = None
+    table_list = None
 
     while True:
         LOGGER.info("Prompt for file for %s", platform_name)
@@ -70,13 +73,13 @@ def process(session_id):
                 if len(users) == 1:
                     selected_user = users[0]
                     extraction_result = extract_netflix(file_result.value, selected_user)
-                    data = extraction_result
+                    table_list = extraction_result
                 elif len(users) > 1:
                     selection = yield prompt_radio_menu_select_username(users, progress)
                     if selection.__type__ == "PayloadString":
                         selected_user = selection.value
                         extraction_result = extract_netflix(file_result.value, selected_user)
-                        data = extraction_result
+                        table_list = extraction_result
                     else:
                         LOGGER.info("User skipped during user selection")
                         pass
@@ -119,10 +122,10 @@ def process(session_id):
         progress += step_percentage
 
         # Something got extracted
-        if data is not None:
+        if table_list is not None:
             LOGGER.info("Prompt consent; %s", platform_name)
             yield donate_logs(f"{session_id}-tracking")
-            prompt = prompt_consent(platform_name, data)
+            prompt = assemble_tables_into_form(table_list)
             consent_result = yield render_donation_page(platform_name, prompt, progress)
 
             if consent_result.__type__ == "PayloadJSON":
@@ -139,21 +142,33 @@ def process(session_id):
 
 
 ##################################################################
-# helpers
 
-def prompt_consent(platform_name, data):
+def assemble_tables_into_form(table_list: list[props.PropsUIPromptConsentFormTable]) -> props.PropsUIPromptConsentForm:
     """
-    Assembles all donated data in consent form tables
-    data is the result from extract_netflix()
+    Assembles all donated data in consent form to be displayed
     """
-    table_list = []
-
-    for k, v in data.items():
-        df = v["data"]
-        table = props.PropsUIPromptConsentFormTable(f"{platform_name}_{k}", v["title"], df)
-        table_list.append(table)
-
     return props.PropsUIPromptConsentForm(table_list, [])
+
+
+def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
+    """
+    This function chunks extracted data into tables of 5000 rows that can be renderd on screen
+    """
+
+    df_list = helpers.split_dataframe(df, 5000)
+    out = []
+
+    if len(df_list) == 1:
+        table = props.PropsUIPromptConsentFormTable(unique_table_id, title, df_list[0])
+        out.append(table)
+    else:
+        for i, df in enumerate(df_list):
+            index = i + 1
+            title_with_index = props.Translatable({lang: f"{val} {index}" for lang, val in title.translations.items()})
+            table = props.PropsUIPromptConsentFormTable(f"{unique_table_id}_{index}", title_with_index, df)
+            out.append(table)
+
+    return out
 
 
 def return_empty_result_set():
@@ -175,17 +190,6 @@ def donate_logs(key):
     return donate(key, json.dumps(log_data))
 
 
-def extract_users(netflix_zip):
-    """
-    Reads viewing activity and extracts users from the first column
-    returns list[str]
-    """
-    b = unzipddp.extract_file_from_zip(netflix_zip, "ViewingActivity.csv")
-    df = unzipddp.read_csv_from_bytes_to_df(b)
-    users = netflix.extract_users_from_df(df)
-    return users
-
-
 def prompt_radio_menu_select_username(users, progress):
     """
     Prompt selection menu to select which user you are
@@ -205,40 +209,83 @@ def prompt_radio_menu_select_username(users, progress):
 
 
 ##################################################################
-# Extraction functions
+# Extraction function
 
-def extract_netflix(netflix_zip, selected_user):
+def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIPromptConsentFormTable]:
     """
     Main data extraction function
     Assemble all extraction logic here, results are stored in a dict
     """
-    result = {}
+    tables_to_render = []
 
     # Extract the ratings
-    ratings_bytes = unzipddp.extract_file_from_zip(netflix_zip, "Ratings.csv")
-    df = unzipddp.read_csv_from_bytes_to_df(ratings_bytes)
+    df = netflix.ratings_to_df(netflix_zip, selected_user)
     if not df.empty:
-        df = netflix.filter_user(df, selected_user)
-        result["ratings"] = {"data": df, "title": TABLE_TITLES["netflix_ratings"]}
+        table_title = props.Translatable({"en": "Netflix ratings", "nl": "Netflix ratings"})
+        tables = create_consent_form_tables("netflix_ratings", table_title, df) 
+        tables_to_render.extend(tables)
 
     # Extract the viewing activity
-    viewing_activity_bytes = unzipddp.extract_file_from_zip(netflix_zip, "ViewingActivity.csv")
-    df = unzipddp.read_csv_from_bytes_to_df(viewing_activity_bytes)
-
+    df = netflix.viewing_activity_to_df(netflix_zip, selected_user)
     if not df.empty:
-        df = netflix.filter_user(df, selected_user)
-        df_list = netflix.split_dataframe(df, 5000)
-        for i, df in enumerate(df_list):
-            index = i + 1
-            title_translatable = props.Translatable(
-                {
-                    "en": f"Your viewing activity according to Netlix {index}:",
-                    "nl": f"Jouw kijk activiteit volgens Netflix {index}:",
-                }
-            )
-            result[f"viewing_activity_{index}"] = {"data": df, "title": title_translatable}
+        table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
+        tables = create_consent_form_tables("netflix_viewings", table_title, df) 
+        tables_to_render.extend(tables)
 
-    return result
+    # Extract the clickstream
+    df = netflix.clickstream_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix clickstream", "nl": "Netflix clickstream"})
+        tables = create_consent_form_tables("netflix_clickstream", table_title, df) 
+        tables_to_render.extend(tables)
+
+    # Extract my list
+    df = netflix.my_list_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix bookmarks", "nl": "Netflix bookmarks"})
+        tables = create_consent_form_tables("netflix_my_list", table_title, df) 
+        tables_to_render.extend(tables)
+
+    # Extract Indicated preferences
+    df = netflix.my_list_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix indicated preferences", "nl": "Netflix indicated preferences"})
+        tables = create_consent_form_tables("netflix_indicated_preferences", table_title, df) 
+        tables_to_render.extend(tables)
+
+    # Extract playback related events
+    df = netflix.playback_related_events_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix playback related events", "nl": "Netflix playback related events"})
+        tables = create_consent_form_tables("netflix_playback", table_title, df) 
+        tables_to_render.extend(tables)
+
+    # Extract search history
+    df = netflix.search_history_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix search history", "nl": "Netflix search history"})
+        tables = create_consent_form_tables("netflix_search", table_title, df) 
+        tables_to_render.extend(tables)
+
+    # Extract messages sent by netflix
+    df = netflix.messages_sent_by_netflix_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix messages", "nl": "Netflix messages"})
+        tables = create_consent_form_tables("netflix_messages", table_title, df) 
+        tables_to_render.extend(tables)
+
+    return tables_to_render
+
+
+def extract_users(netflix_zip):
+    """
+    Reads viewing activity and extracts users from the first column
+    returns list[str]
+    """
+    b = unzipddp.extract_file_from_zip(netflix_zip, "ViewingActivity.csv")
+    df = unzipddp.read_csv_from_bytes_to_df(b)
+    users = netflix.extract_users_from_df(df)
+    return users
 
 
 ##########################################

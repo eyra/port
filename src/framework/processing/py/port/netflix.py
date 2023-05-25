@@ -4,8 +4,13 @@ DDP extract Netflix module
 from pathlib import Path
 import logging
 import zipfile
+import json
+from collections import Counter
 
 import pandas as pd
+
+import port.api.props as props
+import port.unzipddp as unzipddp
 
 from port.validate import (
     DDPCategory,
@@ -76,30 +81,226 @@ def extract_users_from_df(df: pd.DataFrame) -> list[str]:
 
     return out
     
-
-def filter_user(df: pd.DataFrame, selected_user: str) -> pd.DataFrame:
+def keep_user(df: pd.DataFrame, selected_user: str) -> pd.DataFrame:
     """
     Keep only the rows where the first column of df
     is equal to selected_user
     """
-    df =  df.loc[df.iloc[:, 0] == selected_user].reset_index(drop=True)
+    try:
+        df =  df.loc[df.iloc[:, 0] == selected_user].reset_index(drop=True)
+    except Exception as e:  
+        logger.info(e)
+
     return df
 
     
-def split_dataframe(df: pd.DataFrame, row_count: int) -> list[pd.DataFrame]:
+def netflix_to_df(netflix_zip: str, file_name: str, selected_user: str) -> pd.DataFrame:
     """
-    NOTE FOR KASPER:
-
-    Port has trouble putting large tables in memory. 
-    Has to be expected. Solution split tables into smaller tables.
-    I have tried non-bespoke table soluions they did not perform any better
-
-    I hope you have an idea to make tables faster! Would be nice
+    netflix csv to df
+    returns empty df in case of error
     """
-    # Calculate the number of splits needed.
-    num_splits = int(len(df) / row_count) + (len(df) % row_count > 0)
+    ratings_bytes = unzipddp.extract_file_from_zip(netflix_zip, file_name)
+    df = unzipddp.read_csv_from_bytes_to_df(ratings_bytes)
+    df = keep_user(df, selected_user)
 
-    # Split the DataFrame into chunks of size row_count.
-    df_splits = [df[i*row_count:(i+1)*row_count].reset_index(drop=True) for i in range(num_splits)]
+    return df
 
-    return df_splits
+
+def ratings_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract ratings from netflix zip to df
+    Only keep the selected user
+    """
+
+    columns_to_keep = ["Title Name", "Thumbs Value", "Device Model", "Event Utc Ts"]
+    columns_to_rename =  {
+        "Event Utc Ts": "Date",
+        "Device Model": "Device"
+    }
+
+    df = netflix_to_df(netflix_zip, "Ratings.csv", selected_user)
+
+    # Extraction logic here
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+
+def viewing_activity_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract ViewingActivity from netflix zip to df
+    Only keep the selected user
+    """
+
+    columns_to_keep = ["Start Time","Duration","Attributes","Title","Supplemental Video Type","Device Type"]
+    columns_to_rename =  {
+        "Device Type": "Device"
+    }
+
+    df = netflix_to_df(netflix_zip, "ViewingActivity.csv", selected_user)
+
+    # Extraction logic here
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+
+def clickstream_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract Clickstream from netflix zip to df
+    """
+
+    columns_to_keep = ["Source","Navigation Level","Referrer Url","Webpage Url", "Click Utc Ts"]
+    columns_to_rename =  {
+        "Click Utc Ts": "Time"
+    }
+
+    df = netflix_to_df(netflix_zip, "Clickstream.csv", selected_user)
+
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+def my_list_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract MyList.csv from netflix zip to df
+    """
+
+    columns_to_keep = ["Title Name", "Utc Title Add Date"]
+    columns_to_rename =  {
+        "Utc Title Add Date": "Date"
+    }
+
+    df = netflix_to_df(netflix_zip, "MyList.csv", selected_user)
+
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+            print("renamed")
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+
+
+def indicated_preferences_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract MyList.csv from netflix zip to df
+    """
+
+    columns_to_keep = ["Show", "Has Watched", "Is Interested", "Event Date"]
+    columns_to_rename =  {
+        "Event Date": "Date"
+    }
+
+    df = netflix_to_df(netflix_zip, "IndicatedPreferences.csv", selected_user)
+
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+
+def playtraces_counts_to_df(df):
+    """
+    creates a df with counts for playback
+    """
+    out = []
+    for item in df["Playtraces"]:
+        events = json.loads(item)
+        out.append(Counter([event.get("eventType") for event in events]))
+
+    return pd.DataFrame(out).fillna(0)
+
+
+def playback_related_events_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract PlaybackRelatedEvents.csv from netflix zip to df
+    """
+
+    columns_to_keep = ["Title Description", "Device", "Playback Start Utc Ts"]
+    columns_to_rename =  {
+        "Title Description": "Title",
+        "Playback Start Utc Ts": "Date time"
+    }
+
+    df = netflix_to_df(netflix_zip, "PlaybackRelatedEvents.csv", selected_user)
+
+    try:
+        if not df.empty:
+            playtraces_df = playtraces_counts_to_df(df)
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+            df = df.join(playtraces_df)
+
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+
+def search_history_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract SearchHistory.csv from netflix zip to df
+    """
+
+    columns_to_keep = ["Device", "Is Kids", "Query Typed", "Displayed Name", "Action", "Section", "Utc Timestamp"]
+    columns_to_rename =  {
+        "Utc Timestamp": "Date time"
+    }
+
+    df = netflix_to_df(netflix_zip, "SearchHistory.csv", selected_user)
+
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
+
+def messages_sent_by_netflix_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
+    """
+    Extract MessagesSentByNetflix.csv from netflix zip to df
+    """
+
+    columns_to_keep = ["Sent Utc Ts", "Message Name", "Channel", "Title Name", "Click Cnt"]
+    columns_to_rename =  {
+        "Sent Utc Ts": "Date time",
+        "Click Cnt": "Click Count"
+    }
+
+    df = netflix_to_df(netflix_zip, "MessagesSentByNetflix.csv", selected_user)
+
+    try:
+        if not df.empty:
+            df = df[columns_to_keep]
+            df = df.rename(columns=columns_to_rename)
+    except Exception as e:
+        logger.error("Data extraction error: %s", e)
+        
+    return df
+
