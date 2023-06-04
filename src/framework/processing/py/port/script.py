@@ -121,11 +121,10 @@ def process(session_id):
         # STEP 2: ask for consent
         progress += step_percentage
 
-        # Something got extracted
         if table_list is not None:
             LOGGER.info("Prompt consent; %s", platform_name)
             yield donate_logs(f"{session_id}-tracking")
-            prompt = assemble_tables_into_form(table_list)
+            prompt = create_consent_form(table_list)
             consent_result = yield render_donation_page(platform_name, prompt, progress)
 
             if consent_result.__type__ == "PayloadJSON":
@@ -143,16 +142,18 @@ def process(session_id):
 
 ##################################################################
 
-def assemble_tables_into_form(table_list: list[props.PropsUIPromptConsentFormTable]) -> props.PropsUIPromptConsentForm:
+def create_consent_form(table_list: list[props.PropsUIPromptConsentFormTable]) -> props.PropsUIPromptConsentForm:
     """
     Assembles all donated data in consent form to be displayed
     """
-    return props.PropsUIPromptConsentForm(table_list, [])
+    return props.PropsUIPromptConsentForm(table_list, meta_tables=[], visualizations=specify_visualizations())
 
 
 def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
     """
     This function chunks extracted data into tables of 5000 rows that can be renderd on screen
+
+    COMMENT: is chunking necessary? I don't think it matters how many rows a table has as long as UI doesn't render it all at once
     """
 
     df_list = helpers.split_dataframe(df, 5000)
@@ -170,6 +171,11 @@ def create_consent_form_tables(unique_table_id: str, title: props.Translatable, 
 
     return out
 
+def create_consent_form_visualization(unique_vis_id: str, title: props.Translatable, df: pd.DataFrame, settings: dict) -> props.PropsUIDataVisualization:
+    """
+    This function creates a visualization of the extracted data
+    """
+    return props.PropsUIDataVisualization(unique_vis_id, title, df, settings)
 
 def return_empty_result_set():
     result = {}
@@ -215,9 +221,11 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     """
     Main data extraction function
     Assemble all extraction logic here, results are stored in a dict
+
+    COMMENT: does this also make sense as the place to formulate data visualizations?
     """
     tables_to_render = []
-
+    
     # Extract the ratings
     df = netflix.ratings_to_df(netflix_zip, selected_user)
     if not df.empty:
@@ -231,7 +239,7 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
         table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
         tables = create_consent_form_tables("netflix_viewings", table_title, df) 
         tables_to_render.extend(tables)
-
+    
     # Extract the clickstream
     df = netflix.clickstream_to_df(netflix_zip, selected_user)
     if not df.empty:
@@ -286,6 +294,16 @@ def extract_users(netflix_zip):
     df = unzipddp.read_csv_from_bytes_to_df(b)
     users = netflix.extract_users_from_df(df)
     return users
+
+
+##################################################################
+# Visualization settings
+
+def specify_visualizations():
+    settings = dict(type="keyword_frequency", keyword="title")
+    most_viewed = props.PropsUIDataVisualization(id="netflix_viewings", settings=settings)
+
+    return [most_viewed]
 
 
 ##########################################

@@ -4,10 +4,9 @@ import { PropsUISearchBar } from '../../../../types/elements'
 import _ from 'lodash'
 
 export const SearchBar = ({ placeholder, debounce = 1000, onSearch }: Weak<PropsUISearchBar>): JSX.Element => {
-
-  function handleKeyPress (event: React.KeyboardEvent<HTMLInputElement>): void  {
+  function handleKeyPress (event: React.KeyboardEvent<HTMLInputElement>): void {
     if (event.key === 'Enter') {
-      event.preventDefault();
+      event.preventDefault()
     }
   }
 

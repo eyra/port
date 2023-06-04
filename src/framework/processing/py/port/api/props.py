@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 import pandas as pd
 
@@ -101,10 +101,29 @@ class PropsUIPromptConsentFormTable:
         dict["title"] = self.title.toDict()
         dict["data_frame"] = self.data_frame.to_json()
         return dict
+    
+@dataclass
+class PropsUIDataVisualization:
+    """Instructions for which ConsentFormTables to visualize and how
+
+    Attributes:
+        id: id of the table (same as in PropsUIPromptConsentFormTable) to use as data 
+        title: title of the visualization
+        settings: configuration of the visualization. What type of visualization, what columns to use, etc.
+    """
+    id: str
+    settings: dict
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIDataVisualization"
+        dict["id"] = self.id
+        dict["settings"] = self.settings
+        return dict
 
 @dataclass
 class PropsUIPromptConsentForm:
-    """Tables to be shown to the participant prior to donation 
+    """Tables and Visualization to be shown to the participant prior to donation 
 
     Attributes:
         tables: a list of tables
@@ -112,6 +131,7 @@ class PropsUIPromptConsentForm:
     """
     tables: list[PropsUIPromptConsentFormTable]
     meta_tables: list[PropsUIPromptConsentFormTable]
+    visualizations: Optional[list[PropsUIDataVisualization]] = None
 
     def translate_tables(self):
         output = []
@@ -125,11 +145,17 @@ class PropsUIPromptConsentForm:
             output.append(table.toDict())
         return output
 
+    def translate_visualizations(self):
+        if self.visualizations is None:
+            return None
+        return [vis.toDict() for vis in self.visualizations]
+
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPromptConsentForm"
         dict["tables"] = self.translate_tables()
         dict["metaTables"] = self.translate_meta_tables()
+        dict["visualizations"] = self.translate_visualizations()
         return dict
 
 
@@ -210,6 +236,7 @@ class PropsUIPageDonation:
         dict["body"] = self.body.toDict()
         dict["footer"] = self.footer.toDict()
         return dict
+    
 
 
 class PropsUIPageEnd:

@@ -25,7 +25,7 @@ export const DonationPage = (props: Props): JSX.Element => {
   const { title, forwardButton } = prepareCopy(props)
   const { platform, locale, resolve } = props
 
-  function renderBody (props: Props): JSX.Element {
+  function renderBody(props: Props): JSX.Element {
     const context = { locale: locale, resolve: props.resolve }
     const body = props.body
     if (isPropsUIPromptFileInput(body)) {
@@ -43,7 +43,7 @@ export const DonationPage = (props: Props): JSX.Element => {
     throw new TypeError('Unknown body type')
   }
 
-  function handleSkip (): void {
+  function handleSkip(): void {
     resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
@@ -51,27 +51,24 @@ export const DonationPage = (props: Props): JSX.Element => {
     <Footer
       middle={<Progress percentage={props.footer.progressPercentage} />}
       right={
-        <div className='flex flex-row'>
-          <div className='flex-grow' />
+        <div className="flex flex-row">
+          <div className="flex-grow" />
           <ForwardButton label={forwardButton} onClick={handleSkip} />
         </div>
       }
     />
   )
 
-  //COMMENT BY NIEK: I TURNED OFF THE SIDEBAR (UGLY)
-  //const sidebar: JSX.Element = (
+  // COMMENT BY NIEK: I TURNED OFF THE SIDEBAR (UGLY)
+  // const sidebar: JSX.Element = (
   //  <Sidebar
   //    logo={LogoSvg}
   //    content={
   //      <Instructions platform={platform} locale={locale} />
   //    }
   //  />
-  //)
-  const sidebar: JSX.Element = (
-    <>
-    </>
-  )
+  // )
+  const sidebar: JSX.Element = <></>
 
   const body: JSX.Element = (
     <>
@@ -80,13 +77,7 @@ export const DonationPage = (props: Props): JSX.Element => {
     </>
   )
 
-  return (
-    <Page
-      body={body}
-      sidebar={sidebar}
-      footer={footer}
-    />
-  )
+  return <Page body={body} sidebar={sidebar} footer={footer} />
 }
 
 interface Copy {
@@ -94,7 +85,7 @@ interface Copy {
   forwardButton: string
 }
 
-function prepareCopy ({ header: { title }, locale }: Props): Copy {
+function prepareCopy({ header: { title }, locale }: Props): Copy {
   return {
     title: Translator.translate(title, locale),
     forwardButton: Translator.translate(forwardButtonLabel(), locale)
@@ -102,7 +93,5 @@ function prepareCopy ({ header: { title }, locale }: Props): Copy {
 }
 
 const forwardButtonLabel = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Skip')
-    .add('nl', 'Overslaan')
+  return new TextBundle().add('en', 'Skip').add('nl', 'Overslaan')
 }
