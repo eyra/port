@@ -188,6 +188,22 @@ class PropsUIPromptRadioInput:
 
 
 @dataclass
+class PropsUIPromptQuestionnaire:
+    """
+    NO DOCS YET
+    """
+    question: str
+    choices: list[str]
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIPromptQuestionnaire"
+        dict["question"] = self.question
+        dict["choices"] = self.choices
+        return dict
+
+
+@dataclass
 class PropsUIPageDonation:
     """A multi-purpose page that gets shown to the user
 
@@ -199,7 +215,7 @@ class PropsUIPageDonation:
     """
     platform: str
     header: PropsUIHeader
-    body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm
+    body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptQuestionnaire
     footer: PropsUIFooter
 
     def toDict(self):

@@ -32,6 +32,14 @@ TABLE_TITLES = {
     ),
 }
 
+def render_questionnaire(platform, progress):
+    header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
+    body = props.PropsUIPromptQuestionnaire(question="THIS IS MY QUESTION?", choices=["ASD", "ASD"])
+    footer = props.PropsUIFooter(progress)
+
+    page = props.PropsUIPageDonation("ASD", header, body, footer)
+    return CommandUIRender(page)
+
 
 def process(session_id):
     LOGGER.info("Starting the donation flow")
@@ -50,6 +58,8 @@ def process(session_id):
     while True:
         LOGGER.info("Prompt for file for %s", platform_name)
         yield donate_logs(f"{session_id}-tracking")
+
+        yield render_questionnaire("banaan", progress)
 
         promptFile = prompt_file("application/zip, text/plain", platform_name)
         file_result = yield render_donation_page(platform_name, promptFile, progress)
