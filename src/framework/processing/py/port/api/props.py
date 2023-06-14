@@ -188,18 +188,68 @@ class PropsUIPromptRadioInput:
 
 
 @dataclass
+class PropsUIQuestionOpen:
+    """
+    NO DOCS YET
+    """
+    id: int
+    question: Translatable
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIQuestionOpen"
+        dict["id"] = self.id
+        dict["question"] = self.question.toDict()
+        return dict
+
+
+@dataclass
+class PropsUIQuestionMultipleChoiceCheckbox:
+    """
+    NO DOCS YET
+    """
+    id: int
+    question: Translatable
+    choices: list[Translatable]
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIQuestionMultipleChoiceCheckbox"
+        dict["id"] = self.id
+        dict["question"] = self.question.toDict()
+        dict["choices"] = [c.toDict() for c in self.choices]
+        return dict
+
+
+@dataclass
+class PropsUIQuestionMultipleChoice:
+    """
+    NO DOCS YET
+    """
+    id: int
+    question: Translatable
+    choices: list[Translatable]
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIQuestionMultipleChoice"
+        dict["id"] = self.id
+        dict["question"] = self.question.toDict()
+        dict["choices"] = [c.toDict() for c in self.choices]
+        return dict
+
+
+@dataclass
 class PropsUIPromptQuestionnaire:
     """
     NO DOCS YET
     """
-    question: str
-    choices: list[str]
+    questions: list[PropsUIQuestionMultipleChoice | PropsUIQuestionMultipleChoiceCheckbox | PropsUIQuestionOpen]
 
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPromptQuestionnaire"
-        dict["question"] = self.question
-        dict["choices"] = self.choices
+        dict["questions"] = [q.toDict() for q in self.questions]
         return dict
 
 

@@ -34,7 +34,27 @@ TABLE_TITLES = {
 
 def render_questionnaire(platform, progress):
     header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
-    body = props.PropsUIPromptQuestionnaire(question="THIS IS MY QUESTION?", choices=["ASD", "ASD"])
+    question1 = props.Translatable({"en": "QUESTION?", "nl": "VRAAG?"})
+    choices1 = [
+        props.Translatable({"en": "BANANA", "nl": "BANAAN"}),
+        props.Translatable({"en": "PEAR", "nl": "APPEL"})
+    ]
+
+    question2 = props.Translatable({"en": "CHEKBOX QUESTION?", "nl": "TJEKBOX VRAAG?"})
+    choices2 = [
+        props.Translatable({"en": "BANANA", "nl": "BANAAN"}),
+        props.Translatable({"en": "PINAPLE", "nl": "ANANAS"}),
+        props.Translatable({"en": "PEAR", "nl": "APPEL"})
+    ]
+
+    question3 = props.Translatable({"en": "OPEN QUESTION?", "nl": "OPEN VRAAG?"})
+
+    questions = [
+        props.PropsUIQuestionMultipleChoice(question=question1, id=1, choices=choices1),
+        props.PropsUIQuestionMultipleChoiceCheckbox(question=question2, id=2, choices=choices2),
+        props.PropsUIQuestionOpen(question=question3, id=3)
+    ]
+    body = props.PropsUIPromptQuestionnaire(questions=questions)
     footer = props.PropsUIFooter(progress)
 
     page = props.PropsUIPageDonation("ASD", header, body, footer)
@@ -59,7 +79,8 @@ def process(session_id):
         LOGGER.info("Prompt for file for %s", platform_name)
         yield donate_logs(f"{session_id}-tracking")
 
-        yield render_questionnaire("banaan", progress)
+        qr = yield render_questionnaire("banaan", progress)
+        print(f"THE RESULT IN SCRIPT.PY ARE: {qr.value}")
 
         promptFile = prompt_file("application/zip, text/plain", platform_name)
         file_result = yield render_donation_page(platform_name, promptFile, progress)

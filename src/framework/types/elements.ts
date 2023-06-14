@@ -413,3 +413,34 @@ export interface Translatable {
 export function isTranslatable (arg: any): arg is Translatable {
   return isLike<Translatable>(arg, ['translations'])
 }
+
+// QUESTION ITEMS
+
+export interface PropsUIQuestionMultipleChoice {
+  __type__: 'PropsUIQuestionMultipleChoice'
+  id: number
+  question: Text
+  choices: Text[]
+}
+export function isPropsUIQuestionMultipleChoice (arg: any): arg is PropsUIQuestionMultipleChoice {
+  return isInstanceOf<PropsUIQuestionMultipleChoice>(arg, 'PropsUIQuestionMultipleChoice', ['id', 'question', 'choices'])
+}
+
+export interface PropsUIQuestionMultipleChoiceCheckbox {
+  __type__: 'PropsUIQuestionMultipleChoiceCheckbox'
+  id: number
+  question: Text
+  choices: Text[]
+}
+export function isPropsUIQuestionMultipleChoiceCheckbox (arg: any): arg is PropsUIQuestionMultipleChoiceCheckbox {
+  return isInstanceOf<PropsUIQuestionMultipleChoiceCheckbox>(arg, 'PropsUIQuestionMultipleChoiceCheckbox', ['id', 'question', 'choices'])
+}
+
+export interface PropsUIQuestionOpen {
+  __type__: 'PropsUIQuestionOpen'
+  id: number
+  question: Text
+}
+export function isPropsUIQuestionOpen (arg: any): arg is PropsUIQuestionOpen {
+  return isInstanceOf<PropsUIQuestionOpen>(arg, 'PropsUIQuestionOpen', ['id', 'question'])
+}

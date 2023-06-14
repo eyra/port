@@ -1,5 +1,8 @@
 import { isInstanceOf } from '../helpers'
-import { PropsUIRadioItem, Text } from './elements'
+import { 
+    PropsUIRadioItem, 
+    PropsUIQuestionMultipleChoice,
+    Text } from './elements'
 
 export type PropsUIPrompt =
   PropsUIPromptFileInput |
@@ -65,9 +68,8 @@ export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPrompt
 
 export interface PropsUIPromptQuestionnaire {
   __type__: 'PropsUIPromptQuestionnaire'
-  question: string
-  choices: Array<string>
+  questions: Array<PropsUIQuestionMultipleChoice>
 }
 export function isPropsUIPromptQuestionnaire (arg: any): arg is PropsUIPromptQuestionnaire {
-  return isInstanceOf<PropsUIPromptQuestionnaire>(arg, 'PropsUIPromptQuestionnaire', ['question', 'choices'])
+  return isInstanceOf<PropsUIPromptQuestionnaire>(arg, 'PropsUIPromptQuestionnaire', ['questions'])
 }

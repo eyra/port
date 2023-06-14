@@ -3,28 +3,28 @@
 // ###################################################################################
 // ###################################################################################
 // ###################################################################################
-// 1. Types creeeren: Props
-// type Props = Weak<PropsUIPromptQuestionnaire> & ReactFactoryContext
-// in types/prompts
-// 2. API item toevoegen in port API 
-// 3. testen
-// 4. code splitten
-
+//
 import React, { useState } from 'react';
 import { ReactFactoryContext } from '../../factory'
 import { assert, Weak } from '../../../../helpers'
 import { LabelButton, PrimaryButton } from '../elements/button'
 import { PropsUIPromptQuestionnaire } from '../../../../types/prompts'
 
+import { isPropsUIQuestionMultipleChoice } from '../../../../types/elements'
+import { isPropsUIQuestionMultipleChoiceCheckbox } from '../../../../types/elements'
+import { isPropsUIQuestionOpen } from '../../../../types/elements'
+import { MultipleChoiceQuestion } from '../../ui/elements/question_multiple_choice'
+import { MultipleChoiceQuestionCheckbox } from '../../ui/elements/question_multiple_choice_checkbox'
+import { OpenQuestion } from '../../ui/elements/question_open'
+
 type Props = Weak<PropsUIPromptQuestionnaire> & ReactFactoryContext
 
 export const Questionnaire = (props: Props): JSX.Element => {
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const { question, choices, resolve } = props
+  const { questions, resolve, locale } = props
+  const [answers, setAnswers] = React.useState<{}>({});
 
   function handleDonate (): void {
-    const value = "ASD"
-    //const value = serializeConsentData()
+    const value = JSON.stringify(answers)
     resolve?.({ __type__: 'PayloadJSON', value })
   }
 
@@ -32,33 +32,41 @@ export const Questionnaire = (props: Props): JSX.Element => {
     resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
-  const handleChoiceSelect = (choice: string) => {
-    setSelectedChoice(choice);
-  };
+  const renderQuestion = (item: any) => {
+    if (isPropsUIQuestionMultipleChoice(item)) {
+      return (
+        <div key={item.id}>
+          <MultipleChoiceQuestion {...item} locale={locale} parentSetter={setAnswers} />
+        </div>
+      )
+    }
+    if (isPropsUIQuestionMultipleChoiceCheckbox(item)) {
+      return (
+        <div key={item.id}>
+          <MultipleChoiceQuestionCheckbox {...item} locale={locale} parentSetter={setAnswers} />
+        </div>
+      )
+    }
+    if (isPropsUIQuestionOpen(item)) {
+      return (
+        <div key={item.id}>
+          <OpenQuestion {...item} locale={locale} parentSetter={setAnswers} />
+        </div>
+      )
+    }
+  }
+
+  const renderQuestions = () => {
+   return questions.map((item) => renderQuestion(item))
+  }
 
   return (
     <div>
-      <h3>{question}</h3>
-      <ul>
-        {choices.map((choice, index) => (
-          <li key={index}>
-            <label>
-              <input
-                type="radio"
-                name="choice"
-                value={choice}
-                checked={selectedChoice === choice}
-                onChange={() => handleChoiceSelect(choice)}
-              />
-              {choice}
-            </label>
-          </li>
-        ))}
-      </ul>
-      {selectedChoice && <p>Selected choice: {selectedChoice}</p>}
-
+      <div>
+        {renderQuestions()}
+      </div>
       <div className='flex flex-row gap-4 mt-4 mb-4'>
-        <PrimaryButton label="VERDER" onClick={handleDonate} color='bg-success text-white' />
+        <PrimaryButton label="DONATE" onClick={handleDonate} color='bg-success text-white' />
         <LabelButton label="CANCEL" onClick={handleCancel} color='text-grey1' />
       </div>
     </div>
