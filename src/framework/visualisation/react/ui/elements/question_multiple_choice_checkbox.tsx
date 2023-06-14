@@ -2,6 +2,7 @@ import React from 'react'
 import { PropsUIQuestionMultipleChoiceCheckbox } from '../../../../types/elements'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
+import {Title3 } from './text'
 
 interface parentSetter {
   parentSetter: (arg: any) => any
@@ -42,18 +43,19 @@ export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
   };
 
   return (
-    <div>
-      <h3>{copy.question}</h3>
-      <ul>
+    <div className="p-4">
+      <Title3 text={copy.question} />
+      <ul className="mt-4 space-y-1">
         {copy.choices.map((choice, index) => (
           <li key={index}>
-            <label>
+            <label className="flex items-center">
               <input
                 type="checkbox"
                 name="choice"
                 value={choice}
                 checked={selectedChoices.includes(choice)}
                 onChange={handleChoiceSelect}
+                className="mr-1 form-checkbox"
               />
               {choice}
             </label>

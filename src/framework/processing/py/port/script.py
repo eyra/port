@@ -34,27 +34,28 @@ TABLE_TITLES = {
 
 def render_questionnaire(platform, progress):
     header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
-    question1 = props.Translatable({"en": "QUESTION?", "nl": "VRAAG?"})
+    question1 = props.Translatable({"en": "Question?", "nl": "Vraag?"})
     choices1 = [
-        props.Translatable({"en": "BANANA", "nl": "BANAAN"}),
-        props.Translatable({"en": "PEAR", "nl": "APPEL"})
+        props.Translatable({"en": "Banana", "nl": "Banaan"}),
+        props.Translatable({"en": "Pear", "nl": "Appel"})
     ]
 
-    question2 = props.Translatable({"en": "CHEKBOX QUESTION?", "nl": "TJEKBOX VRAAG?"})
+    question2 = props.Translatable({"en": "Checkbox Question?", "nl": "Tjekbox Vraag?"})
     choices2 = [
-        props.Translatable({"en": "BANANA", "nl": "BANAAN"}),
-        props.Translatable({"en": "PINAPLE", "nl": "ANANAS"}),
-        props.Translatable({"en": "PEAR", "nl": "APPEL"})
+        props.Translatable({"en": "Banana", "nl": "Banaan"}),
+        props.Translatable({"en": "Pinaple", "nl": "Ananas"}),
+        props.Translatable({"en": "Pear", "nl": "Appel"})
     ]
 
-    question3 = props.Translatable({"en": "OPEN QUESTION?", "nl": "OPEN VRAAG?"})
+    question3 = props.Translatable({"en": "Open question?", "nl": "Open vraag?"})
 
     questions = [
         props.PropsUIQuestionMultipleChoice(question=question1, id=1, choices=choices1),
         props.PropsUIQuestionMultipleChoiceCheckbox(question=question2, id=2, choices=choices2),
         props.PropsUIQuestionOpen(question=question3, id=3)
     ]
-    body = props.PropsUIPromptQuestionnaire(questions=questions)
+    description = props.Translatable({"en": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "nl": "asd"})
+    body = props.PropsUIPromptQuestionnaire(questions=questions, description=description)
     footer = props.PropsUIFooter(progress)
 
     page = props.PropsUIPageDonation("ASD", header, body, footer)

@@ -3,6 +3,8 @@ import { PropsUIQuestionOpen } from '../../../../types/elements'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 
+import { Title3 } from './text'
+
 interface parentSetter {
   parentSetter: (arg: any) => any
 }
@@ -31,12 +33,13 @@ export const OpenQuestion = (props: Props): JSX.Element => {
   })
 
   return (
-    <div>
-      <h3>{copy.question}</h3>
+    <div className="p-4">
+      <Title3 text={copy.question} />
       <input
         type="text"
         value={userAnswer}
         onChange={handleInputChange}
+        className="w-full px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-md resize-none h-16"
       />
     </div>
   );

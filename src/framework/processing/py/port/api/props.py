@@ -244,11 +244,13 @@ class PropsUIPromptQuestionnaire:
     """
     NO DOCS YET
     """
+    description: Translatable
     questions: list[PropsUIQuestionMultipleChoice | PropsUIQuestionMultipleChoiceCheckbox | PropsUIQuestionOpen]
 
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPromptQuestionnaire"
+        dict["description"] = self.description.toDict()
         dict["questions"] = [q.toDict() for q in self.questions]
         return dict
 

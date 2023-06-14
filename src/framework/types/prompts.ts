@@ -69,7 +69,8 @@ export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPrompt
 export interface PropsUIPromptQuestionnaire {
   __type__: 'PropsUIPromptQuestionnaire'
   questions: Array<PropsUIQuestionMultipleChoice>
+  description: Text
 }
 export function isPropsUIPromptQuestionnaire (arg: any): arg is PropsUIPromptQuestionnaire {
-  return isInstanceOf<PropsUIPromptQuestionnaire>(arg, 'PropsUIPromptQuestionnaire', ['questions'])
+  return isInstanceOf<PropsUIPromptQuestionnaire>(arg, 'PropsUIPromptQuestionnaire', ['questions', 'description'])
 }
