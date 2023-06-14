@@ -10,26 +10,26 @@ date: "12 May 2023"
 output: pdf_document
 authors:
 - name: Laura Boeschoten
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0002-3536-0474"
   corresponding: yes
   affiliation: 1
 - name: Niek C. de Schipper
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0002-8462-9791"
   affiliation: 2
 - name: Adriënne M. Mendrik
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0001-6631-7068"
   affiliation: 3
 - name: Emiel van der Veen
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0002-4895-6584"
   affiliation: 3
 - name: Bella Struminskaya
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0002-5944-8163"
   affiliation: 1
 - name: Heleen Janssen
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0002-2785-5741"
   affiliation: 2
 - name: Theo Araujo
-  orcid: "0000-0000-0000-0000"
+  orcid: "0000-0002-4633-9339"
   affiliation: 2
 bibliography: paper.bib
 affiliations:
