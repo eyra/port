@@ -13,7 +13,7 @@ export function isPropsUIPage (arg: any): arg is PropsUIPage {
     isPropsUIPageSplashScreen(arg) ||
     isPropsUIPageDonation(arg) ||
     isPropsUIPageEnd(arg) ||
-    isPropsUIPageError(arg) 
+    isPropsUIPageError(arg)
   )
 }
 

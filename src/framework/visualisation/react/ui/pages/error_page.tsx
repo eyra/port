@@ -2,7 +2,6 @@ import { Weak } from '../../../../helpers'
 import { PropsUIPageError } from '../../../../types/pages'
 import { ReactFactoryContext } from '../../factory'
 import { Footer } from './templates/footer'
-// import LogoSvg from '../../../../../assets/images/logo.svg'
 import { Page } from './templates/page'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
@@ -11,13 +10,13 @@ import { BodyLarge, Title1 } from '../elements/text'
 type Props = Weak<PropsUIPageError> & ReactFactoryContext
 
 export const ErrorPage = (props: Props): JSX.Element => {
-  // render to top of the page on reload
   window.scrollTo(0, 0)
 
   const { stacktrace } = props
   const { title, text } = prepareCopy(props)
 
   const footer: JSX.Element = <Footer />
+  const sidebar: JSX.Element = <> </>
 
   const body: JSX.Element = (
     <>
@@ -29,6 +28,7 @@ export const ErrorPage = (props: Props): JSX.Element => {
 
   return (
     <Page
+      sidebar={sidebar}
       body={body}
       footer={footer}
     />
