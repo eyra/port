@@ -32,8 +32,6 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   const pageCount = Math.ceil(rows.length / pageSize)
   const pageWindow = determinePageWindow(page, pageCount)
 
-  const noData = body.rows.length === 0 && deletedRowCount === 0
-
   useEffect(() => {
     setRows(filterRows(body.rows, query))
     setSelected([])
@@ -53,8 +51,9 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
     let visible = true
     if (element === 'search') visible = body.rows.length > pageSize
     if (element === 'undo') visible = deletedRowCount > 0
-    if (element === 'delete') visible = adjust
+    if (element === 'delete') visible = adjust  && body.rows.length > 0
     if (element === 'table') visible = rows.length > 0
+    if (element === 'adjust') visible = !readOnly
 
     const noData = body.rows.length === 0 && deletedRowCount === 0
     if (element === 'noData') visible = noData
@@ -222,7 +221,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
         <Title3 text={copy.noResults} color="text-grey3" margin="" />
       </div>
       <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
-        <div className="flex flex-row gap-4 items-center">
+        <div className={`flex flex-row gap-4 items-center ${display('adjust')}`}>
           <CheckBox id="edit" selected={adjust} onSelect={() => setAdjust(!adjust)} />
           <Label text={copy.edit} margin="mt-1px" />
         </div>

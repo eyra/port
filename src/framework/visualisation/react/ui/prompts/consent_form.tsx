@@ -21,14 +21,16 @@ interface TableContext {
   originalBody: PropsUITableBody
 }
 
+type Tables = Array<PropsUITable & TableContext>
+
 interface Annotation {
   row_id: string
   [key: string]: any
 }
 
 export const ConsentForm = (props: Props): JSX.Element => {
-  const [tables, setTables] = useState<Array<PropsUITable & TableContext>>(parseTables(props.tables))
-  const [metaTables, setMetaTables] = useState<Array<PropsUITable & TableContext>>(parseTables(props.metaTables))
+  const [tables, setTables] = useState<Tables>(parseTables(props.tables))
+  const [metaTables, setMetaTables] = useState<Tables>(parseTables(props.metaTables))
 
   const { visualizations, locale, resolve } = props
   const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
@@ -198,7 +200,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
 }
 
 interface TablesAndVisualizationsProps {
-  tables: Array<Weak<PropsUITable> & TableContext>
+  tables: Tables
   visualizations: PropsUIPromptConsentFormVisualization[]
   locale: string
   handleDelete: (tableId: string, rowIds: string[]) => void
