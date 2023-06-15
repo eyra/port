@@ -28,14 +28,21 @@ onmessage = (event) => {
 
 function runCycle (payload) {
   console.log('[ProcessingWorker] runCycle ' + JSON.stringify(payload))
-  scriptEvent = pyScript.send(payload)
-  self.postMessage({
-    eventType: 'runCycleDone',
-    scriptEvent: scriptEvent.toJs({
-      create_proxies: false,
-      dict_converter: Object.fromEntries
+  try {
+    scriptEvent = pyScript.send(payload)
+    self.postMessage({
+      eventType: 'runCycleDone',
+      scriptEvent: scriptEvent.toJs({
+        create_proxies: false,
+        dict_converter: Object.fromEntries
+      })
     })
-  })
+  } catch (error) {
+    self.postMessage({
+      eventType: 'runCycleDone',
+      scriptEvent: generateErrorMessage(error.toString())
+    })
+  }
 }
 
 function unwrap (response) {
@@ -98,4 +105,14 @@ function installPortPackage() {
     await micropip.install("/port-0.0.0-py3-none-any.whl", deps=False)
     import port
   `);  
+}
+
+function generateErrorMessage(stacktrace) {
+  return {
+    __type__: "CommandUIRender",
+    page: {
+      __type__: "PropsUIPageError",
+      stacktrace: stacktrace
+    }
+  }
 }
