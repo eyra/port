@@ -7,7 +7,7 @@ import { BodyLarge, Title4 } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import _ from 'lodash'
 import { VisualizationSettings } from '../../../../types/data_visualization'
 import { table } from 'console'
@@ -179,7 +179,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
   return (
     <>
       <BodyLarge text={description} />
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-16">
         <TablesAndVisualizations
           tables={tables}
           visualizations={visualizations}
@@ -232,25 +232,88 @@ const TablesAndVisualizations = ({
   // console.log(width)
 
   return (
-    <div>
+    <div className="grid gap-8">
       {tables.map((table) => {
         return (
           <div key={table.id} className="flex flex-col gap-4 mb-4">
             <Title4 text={table.title} margin="" />
-            <Table
-              {...table}
-              deletedRowCount={table.deletedRowCount}
-              readOnly={!!readOnly}
-              locale={locale}
-              handleDelete={handleDelete}
-              handleUndo={handleUndo}
-            />
+            <Minimizable>
+              <Table
+                {...table}
+                deletedRowCount={table.deletedRowCount}
+                readOnly={!!readOnly}
+                locale={locale}
+                handleDelete={handleDelete}
+                handleUndo={handleUndo}
+              />
+            </Minimizable>
           </div>
         )
       })}
     </div>
   )
 }
+
+const Minimizable = ({ children }: { children: ReactNode }): JSX.Element => {
+  const [isMinimized, setIsMinimized] = useState<boolean>(true)
+
+  const containerStyle = isMinimized ? `overflow-hidden h-48` : ``
+  const childStyle = isMinimized ? `scale-50 origin-top-left z-10 p-5` : ``
+  const toggleStyle = isMinimized
+    ? `absolute top-0 left-0 h-full w-1/2 z-20 bg-primary/0 hover:bg-primary/25 border-solid border-2 cursor-zoom-in`
+    : `w-min ml-auto cursor-zoom-out`
+  const iconStyle = isMinimized ? `rounded-tr-sm bg-primary` : `rounded-sm mb-2 bg-primary`
+
+  return (
+    <div className={`relative transition-all min-h-48 ${containerStyle}`}>
+      <div
+        className={`flex transition-all items-end justify-start rounded-sm border-primary z-0   ${toggleStyle}`}
+        onClick={() => setIsMinimized(!isMinimized)}
+      >
+        <div className={`relative font-caption text-xl px-4 py-1 backdrop-blur-[2px] text-white z-30 ${iconStyle}`}>
+          {isMinimized ? zoomInIcon : zoomOutIcon}
+        </div>
+      </div>
+      <div className={`relative transition-all ${childStyle}`}>{children}</div>
+    </div>
+  )
+}
+
+const zoomInIcon = (
+  <svg
+    className="h-8 w-8"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+    ></path>
+  </svg>
+)
+
+const zoomOutIcon = (
+  <svg
+    className="h-6 w-6"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"
+    ></path>
+  </svg>
+)
 
 interface Copy {
   description: string

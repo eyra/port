@@ -23,7 +23,7 @@ export interface TableContext {
 
 export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageSize = 7, locale, handleDelete, handleUndo }: Props): JSX.Element => {
   const [query, setQuery] = useState<string[]>([])
-  const [rows, setRows] = useState(filterRows(body.rows, query))
+  const [rows, setRows] = useState(body.rows)
   const [page, setPage] = useState<number>(0)
   const [pageRows, setPageRows] = useState<PropsUITableRow[]>(rows.slice(0, pageSize))
   const [adjust, setAdjust] = useState<boolean>(false)
@@ -38,9 +38,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   }, [body.rows, query])
 
   useEffect(() => {
-    const pageCount = Math.ceil(rows.length / pageSize)
-    const safePage = Math.min(page, pageCount - 1)
-    setPage(safePage)
+    setPage(safePage(page, rows.length, pageSize))
     setPageRows(rows.slice(page * pageSize, (page + 1) * pageSize))
     setSelected([])
   }, [rows, page, pageSize])
@@ -51,9 +49,11 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
     let visible = true
     if (element === 'search') visible = body.rows.length > pageSize
     if (element === 'undo') visible = deletedRowCount > 0
-    if (element === 'delete') visible = adjust  && body.rows.length > 0
+    if (element === 'delete') visible = adjust && body.rows.length > 0
     if (element === 'table') visible = rows.length > 0
-    if (element === 'adjust') visible = !readOnly
+    if (element === 'adjust') visible = !readOnly && body.rows.length > 0
+    if (element === 'footer') visible = body.rows.length > 0 || deletedRowCount > 0
+    if (element === 'pagination') visible = body.rows.length > pageSize
 
     const noData = body.rows.length === 0 && deletedRowCount === 0
     if (element === 'noData') visible = noData
@@ -194,13 +194,13 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   return (
     <>
       <div className="flex flex-row gap-4 items-center">
-        <div className={`flex flex-row items-center gap-2 mt-2 ${body.rows.length <= pageSize ? 'hidden' : ''} `}>
+        <div className={`flex flex-row items-center gap-2 mt-2 ${display('pagination')} `}>
           <BackIconButton onClick={handlePrevious} />
           <div>{renderPageIcons()}</div>
           <ForwardIconButton onClick={handleNext} />
         </div>
         <div className="flex-grow" />
-        <Caption text={copy.pages} color="text-grey2" margin="" />
+        {pageCount > 1 && <Caption text={copy.pages} color="text-grey2" margin="" />}
         <div className={`${display('search')}`}>
           <SearchBar placeholder={copy.searchPlaceholder} onSearch={handleSearch} />
         </div>
@@ -220,7 +220,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
       <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noResults')}`}>
         <Title3 text={copy.noResults} color="text-grey3" margin="" />
       </div>
-      <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
+      <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${display('footer')} `}>
         <div className={`flex flex-row gap-4 items-center ${display('adjust')}`}>
           <CheckBox id="edit" selected={adjust} onSelect={() => setAdjust(!adjust)} />
           <Label text={copy.edit} margin="mt-1px" />
@@ -253,13 +253,40 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   }
 }
 
-function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
-  if (query.length === 0) return rows
+// function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
+//   if (query.length === 0) return rows
 
+//   return rows.filter((row) => {
+//     const rowText = row.cells.map((cell) => cell.text).join(' ')
+//     return query.find((word) => !rowText.includes(word)) === undefined
+//   })
+// }
+
+function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
+  const regexes: RegExp[] = []
+  for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
+
+  console.log(regexes)
   return rows.filter((row) => {
-    const rowText = row.cells.map((cell) => cell.text).join(' ')
-    return query.find((word) => !rowText.includes(word)) === undefined
+    for (let regex of regexes) {
+      let anyCellMatches = false
+      for (let cell of row.cells) {
+        if (regex.test(cell.text)) {
+          anyCellMatches = true
+          break
+        }
+      }
+      if (!anyCellMatches) return false
+    }
+    return true
   })
+}
+
+function safePage(page: number, rowsCount: number, pageSize: number): number {
+  const pageCount = Math.ceil(rowsCount / pageSize)
+  const lastPage = Math.max(pageCount - 1, 0)
+  const safePage = Math.min(page, lastPage)
+  return safePage
 }
 
 function determinePageWindow(currentPage: number, pageCount: number): number[] {
