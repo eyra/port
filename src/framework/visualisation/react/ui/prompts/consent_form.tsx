@@ -237,16 +237,28 @@ const TablesAndVisualizations = ({
         return (
           <div key={table.id} className="flex flex-col gap-4 mb-4">
             <Title4 text={table.title} margin="" />
-            <Minimizable>
-              <Table
-                {...table}
-                deletedRowCount={table.deletedRowCount}
-                readOnly={!!readOnly}
-                locale={locale}
-                handleDelete={handleDelete}
-                handleUndo={handleUndo}
-              />
-            </Minimizable>
+            <div className="flex flex-wrap gap-4">
+              <Minimizable>
+                <Table
+                  {...table}
+                  deletedRowCount={table.deletedRowCount}
+                  readOnly={!!readOnly}
+                  locale={locale}
+                  handleDelete={handleDelete}
+                  handleUndo={handleUndo}
+                />
+              </Minimizable>
+              <Minimizable>
+                <Table
+                  {...table}
+                  deletedRowCount={table.deletedRowCount}
+                  readOnly={!!readOnly}
+                  locale={locale}
+                  handleDelete={handleDelete}
+                  handleUndo={handleUndo}
+                />
+              </Minimizable>
+            </div>
           </div>
         )
       })}
@@ -257,10 +269,10 @@ const TablesAndVisualizations = ({
 const Minimizable = ({ children }: { children: ReactNode }): JSX.Element => {
   const [isMinimized, setIsMinimized] = useState<boolean>(true)
 
-  const containerStyle = isMinimized ? `overflow-hidden h-48` : ``
-  const childStyle = isMinimized ? `scale-50 origin-top-left z-10 p-5` : ``
+  const containerStyle = isMinimized ? `overflow-hidden h-48 w-72` : `w-[100%]`
+  const childStyle = isMinimized ? `scale-50 origin-top-left z-10 p-5 w-[200%]` : ``
   const toggleStyle = isMinimized
-    ? `absolute top-0 left-0 h-full w-1/2 z-20 bg-primary/0 hover:bg-primary/25 border-solid border-2 cursor-zoom-in`
+    ? `absolute top-0 left-0 h-full w-full z-20 bg-primary/0 hover:bg-primary/25 border-solid border-2 cursor-zoom-in`
     : `w-min ml-auto cursor-zoom-out`
   const iconStyle = isMinimized ? `rounded-tr-sm bg-primary` : `rounded-sm mb-2 bg-primary`
 
@@ -281,7 +293,7 @@ const Minimizable = ({ children }: { children: ReactNode }): JSX.Element => {
 
 const zoomInIcon = (
   <svg
-    className="h-8 w-8"
+    className="h-6 w-6"
     fill="none"
     stroke="currentColor"
     stroke-width="1.5"
