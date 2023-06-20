@@ -40,9 +40,8 @@ interface State {
   visibility: Visibility
 }
 
-export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, onChange }: Props): JSX.Element => {
+export const Table = ({ id, head, body, editable, pageSize = 7, locale, onChange }: Props): JSX.Element => {
   const pageWindowLegSize = 3
-
   const query = React.useRef<string[]>([])
   const alteredRows = React.useRef<PropsUITableRow[]>(body.rows)
   const filteredRows = React.useRef<PropsUITableRow[]>(alteredRows.current)
@@ -410,6 +409,7 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
       <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noResults')}`}>
         <Title3 text={copy.noResults} color='text-grey3' margin='' />
       </div>
+      { editable &&
       <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
         <div className='flex flex-row gap-4 items-center'>
           <CheckBox id='edit' selected={state.edit} onSelect={handleEditToggle} />
@@ -424,6 +424,7 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
           <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
         </div>
       </div>
+      }
     </>
   )
 

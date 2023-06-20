@@ -89,10 +89,12 @@ class PropsUIPromptConsentFormTable:
         id: a unique string to itentify the table after donation
         title: title of the table
         data_frame: table to be shown
+        editable: determines whether the table has an editable mode that can be toggled with a button
     """
     id: str
     title: Translatable
     data_frame: pd.DataFrame
+    editable: bool = True
 
     def toDict(self):
         dict = {}
@@ -100,7 +102,9 @@ class PropsUIPromptConsentFormTable:
         dict["id"] = self.id
         dict["title"] = self.title.toDict()
         dict["data_frame"] = self.data_frame.to_json()
+        dict["editable"] = self.editable
         return dict
+
 
 @dataclass
 class PropsUIPromptConsentForm:
