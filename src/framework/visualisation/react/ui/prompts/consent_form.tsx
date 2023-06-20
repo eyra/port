@@ -1,5 +1,14 @@
 import { assert, Weak } from '../../../../helpers'
-import { PropsUITable, PropsUITableBody, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
+import {
+  PropsUITable,
+  PropsUITableBody,
+  PropsUITableCell,
+  PropsUITableHead,
+  PropsUITableRow,
+  TableContext,
+  VisualizationSettings,
+  Annotation
+} from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable, PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
 import { Table } from '../elements/table'
 import { LabelButton, PrimaryButton } from '../elements/button'
@@ -9,24 +18,10 @@ import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import _ from 'lodash'
-import { VisualizationSettings } from '../../../../types/data_visualization'
 import { table } from 'console'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
-
-interface TableContext {
-  title: string
-  deletedRowCount: number
-  annotations: Annotation[]
-  originalBody: PropsUITableBody
-}
-
 type Tables = Array<PropsUITable & TableContext>
-
-interface Annotation {
-  row_id: string
-  [key: string]: any
-}
 
 export const ConsentForm = (props: Props): JSX.Element => {
   const [tables, setTables] = useState<Tables>(parseTables(props.tables))
@@ -231,13 +226,23 @@ const TablesAndVisualizations = ({
 
   // console.log(width)
 
+  function renderVisualizations(tableId: string): JSX.Element[] {
+    const visualizationElements: JSX.Element[] = []
+    const tableVisualizations = visualizations.filter((visualization) => visualization.table_id === tableId)
+
+    for (let tableVisualization of tableVisualizations) {
+    }
+
+    return visualizationElements
+  }
+
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-8 max-w-full">
       {tables.map((table) => {
         return (
           <div key={table.id} className="flex flex-col gap-4 mb-4">
             <Title4 text={table.title} margin="" />
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap">
               <Minimizable>
                 <Table
                   {...table}
@@ -248,16 +253,7 @@ const TablesAndVisualizations = ({
                   handleUndo={handleUndo}
                 />
               </Minimizable>
-              <Minimizable>
-                <Table
-                  {...table}
-                  deletedRowCount={table.deletedRowCount}
-                  readOnly={!!readOnly}
-                  locale={locale}
-                  handleDelete={handleDelete}
-                  handleUndo={handleUndo}
-                />
-              </Minimizable>
+              {renderVisualizations(table.id)}
             </div>
           </div>
         )
@@ -269,7 +265,7 @@ const TablesAndVisualizations = ({
 const Minimizable = ({ children }: { children: ReactNode }): JSX.Element => {
   const [isMinimized, setIsMinimized] = useState<boolean>(true)
 
-  const containerStyle = isMinimized ? `overflow-hidden h-48 w-72` : `w-[100%]`
+  const containerStyle = isMinimized ? `overflow-hidden h-60 w-96` : ``
   const childStyle = isMinimized ? `scale-50 origin-top-left z-10 p-5 w-[200%]` : ``
   const toggleStyle = isMinimized
     ? `absolute top-0 left-0 h-full w-full z-20 bg-primary/0 hover:bg-primary/25 border-solid border-2 cursor-zoom-in`
@@ -277,9 +273,9 @@ const Minimizable = ({ children }: { children: ReactNode }): JSX.Element => {
   const iconStyle = isMinimized ? `rounded-tr-sm bg-primary` : `rounded-sm mb-2 bg-primary`
 
   return (
-    <div className={`relative transition-all min-h-48 ${containerStyle}`}>
+    <div className={`overflow-auto relative transition-all min-h-48 ${containerStyle}`}>
       <div
-        className={`flex transition-all items-end justify-start rounded-sm border-primary z-0   ${toggleStyle}`}
+        className={`flex transition-all items-end justify-start rounded-sm border-primary ${toggleStyle}`}
         onClick={() => setIsMinimized(!isMinimized)}
       >
         <div className={`relative font-caption text-xl px-4 py-1 backdrop-blur-[2px] text-white z-30 ${iconStyle}`}>
@@ -296,7 +292,7 @@ const zoomInIcon = (
     className="h-6 w-6"
     fill="none"
     stroke="currentColor"
-    stroke-width="1.5"
+    stroke-width="2"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
@@ -314,7 +310,7 @@ const zoomOutIcon = (
     className="h-6 w-6"
     fill="none"
     stroke="currentColor"
-    stroke-width="1.5"
+    stroke-width="2"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"

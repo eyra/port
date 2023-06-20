@@ -1,6 +1,5 @@
 import { isInstanceOf } from '../helpers'
-import { VisualizationSettings } from './data_visualization'
-import { PropsUIRadioItem, Text } from './elements'
+import { PropsUIRadioItem, Text, VisualizationSettings } from './elements'
 
 export type PropsUIPrompt = PropsUIPromptFileInput | PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptConfirm
 
@@ -59,9 +58,9 @@ export function isPropsUIPromptConsentFormTable(arg: any): arg is PropsUIPromptC
 
 export interface PropsUIPromptConsentFormVisualization {
   __type__: 'PropsUIPromptConsentFormVisualization'
-  id: string
+  table_id: string
   settings: VisualizationSettings[]
 }
 export function isPropsUIPromptConsentFormVisualization(arg: any): arg is PropsUIPromptConsentFormVisualization {
-  return isInstanceOf<PropsUIPromptConsentFormVisualization>(arg, 'PropsUIPromptConsentFormVisualization', ['id', 'settings'])
+  return isInstanceOf<PropsUIPromptConsentFormVisualization>(arg, 'PropsUIPromptConsentFormVisualization', ['table_id', 'settings'])
 }

@@ -7,8 +7,8 @@ interface PageProps {
 export const Page = (props: PageProps): JSX.Element => {
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex flex-row w-full gap-10 pt-20 pr-14">
-        <div className="flex-1 pl-14">{props.body}</div>
+      <div className="flex flex-row w-full pt-20 px-8 md:px-14">
+        <div className="flex-1">{props.body}</div>
         <div className="basis[w-sidebar] flex-shrink-0">{props.sidebar}</div>
       </div>
       <div className="flex-grow" />

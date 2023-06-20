@@ -193,7 +193,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
 
   return (
     <>
-      <div className="flex flex-row gap-4 items-center">
+      <div className="flex flex-row gap-4 items-center ">
         <div className={`flex flex-row items-center gap-2 mt-2 ${display('pagination')} `}>
           <BackIconButton onClick={handlePrevious} />
           <div>{renderPageIcons()}</div>
@@ -205,8 +205,8 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
           <SearchBar placeholder={copy.searchPlaceholder} onSearch={handleSearch} />
         </div>
       </div>
-      <div className={`flex flex-col gap-4 justify-center h-full ${display('table')}`}>
-        <table className="text-grey1 table-fixed divide-y divide-grey4">
+      <div className={`flex flex-col gap-4 justify-center h-full  ${display('table')}`}>
+        <table className="text-grey1 table-fixed divide-y divide-grey4 ">
           <thead>{renderHeadRow(head)}</thead>
           <tbody className="divide-y divide-grey4">{renderRows()}</tbody>
         </table>
