@@ -10,6 +10,7 @@ interface parentSetter {
 
 type Props = PropsUIQuestionMultipleChoiceCheckbox & parentSetter & ReactFactoryContext
 
+
 export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
   const { question, choices, id, parentSetter, locale } = props
   const [selectedChoices, setSelectedChoices] = React.useState<string[]>([]);
@@ -26,7 +27,6 @@ export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
   React.useEffect(() => {
       setParentState()
   })
-
 
   const handleChoiceSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;
@@ -77,4 +77,3 @@ interface Copy {
   choices: string[]
   question: string
 }
-

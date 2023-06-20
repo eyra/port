@@ -189,8 +189,14 @@ class PropsUIPromptRadioInput:
 
 @dataclass
 class PropsUIQuestionOpen:
-    """
-    NO DOCS YET
+    """Question: Open Question
+
+    This class can be used to ask an open question to a user. 
+    The user can type the answer in the a text field
+
+    Attributes:
+        id: Should be a unique ID to identify the question, example: "1"
+        question: The question that will be asked
     """
     id: int
     question: Translatable
@@ -205,8 +211,14 @@ class PropsUIQuestionOpen:
 
 @dataclass
 class PropsUIQuestionMultipleChoiceCheckbox:
-    """
-    NO DOCS YET
+    """Question: Multiple choice checkbox
+
+    This class can be used to ask an multiple choice question to a user. 
+    Multiple answers can be given
+
+    Attributes:
+        id: Should be a unique ID to identify the question, example: "1"
+        question: The question that will be asked
     """
     id: int
     question: Translatable
@@ -223,8 +235,14 @@ class PropsUIQuestionMultipleChoiceCheckbox:
 
 @dataclass
 class PropsUIQuestionMultipleChoice:
-    """
-    NO DOCS YET
+    """Question: Multiple choice
+
+    This class can be used to ask an multiple choice question to a user. 
+    Only one answer can be given
+
+    Attributes:
+        id: Should be a unique ID to identify the question, example: "1"
+        question: The question that will be asked
     """
     id: int
     question: Translatable
@@ -241,8 +259,19 @@ class PropsUIQuestionMultipleChoice:
 
 @dataclass
 class PropsUIPromptQuestionnaire:
-    """
-    NO DOCS YET
+    """A class to collection questions
+
+    This class can be used to assemble question in a questionnaire.
+    This class can be used as a body in PropsUIPageDonation
+
+    * All questions are optional 
+    * Results are returned to the script after the user clicks the continue button
+        The results will be in your_results.value, example: 
+        {"1": "answer 1", "2": ["answer 1", "answer 2"], "3": "open answer"}
+
+    Attributes:
+        description: Short descrition
+        questions: List of questions that need to be asked
     """
     description: Translatable
     questions: list[PropsUIQuestionMultipleChoice | PropsUIQuestionMultipleChoiceCheckbox | PropsUIQuestionOpen]
