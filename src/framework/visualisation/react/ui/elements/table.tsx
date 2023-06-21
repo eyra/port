@@ -253,20 +253,10 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   }
 }
 
-// function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
-//   if (query.length === 0) return rows
-
-//   return rows.filter((row) => {
-//     const rowText = row.cells.map((cell) => cell.text).join(' ')
-//     return query.find((word) => !rowText.includes(word)) === undefined
-//   })
-// }
-
 function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
   const regexes: RegExp[] = []
   for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
 
-  console.log(regexes)
   return rows.filter((row) => {
     for (let regex of regexes) {
       let anyCellMatches = false
