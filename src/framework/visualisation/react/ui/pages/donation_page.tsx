@@ -68,7 +68,9 @@ export const DonationPage = (props: Props): JSX.Element => {
   //    }
   //  />
   // )
-  const sidebar: JSX.Element = <></>
+  // COMMENT BY KASPER: MADE SIDEBAR OPTIONAL IN <Page /> COMPONENT,
+  // SO THAT IT DOESN'T AFFECT THE LAYOUT OF THE PAGE
+  //const sidebar: JSX.Element = <></>
 
   const body: JSX.Element = (
     <>
@@ -77,7 +79,7 @@ export const DonationPage = (props: Props): JSX.Element => {
     </>
   )
 
-  return <Page body={body} sidebar={sidebar} footer={footer} />
+  return <Page body={body} footer={footer} />
 }
 
 interface Copy {

@@ -1,14 +1,5 @@
 import { assert, Weak } from '../../../../helpers'
-import {
-  PropsUITable,
-  PropsUITableBody,
-  PropsUITableCell,
-  PropsUITableHead,
-  PropsUITableRow,
-  TableContext,
-  VisualizationSettings,
-  Annotation
-} from '../../../../types/elements'
+import { PropsUITable, PropsUITableBody, PropsUITableCell, PropsUITableHead, PropsUITableRow, TableContext } from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable, PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
 import { Table } from '../elements/table'
 import { LabelButton, PrimaryButton } from '../elements/button'
@@ -18,16 +9,32 @@ import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import _ from 'lodash'
-import { table } from 'console'
+import { AggregateRowIds, VisualizationType, VisualizationData } from '../../../../types/visualizations'
+import { Visualization } from '../elements/visualization'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 type Tables = Array<PropsUITable & TableContext>
+
+const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
+  {
+    __type__: 'PropsUIPromptConsentFormVisualization',
+    table_id: 'netflix_viewings',
+    visualization: {
+      type: 'line',
+      x: { column: 'Start Time', formatDate: 'auto' },
+      ys: [{ label: 'N', column: 'Duration' }]
+    }
+  }
+]
 
 export const ConsentForm = (props: Props): JSX.Element => {
   const [tables, setTables] = useState<Tables>(parseTables(props.tables))
   const [metaTables, setMetaTables] = useState<Tables>(parseTables(props.metaTables))
 
-  const { visualizations, locale, resolve } = props
+  //const { visualizationSettings, locale, resolve } = props
+  const { locale, resolve } = props
+  const visualizationSettings = testVisualizations
+
   const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
 
   useEffect(() => {
@@ -105,7 +112,6 @@ export const ConsentForm = (props: Props): JSX.Element => {
   }
 
   function parseTables(tablesData: PropsUIPromptConsentFormTable[]): Array<PropsUITable & TableContext> {
-    console.log('parseTables')
     return tablesData.map((table) => parseTable(table))
   }
 
@@ -177,7 +183,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
       <div className="flex flex-col gap-16">
         <TablesAndVisualizations
           tables={tables}
-          visualizations={visualizations}
+          visualizationSettings={visualizationSettings}
           locale={locale}
           handleDelete={handleDelete}
           handleUndo={handleUndo}
@@ -196,7 +202,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
 interface TablesAndVisualizationsProps {
   tables: Tables
-  visualizations: PropsUIPromptConsentFormVisualization[]
+  visualizationSettings: PropsUIPromptConsentFormVisualization[]
   locale: string
   handleDelete: (tableId: string, rowIds: string[]) => void
   handleUndo: (tableId: string) => void
@@ -205,44 +211,22 @@ interface TablesAndVisualizationsProps {
 
 const TablesAndVisualizations = ({
   tables,
-  visualizations,
+  visualizationSettings,
   locale,
   handleDelete,
   handleUndo,
   readOnly
 }: TablesAndVisualizationsProps): JSX.Element => {
-  // const containerRef = useRef<HTMLDivElement>(null)
+  const visualizationData = useVisualizationData(tables, visualizationSettings)
 
-  // const [width, setWidth] = useState<number>(0)
-
-  // useEffect(() => {
-  //   if (!containerRef.current) return
-  //   const el = containerRef.current
-  //   const updateWidth = () => el?.offsetWidth ?? setWidth(el.offsetWidth)
-  //   updateWidth()
-  //   el.addEventListener('resize', updateWidth)
-  //   return () => el.removeEventListener('resize', updateWidth)
-  // }, [containerRef])
-
-  // console.log(width)
-
-  function renderVisualizations(tableId: string): JSX.Element[] {
-    const visualizationElements: JSX.Element[] = []
-    const tableVisualizations = visualizations.filter((visualization) => visualization.table_id === tableId)
-
-    for (let tableVisualization of tableVisualizations) {
-    }
-
-    return visualizationElements
-  }
-
+  console.log(visualizationData)
   return (
     <div className="grid gap-8 max-w-full">
       {tables.map((table) => {
         return (
           <div key={table.id} className="flex flex-col gap-4 mb-4">
             <Title4 text={table.title} margin="" />
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap gap-4">
               <Minimizable>
                 <Table
                   {...table}
@@ -253,13 +237,163 @@ const TablesAndVisualizations = ({
                   handleUndo={handleUndo}
                 />
               </Minimizable>
-              {renderVisualizations(table.id)}
+              {visualizationData.map((visualization) => {
+                if (!visualization) return null
+                if (visualization.tableId !== table.id) return null
+                return (
+                  <Minimizable>
+                    <Visualization visualizationData={visualization} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+                  </Minimizable>
+                )
+              })}
             </div>
           </div>
         )
       })}
     </div>
   )
+}
+
+function useVisualizationData(tables: Tables, visualizationSettings: PropsUIPromptConsentFormVisualization[]): VisualizationData[] {
+  const [visualizationData, setVisualizationData] = useState<VisualizationData[]>([])
+  const previousTables = useRef<Record<string, PropsUITable & TableContext>>({})
+
+  useEffect(() => {
+    setVisualizationData([])
+  }, [visualizationSettings])
+
+  useEffect(() => {
+    setVisualizationData((visualizationData) => {
+      const newVisualizations = [...visualizationData]
+      for (let i = 0; i < visualizationSettings.length; i++) {
+        const vs = visualizationSettings[i]
+        const table = tables.find((table) => table.id === vs.table_id)
+        console.log(table)
+        if (!table) continue
+        if (vs == null && previousTables.current[table.id] === table) continue
+        newVisualizations[i] = aggregateTableColumns(table, vs)
+        previousTables.current[table.id] = table
+      }
+      return newVisualizations
+    })
+  }, [tables, visualizationSettings, previousTables])
+
+  return visualizationData
+}
+
+function aggregateTableColumns(table: PropsUITable & TableContext, visualizationSettings: PropsUIPromptConsentFormVisualization): VisualizationData {
+  const visualization: VisualizationType = visualizationSettings.visualization
+  const visualizationData: VisualizationData = {
+    type: visualization.type,
+    tableId: table.id,
+    position: visualizationSettings.position || 'table',
+    xKey: { label: visualization.x.label || visualization.x.column },
+    yKeys: {},
+    data: []
+  }
+
+  // First get the unique values of the x column
+  const rowIds = table.body.rows.map((row) => row.id)
+  const x = getTableColumn(table, visualization.x.column)
+  if (!x || x.length === 0) return visualizationData
+
+  const aggregate: Record<string, any> = {}
+
+  // ADD CODE TO TRANSFORM TO DATE, BUT THEN ALSO KEEP AN INDEX BASED ON THE DATE ORDER
+  //for (let i = 0; i < x.length; i++) aggregate[x[i]] = { __rowIds: {} }
+
+  // Get and (if needed) aggregate values from y columns
+  for (let y of visualization.ys) {
+    const aggFun = y.aggregate || 'count'
+    const yValues = getTableColumn(table, y.column)
+    if (!yValues) return visualizationData
+
+    // If group_by column is specified, the columns in the aggregated data will be the unique group_by columns
+    const yGroup = y.group_by ? getTableColumn(table, y.group_by) : null
+    // If the number of observations is required for aggregation, we need to count them per group first
+    const groupN: Record<string, number> = {}
+    if (aggFun === 'count_pct' || aggFun === 'mean') {
+      for (let i = 0; i < x.length; i++) {
+        const group = yGroup ? yGroup[i] : y.label || y.column
+        if (!groupN[group]) groupN[group] = 0
+        groupN[group] += 1
+      }
+    }
+
+    for (let i = 0; i < x.length; i++) {
+      const value = yValues[i]
+      const group = yGroup ? yGroup[i] : y.label || y.column
+      const n = groupN[group] || 1
+
+      // add the AxisSettings for the yKeys in this loop, because we need to get the unique group values from the data (if group_by is used)
+      if (!visualizationData.yKeys[group]) visualizationData.yKeys[group] = { label: group, secondAxis: y.secondAxis }
+
+      if (!aggregate[x[i]]) aggregate[x[i]] = { __rowIds: {} }
+      if (!aggregate[x[i]].__rowIds[group]) aggregate[x[i]].__rowIds[group] = []
+      aggregate[x[i]].__rowIds[group].push(rowIds[i])
+
+      if (!aggregate[x[i]][group]) aggregate[x[i]][group] = 0
+      if (aggFun === 'count') aggregate[x[i]][group] += 1
+      if (aggFun === 'count_pct') aggregate[x[i]][group] += 1 / n
+      if (aggFun === 'sum') aggregate[x[i]][group] += Number(value) || 0
+      if (aggFun === 'mean') aggregate[x[i]][group] += (Number(value) || 0) / n
+    }
+  }
+
+  visualizationData.data = Object.keys(aggregate).map((x) => {
+    return { [visualizationData.xKey.label]: x, ...aggregate[x] }
+  })
+
+  return visualizationData
+}
+
+type DateFormat =
+  | 'auto'
+  | 'year'
+  | 'month'
+  | 'day'
+  | 'hour'
+  | 'minute'
+  | 'second'
+  | 'month_cycle'
+  | 'weekday_cycle'
+  | 'day_cycle'
+  | 'hour_cycle'
+  | 'minute_cycle'
+  | 'second_cycle'
+
+function formatDate(dateString: string[], format: DateFormat, maxValues: number): string[] {
+  let formattedDate: string[] = dateString
+
+  const dateNumbers = dateString.map((date) => new Date(date).getTime())
+  const minTime = Math.min(...dateNumbers)
+  const maxTime = Math.max(...dateNumbers)
+  // const minTime = minDate.getTime()
+  // const maxTime = maxDate.getTime()
+
+  if (format === 'auto') {
+    if (maxTime - minTime > 1000 * 60 * 60 * 24 * 365 * maxValues) format = 'year'
+    else if (maxTime - minTime > 1000 * 60 * 60 * 24 * 30 * maxValues) format = 'month'
+    else if (maxTime - minTime > 1000 * 60 * 60 * 24 * maxValues) format = 'day'
+    else if (maxTime - minTime > 1000 * 60 * 60 * maxValues) format = 'hour'
+    else if (maxTime - minTime > 1000 * 60 * maxValues) format = 'minute'
+    else if (maxTime - minTime > 1000 * maxValues) format = 'second'
+  }
+  if (format === 'year') formattedDate = dateNumbers.map((date) => new Date(date).getFullYear().toString())
+  if (format === 'month')
+    formattedDate = dateNumbers.map(
+      (date) => new Date(date).getFullYear().toString() + '-' + new Date(date).toLocaleString('default', { month: 'short' })
+    )
+  if (format === 'day') formattedDate = dateNumbers.map((date) => new Date(date).toLocaleDateString('default'))
+
+  return formattedDate
+}
+
+function getTableColumn(table: PropsUITable & TableContext, column: string): string[] | undefined {
+  const columnIndex = table.head.cells.findIndex((cell) => cell.text === column)
+  if (columnIndex >= 0) return table.body.rows.map((row) => row.cells[columnIndex].text)
+  console.error(`Table column ${table.id}.${column} not found`)
+  return undefined
 }
 
 const Minimizable = ({ children }: { children: ReactNode }): JSX.Element => {

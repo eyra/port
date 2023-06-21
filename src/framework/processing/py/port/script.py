@@ -153,10 +153,12 @@ def create_consent_form_tables(unique_table_id: str, title: props.Translatable, 
     """
     This function chunks extracted data into tables of 5000 rows that can be renderd on screen
 
-    COMMENT: is chunking necessary? I don't think it matters how many rows a table has as long as UI doesn't render it all at once
+    COMMENT KASPER: is chunking necessary? I don't think it matters how many rows a table has as long as UI doesn't render it all at once.
+    I removed it for now, because it also complicates linking visualizations to tables
     """
 
-    df_list = helpers.split_dataframe(df, 5000)
+    #df_list = helpers.split_dataframe(df, 5000)
+    df_list = [df]
     out = []
 
     if len(df_list) == 1:
