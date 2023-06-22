@@ -1,9 +1,9 @@
 import _, { get } from 'lodash'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Weak } from '../../../../helpers'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
-import { PropsUITable, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
+import { PropsUITable, PropsUITableCell, PropsUITableHead, PropsUITableRow, TableContext } from '../../../../types/elements'
 import { ReactFactoryContext } from '../../factory'
 import { BackIconButton, ForwardIconButton, IconLabelButton } from './button'
 import { CheckBox } from './check_box'
@@ -13,35 +13,32 @@ import UndoSvg from '../../../../../assets/images/undo.svg'
 import DeleteSvg from '../../../../../assets/images/delete.svg'
 import { PageIcon } from './page_icon'
 
-type Props = Weak<PropsUITable> & TableContext & ReactFactoryContext
+type Props = Weak<PropsUITable> & TableContext & TableProps & ReactFactoryContext
 
-export interface TableContext {
-  deletedRowCount: number
+export interface TableProps {
   handleDelete: (tableId: string, rowIds: string[]) => void
   handleUndo: (tableId: string) => void
 }
 
 export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageSize = 7, locale, handleDelete, handleUndo }: Props): JSX.Element => {
   const [query, setQuery] = useState<string[]>([])
-  const [rows, setRows] = useState(body.rows)
   const [page, setPage] = useState<number>(0)
-  const [pageRows, setPageRows] = useState<PropsUITableRow[]>(rows.slice(0, pageSize))
   const [adjust, setAdjust] = useState<boolean>(false)
   const [selected, setSelected] = useState<string[]>([])
+
+  const rows = useMemo(() => filterRows(body.rows, query), [body.rows, query])
+  const spage = safePage(page, rows.length, pageSize)
+  if (page !== spage) goToPage(page)
+  const pageRows = useMemo(() => rows.slice(page * pageSize, (page + 1) * pageSize), [rows, page, pageSize])
 
   const pageCount = Math.ceil(rows.length / pageSize)
   const pageWindow = determinePageWindow(page, pageCount)
 
-  useEffect(() => {
-    setRows(filterRows(body.rows, query))
-    setSelected([])
-  }, [body.rows, query])
-
-  useEffect(() => {
-    setPage(safePage(page, rows.length, pageSize))
-    setPageRows(rows.slice(page * pageSize, (page + 1) * pageSize))
-    setSelected([])
-  }, [rows, page, pageSize])
+  function goToPage(page: number): void {
+    page = safePage(page, rows.length, pageSize)
+    setPage(page)
+    setSelected((selected) => (selected.length > 0 ? [] : selected))
+  }
 
   const copy = prepareCopy(locale)
 
@@ -150,7 +147,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   }
 
   function renderPageIcon(index: number): JSX.Element {
-    return <PageIcon key={`page-${index}`} index={index + 1} selected={page === index} onClick={() => setPage(index)} />
+    return <PageIcon key={`page-${index}`} index={index + 1} selected={page === index} onClick={() => goToPage(index)} />
   }
 
   function handleSelectHead(): void {
@@ -179,20 +176,25 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   }
 
   function handlePrevious(): void {
-    setPage((page) => (page <= 0 ? pageCount - 1 : page - 1))
+    goToPage(page - 1)
   }
 
   function handleNext(): void {
-    setPage((page) => (page >= pageCount - 1 ? 0 : page + 1))
+    goToPage(page + 1)
   }
 
   function handleSearch(query: string[]) {
     setQuery(query)
-    setPage(0)
+    goToPage(0)
+  }
+
+  function onDelete(): void {
+    handleDelete(id, selected)
+    setSelected([])
   }
 
   return (
-    <>
+    <div>
       <div className="flex flex-row gap-4 items-center ">
         <div className={`flex flex-row items-center gap-2 mt-2 ${display('pagination')} `}>
           <BackIconButton onClick={handlePrevious} />
@@ -226,7 +228,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
           <Label text={copy.edit} margin="mt-1px" />
         </div>
         <div className={`${display('delete')} mt-1px`}>
-          <IconLabelButton label={copy.delete} color="text-delete" icon={DeleteSvg} onClick={() => handleDelete(id, selected)} />
+          <IconLabelButton label={copy.delete} color="text-delete" icon={DeleteSvg} onClick={onDelete} />
         </div>
         <div className="flex-grow" />
         <Label text={copy.deleted} />
@@ -234,7 +236,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
           <IconLabelButton label={copy.undo} color="text-primary" icon={UndoSvg} onClick={() => handleUndo(id)} />
         </div>
       </div>
-    </>
+    </div>
   )
 
   function prepareCopy(locale: string): Copy {
@@ -254,6 +256,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
 }
 
 function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
+  if (query.length === 0) return rows
   const regexes: RegExp[] = []
   for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
 

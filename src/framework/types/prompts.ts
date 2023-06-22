@@ -59,10 +59,20 @@ export function isPropsUIPromptConsentFormTable(arg: any): arg is PropsUIPromptC
 
 export interface PropsUIPromptConsentFormVisualization {
   __type__: 'PropsUIPromptConsentFormVisualization'
-  position?: 'top' | 'bottom' | 'table'
+  id: string
+  title: Text
   table_id: string
   visualization: VisualizationType
+  position?: 'top' | 'bottom' | 'table'
+  height?: number
 }
 export function isPropsUIPromptConsentFormVisualization(arg: any): arg is PropsUIPromptConsentFormVisualization {
-  return isInstanceOf<PropsUIPromptConsentFormVisualization>(arg, 'PropsUIPromptConsentFormVisualization', ['position', 'table_id', 'visualization'])
+  return isInstanceOf<PropsUIPromptConsentFormVisualization>(arg, 'PropsUIPromptConsentFormVisualization', [
+    'id',
+    'title',
+    'table_id',
+    'visualization',
+    'position',
+    'height'
+  ])
 }

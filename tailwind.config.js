@@ -159,7 +159,18 @@ module.exports = {
         header1: '376px',
         form: '400px',
         mailto: '128px'
-      }
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease-in-out'
+      },
+
+      // that is actual animation
+      keyframes: (theme) => ({
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 }
+        }
+      })
     }
   },
   variants: {

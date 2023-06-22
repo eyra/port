@@ -400,22 +400,11 @@ export interface TableContext {
   originalBody: PropsUITableBody
 }
 
+export type TableWithContext = TableContext & PropsUITable
+
 export interface Annotation {
   row_id: string
   [key: string]: any
-}
-
-// VISUALIZATION
-
-export interface VisualizationSettings {
-  type: 'keyword_frequency' | 'word_frequency' | 'something_else'
-  keyword?: string
-}
-
-export interface PropsUIDataVisualization {
-  __type__: 'PropsUIDataVisualization'
-  id: string
-  settings: VisualizationSettings
 }
 
 // SEARCH BAR
