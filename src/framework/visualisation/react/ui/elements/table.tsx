@@ -278,7 +278,7 @@ function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[]
 function safePage(page: number, rowsCount: number, pageSize: number): number {
   const pageCount = Math.ceil(rowsCount / pageSize)
   const lastPage = Math.max(pageCount - 1, 0)
-  const safePage = Math.min(page, lastPage)
+  const safePage = Math.min(Math.max(page, 0), lastPage)
   return safePage
 }
 

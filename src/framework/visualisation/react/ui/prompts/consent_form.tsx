@@ -100,7 +100,6 @@ export const ConsentForm = (props: Props): JSX.Element => {
         const rows = table.body.rows.filter((row) => !rowIds.includes(row.id))
         const deletedRowCount = table.originalBody.rows.length - rows.length
         newTables[index] = { ...table, body: { ...table.body, rows }, deletedRowCount }
-        console.log('setstate')
         return newTables
       })
     },
@@ -256,7 +255,6 @@ interface TablesAndVisualizationsProps {
 }
 
 const TablesAndVisualizations = ({ tables, visualizationSettings, locale, handleDelete, handleUndo }: TablesAndVisualizationsProps): JSX.Element => {
-  console.log('render TablesAndVisualizations')
   return (
     <div className="grid gap-8 max-w-full">
       {tables.map((table) => {

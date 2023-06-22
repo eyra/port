@@ -8,11 +8,14 @@ import { VisualizationData, AxisSettings } from '../../../../types/visualization
 import React, { useMemo } from 'react'
 
 import { ReactFactoryContext } from '../../factory'
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, AreaChart, Area } from 'recharts'
-import { Spinner } from './spinner'
-import { set } from 'lodash'
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, AreaChart, Area } from 'recharts'
+
 import useVisualizationData from '../hooks/useVisualizationData'
 import { Title6 } from './text'
+
+import Lottie from 'lottie-react'
+import spinnerLight from '../../../../../assets/lottie/spinner-light.json'
+import spinnerDark from '../../../../../assets/lottie/spinner-dark.json'
 
 type Props = VisualizationProps & ReactFactoryContext
 
@@ -33,7 +36,13 @@ export const Figure = ({ table, visualizationSettings, locale, handleDelete, han
   }, [visualizationSettings])
 
   const { errorMsg } = prepareCopy(locale)
-  if (status === 'loading') return <Spinner />
+
+  if (status === 'loading')
+    return (
+      <div className={`w-12 h-12`}>
+        <Lottie animationData={spinnerDark} loop />
+      </div>
+    )
   if (status === 'error') return <div className="flex justify-center items-center text-error">{errorMsg}</div>
 
   const minHeight = visualizationSettings.height ? visualizationSettings.height + 'px' : `20rem`
