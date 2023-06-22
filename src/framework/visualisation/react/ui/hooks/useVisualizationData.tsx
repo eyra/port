@@ -16,6 +16,7 @@ export default function useVisualizationData(table: TableWithContext, visualizat
         setVisualizationData(visualizationData)
       })
       .catch((e) => {
+        console.error(e)
         setStatus('error')
         setVisualizationData(undefined)
       })
@@ -82,7 +83,7 @@ async function createVisualizationData(table: PropsUITable & TableContext, visua
 
       if (!aggregate[xValue][group]) aggregate[xValue][group] = 0
       if (aggFun === 'count') aggregate[xValue][group] += 1
-      if (aggFun === 'count_pct') aggregate[xValue][group] += 1 / n
+      if (aggFun === 'count_pct') aggregate[xValue][group] += 100 / n
       if (aggFun === 'sum') aggregate[xValue][group] += Number(yValue) || 0
       if (aggFun === 'mean') aggregate[xValue][group] += (Number(yValue) || 0) / n
     }
@@ -107,6 +108,7 @@ function autoFormatDate(dateNumbers: number[], minValues: number): DateFormat {
   let autoFormat: DateFormat = 'hour'
   if (maxTime - minTime > 1000 * 60 * 60 * 24 * minValues) autoFormat = 'day'
   if (maxTime - minTime > 1000 * 60 * 60 * 24 * 30 * minValues) autoFormat = 'month'
+  if (maxTime - minTime > 1000 * 60 * 60 * 24 * 30 * 3 * minValues) autoFormat = 'quarter'
   if (maxTime - minTime > 1000 * 60 * 60 * 24 * 365 * minValues) autoFormat = 'year'
 
   return autoFormat
@@ -120,6 +122,14 @@ function formatDate(dateString: string[], format: DateFormat, minValues: number 
 
   if (format === 'year') {
     formattedDate = dateNumbers.map((date) => new Date(date).getFullYear().toString())
+    return [formattedDate, dateNumbers]
+  }
+  if (format === 'quarter') {
+    formattedDate = dateNumbers.map((date) => {
+      const year = new Date(date).getFullYear().toString()
+      const quarter = Math.floor(new Date(date).getMonth() / 3) + 1
+      return year + '-Q' + quarter
+    })
     return [formattedDate, dateNumbers]
   }
   if (format === 'month') {

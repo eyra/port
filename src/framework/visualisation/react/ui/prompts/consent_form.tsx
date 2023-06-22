@@ -28,15 +28,46 @@ type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
   {
     __type__: 'PropsUIPromptConsentFormVisualization',
-    id: 'netflix_viewings_figure',
+    id: 'netflix_viewings_area',
     position: 'table',
     table_id: 'netflix_viewings',
     title: new TextBundle().add('en', 'Number of viewings over time').add('nl', 'Aantal gezien over tijd'),
     visualization: {
-      type: 'line',
+      type: 'area',
       x: { column: 'Start Time' },
-      ys: [{ label: 'N', column: 'Duration', group_by: 'Device', addZeroes: true }],
+      ys: [{ label: 'N', column: 'Duration', addZeroes: true }],
       dateFormat: 'auto'
+    }
+  },
+  {
+    __type__: 'PropsUIPromptConsentFormVisualization',
+    id: 'netflix_viewings_bar',
+    position: 'table',
+    table_id: 'netflix_viewings',
+    title: new TextBundle().add('en', 'Viewings by hour of the day').add('nl', 'Aantal gezien per uur van de dag'),
+    visualization: {
+      type: 'bar',
+      x: { column: 'Start Time' },
+      ys: [{ label: 'N', column: 'Start Time', addZeroes: true, aggregate: 'count_pct' }],
+      dateFormat: 'hour_cycle'
+    }
+  },
+  {
+    __type__: 'PropsUIPromptConsentFormVisualization',
+    id: 'netflix_playback_line',
+    position: 'table',
+    table_id: 'netflix_playback',
+    title: new TextBundle().add('en', 'Viewings by hour of the day').add('nl', 'Aantal gezien per uur van de dag'),
+    visualization: {
+      type: 'line',
+      x: { column: 'Date time' },
+      ys: [
+        { label: 'Start', column: 'start', addZeroes: true, aggregate: 'sum' },
+        { label: 'Playing', column: 'playing', addZeroes: true, aggregate: 'sum' },
+        { label: 'Stopped', column: 'stopped', addZeroes: true, aggregate: 'sum' },
+        { label: 'Paused', column: 'paused', addZeroes: true, aggregate: 'sum' }
+      ],
+      dateFormat: 'hour_cycle'
     }
   }
 ]

@@ -18,6 +18,7 @@ export interface VisualizationInput {
   x: Axis
   ys: YAxis[]
   dateFormat?: DateFormat
+  height?: number
 }
 
 export interface VisualizationLineChart extends VisualizationInput {
@@ -26,6 +27,10 @@ export interface VisualizationLineChart extends VisualizationInput {
 
 export interface VisualizationBarChart extends VisualizationInput {
   type: 'bar'
+}
+
+export interface VisualizationAreaChart extends VisualizationInput {
+  type: 'area'
 }
 
 export type AggregateRowIds = Record<string, string[]>
@@ -38,12 +43,12 @@ export interface AxisSettings {
 export type AggregatedData = Record<string, string | AggregateRowIds>[]
 
 export interface VisualizationData {
-  type: 'line' | 'bar'
+  type: 'line' | 'bar' | 'area'
   data: AggregatedData
   xKey: AxisSettings
   yKeys: Record<string, AxisSettings>
 }
 
-export type VisualizationType = VisualizationLineChart | VisualizationBarChart
+export type VisualizationType = VisualizationLineChart | VisualizationBarChart | VisualizationAreaChart
 
-export type DateFormat = 'auto' | 'year' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'day_cycle' | 'hour_cycle'
+export type DateFormat = 'auto' | 'year' | 'quarter' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'day_cycle' | 'hour_cycle'
