@@ -36,7 +36,7 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
       type: 'area',
       x: { column: 'Start Time' },
       ys: [{ label: 'N', column: 'Duration', addZeroes: true }],
-      dateFormat: 'auto'
+      dateFormat: 'quarter'
     }
   },
   {
@@ -74,8 +74,17 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
 
 export const ConsentForm = (props: Props): JSX.Element => {
   useUnloadWarning()
-  const [tables, setTables] = useState<TableWithContext[]>(parseTables(props.tables))
-  const [metaTables, setMetaTables] = useState<TableWithContext[]>(parseTables(props.metaTables))
+  const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
+  const [metaTables, setMetaTables] = useState<TableWithContext[]>(() => parseTables(props.metaTables))
+
+  // const [dummy, setDummy] = useState(0)
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setDummy((dummy) => dummy + 1)
+  //   }, 1000)
+  //   return () => clearInterval(interval)
+  // })
+  //console.log(dummy)
 
   //const { visualizationSettings, locale, resolve } = props
   const { locale, resolve } = props
