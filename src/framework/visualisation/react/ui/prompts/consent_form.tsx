@@ -68,6 +68,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   function parseTable (tableData: PropsUIPromptConsentFormTable): (PropsUITable & TableContext) {
     const id = tableData.id
+    const editable = tableData.editable
     const title = Translator.translate(tableData.title, props.locale)
     const deletedRowCount = 0
     const dataFrame = JSON.parse(tableData.data_frame)
@@ -75,14 +76,14 @@ export const ConsentForm = (props: Props): JSX.Element => {
     const head: PropsUITableHead = { __type__: 'PropsUITableHead', cells: headCells }
     const body: PropsUITableBody = { __type__: 'PropsUITableBody', rows: rows(dataFrame) }
 
-    return { __type__: 'PropsUITable', id, head, body, title, deletedRowCount }
+    return { __type__: 'PropsUITable', id, head, body, title, deletedRowCount, editable }
   }
 
-  function renderTable (table: (Weak<PropsUITable> & TableContext), readOnly = false): JSX.Element {
+  function renderTable (table: (Weak<PropsUITable> & TableContext)): JSX.Element {
     return (
       <div key={table.id} className='flex flex-col gap-4 mb-4'>
         <Title4 text={table.title} margin='' />
-        <Table {...table} readOnly={readOnly} locale={locale} onChange={handleTableChange} />
+        <Table {...table} locale={locale} onChange={handleTableChange} />
       </div>
     )
   }
@@ -91,10 +92,10 @@ export const ConsentForm = (props: Props): JSX.Element => {
     const tablesCopy = tablesOut.current.slice(0)
     const index = tablesCopy.findIndex(table => table.id === id)
     if (index > -1) {
-      const { title, head, body: oldBody, deletedRowCount: oldDeletedRowCount } = tablesCopy[index]
+      const { title, head, body: oldBody, deletedRowCount: oldDeletedRowCount, editable } = tablesCopy[index]
       const body: PropsUITableBody = { __type__: 'PropsUITableBody', rows }
       const deletedRowCount = oldDeletedRowCount + (oldBody.rows.length - rows.length)
-      tablesCopy[index] = { __type__: 'PropsUITable', id, head, body, title, deletedRowCount }
+      tablesCopy[index] = { __type__: 'PropsUITable', id, head, body, title, deletedRowCount, editable }
     }
     tablesOut.current = tablesCopy
   }
