@@ -28,7 +28,7 @@
     "prod:build:ts": "tsc -d --project tsconfig.prod.json",
     "prod:cp:assets": "cp -R ./src/assets ./dist",
     "prod:cp:py": "cp -R src/framework/processing/py/dist/. ./dist",
-    "prod": "run-s dev:fix:ts dev:build:py prod:build:ts prod:build:css prod:cp:py prod:cp:assets",
+    "prod": "./scripts/update_version_number.sh; run-s dev:fix:ts dev:build:py prod:build:ts prod:build:css prod:cp:py prod:cp:assets",
     "ci:fix": "run-s dev:fix:ts",
     "ci:test": "CI=true react-scripts test",
     "watch": "npm run dev:start & nodemon --ext py --exec \"npm run dev:build:py && npm run dev:install:py\""

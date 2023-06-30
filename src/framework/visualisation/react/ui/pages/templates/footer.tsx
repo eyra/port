@@ -15,6 +15,7 @@ function footerLinks (): JSX.Element {
 }
 
 export const Footer = ({ left = footerLinks(), middle, right }: FooterProps): JSX.Element => {
+  const versionNumber = 'version: U09TE'
   return (
     <>
       <div className='bg-grey4 h-px' />
@@ -29,6 +30,7 @@ export const Footer = ({ left = footerLinks(), middle, right }: FooterProps): JS
           <div className='w-1/3'>
             {right}
           </div>
+          <div className='text-[1px] text-white cursor-default'>{versionNumber}</div>
         </div>
       </div>
     </>
