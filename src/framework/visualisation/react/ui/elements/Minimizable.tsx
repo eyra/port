@@ -11,17 +11,17 @@ export const Minimizable = ({ children }: Props): JSX.Element => {
   const childStyle = isMinimized ? `scale-50 origin-top-left z-10 p-5 w-[200%] ` : `transition-all`
   const toggleStyle = isMinimized
     ? `transition-all absolute top-0 left-0 h-full w-full z-20 bg-primary/0 hover:bg-primary/25 border-solid border-2 cursor-zoom-in`
-    : `w-min ml-auto cursor-zoom-out`
+    : `w-min mr-auto mt-2 cursor-zoom-out`
   const iconStyle = isMinimized ? `rounded-tr-sm bg-primary` : `rounded-sm mb-2 bg-primary`
 
   return (
     <div className={`overflow-auto relative min-h-[15rem] min-w-[24rem] ${containerStyle}`}>
+      <div className={`relative  ${childStyle}`}>{children}</div>
       <div className={`flex items-end justify-start rounded-sm border-primary ${toggleStyle}`} onClick={() => setIsMinimized(!isMinimized)}>
         <div className={`relative font-caption text-xl px-4 py-1 backdrop-blur-[2px] text-white z-30 ${iconStyle}`}>
           {isMinimized ? zoomInIcon : zoomOutIcon}
         </div>
       </div>
-      <div className={`relative  ${childStyle}`}>{children}</div>
     </div>
   )
 }

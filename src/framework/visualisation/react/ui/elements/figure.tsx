@@ -23,8 +23,8 @@ export interface VisualizationProps {
   table: TableWithContext
   visualizationSettings: PropsUIPromptConsentFormVisualization
   locale: string
-  handleDelete: (tableId: string, rowIds: string[]) => void
-  handleUndo: (tableId: string) => void
+  handleDelete: (rowIds: string[]) => void
+  handleUndo: () => void
 }
 
 export const Figure = ({ table, visualizationSettings, locale, handleDelete, handleUndo }: Props): JSX.Element => {
@@ -136,7 +136,7 @@ const RenderVisualization = ({ visualizationData }: RenderVisualizationProps): J
   if (visualizationData.type === 'area') {
     chart = (
       <AreaChart data={visualizationData.data}>
-        {axes(0)}
+        {axes(20)}
         {tooltip()}
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {

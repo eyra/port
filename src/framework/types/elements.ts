@@ -398,6 +398,7 @@ export interface TableContext {
   deletedRowCount: number
   annotations: Annotation[]
   originalBody: PropsUITableBody
+  deletedRows: string[][]
 }
 
 export type TableWithContext = TableContext & PropsUITable

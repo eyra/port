@@ -6,7 +6,8 @@ import {
   PropsUITableHead,
   PropsUITableRow,
   TableWithContext,
-  TableContext
+  TableContext,
+  isPropsUITableRow
 } from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable, PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
 import { LabelButton, PrimaryButton } from '../elements/button'
@@ -14,7 +15,7 @@ import { BodyLarge, Title4 } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
-import React, { ReactNode, useCallback, useEffect, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import _ from 'lodash'
 
 import { Table } from '../elements/table'
@@ -22,6 +23,7 @@ import { Figure } from '../elements/figure'
 
 import { Minimizable } from '../elements/Minimizable'
 import useUnloadWarning from '../hooks/useUnloadWarning'
+import { SearchBar } from '../elements/search_bar'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 
@@ -29,20 +31,18 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
   {
     __type__: 'PropsUIPromptConsentFormVisualization',
     id: 'netflix_viewings_area',
-    position: 'table',
     table_id: 'netflix_viewings',
     title: new TextBundle().add('en', 'Number of viewings over time').add('nl', 'Aantal gezien over tijd'),
     visualization: {
       type: 'area',
       x: { column: 'Start Time' },
       ys: [{ label: 'N', column: 'Duration', addZeroes: true }],
-      dateFormat: 'quarter'
+      dateFormat: 'auto'
     }
   },
   {
     __type__: 'PropsUIPromptConsentFormVisualization',
     id: 'netflix_viewings_bar',
-    position: 'table',
     table_id: 'netflix_viewings',
     title: new TextBundle().add('en', 'Viewings by hour of the day').add('nl', 'Aantal gezien per uur van de dag'),
     visualization: {
@@ -55,7 +55,6 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
   {
     __type__: 'PropsUIPromptConsentFormVisualization',
     id: 'netflix_playback_line',
-    position: 'table',
     table_id: 'netflix_playback',
     title: new TextBundle().add('en', 'Viewings by hour of the day').add('nl', 'Aantal gezien per uur van de dag'),
     visualization: {
@@ -77,15 +76,6 @@ export const ConsentForm = (props: Props): JSX.Element => {
   const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
   const [metaTables, setMetaTables] = useState<TableWithContext[]>(() => parseTables(props.metaTables))
 
-  // const [dummy, setDummy] = useState(0)
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setDummy((dummy) => dummy + 1)
-  //   }, 1000)
-  //   return () => clearInterval(interval)
-  // })
-  //console.log(dummy)
-
   //const { visualizationSettings, locale, resolve } = props
   const { locale, resolve } = props
   const visualizationSettings = testVisualizations
@@ -97,38 +87,16 @@ export const ConsentForm = (props: Props): JSX.Element => {
     setMetaTables(parseTables(props.metaTables))
   }, [props.tables])
 
-  const handleDelete = useCallback(
-    (tableId: string, rowIds: string[]): void => {
-      if (rowIds.length === 0) return
-      setTables((tables) => {
-        const index = tables.findIndex((table) => table.id === tableId)
-        if (index === -1) return tables
+  const updateTable = useCallback((tableId: string, table: TableWithContext) => {
+    setTables((tables) => {
+      const index = tables.findIndex((table) => table.id === tableId)
+      if (index === -1) return tables
 
-        const newTables = [...tables]
-        const table = newTables[index]
-        const rows = table.body.rows.filter((row) => !rowIds.includes(row.id))
-        const deletedRowCount = table.originalBody.rows.length - rows.length
-        newTables[index] = { ...table, body: { ...table.body, rows }, deletedRowCount }
-        return newTables
-      })
-    },
-    [setTables]
-  )
-
-  const handleUndo = useCallback(
-    (tableId: string) => {
-      setTables((tables) => {
-        const index = tables.findIndex((table) => table.id === tableId)
-        if (index === -1) return tables
-
-        const newTables = [...tables]
-        newTables[index] = parseTable(props.tables[index])
-        newTables[index].annotations = tables[index].annotations
-        return newTables
-      })
-    },
-    [props.tables]
-  )
+      const newTables = [...tables]
+      newTables[index] = table
+      return newTables
+    })
+  }, [])
 
   function rowCell(dataFrame: any, column: string, row: number): PropsUITableCell {
     const text = String(dataFrame[column][`${row}`])
@@ -179,7 +147,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
     const head: PropsUITableHead = { __type__: 'PropsUITableHead', cells: headCells }
     const body: PropsUITableBody = { __type__: 'PropsUITableBody', rows: rows(dataFrame) }
 
-    return { __type__: 'PropsUITable', id, head, body, title, deletedRowCount, annotations: [], originalBody: body }
+    return { __type__: 'PropsUITable', id, head, body, title, deletedRowCount, annotations: [], originalBody: body, deletedRows: [] }
   }
 
   function handleDonate(): void {
@@ -236,13 +204,20 @@ export const ConsentForm = (props: Props): JSX.Element => {
     <>
       <BodyLarge text={description} />
       <div className="flex flex-col gap-16">
-        <TablesAndVisualizations
-          tables={tables}
-          visualizationSettings={visualizationSettings}
-          locale={locale}
-          handleDelete={handleDelete}
-          handleUndo={handleUndo}
-        />
+        <div className="grid gap-8 max-w-full">
+          {tables.map((table) => {
+            return (
+              <TableContainer
+                key={table.id}
+                id={table.id}
+                table={table}
+                visualizationSettings={visualizationSettings}
+                updateTable={updateTable}
+                locale={locale}
+              />
+            )
+          })}
+        </div>
         <div>
           <BodyLarge margin="" text={donateQuestion} />
           <div className="flex flex-row gap-4 mt-4 mb-4">
@@ -255,40 +230,108 @@ export const ConsentForm = (props: Props): JSX.Element => {
   )
 }
 
-interface TablesAndVisualizationsProps {
-  tables: TableWithContext[]
+interface TableContainerProps {
+  id: string
+  table: TableWithContext
   visualizationSettings: PropsUIPromptConsentFormVisualization[]
+  updateTable: (tableId: string, table: TableWithContext) => void
   locale: string
-  handleDelete: (tableId: string, rowIds: string[]) => void
-  handleUndo: (tableId: string) => void
 }
 
-const TablesAndVisualizations = ({ tables, visualizationSettings, locale, handleDelete, handleUndo }: TablesAndVisualizationsProps): JSX.Element => {
+const TableContainer = ({ id, table, visualizationSettings, updateTable, locale }: TableContainerProps): JSX.Element => {
+  const tableVisualizations = visualizationSettings.filter((vs) => vs.table_id === table.id)
+  const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
+
+  const handleSearch = useCallback(
+    (query: string[]) => {
+      const ids = searchRows(table.originalBody.rows, query)
+      setSearchFilterIds(ids)
+    },
+    [table.originalBody]
+  )
+
+  const handleDelete = useCallback(
+    (rowIds: string[]) => {
+      const deletedRows = [...table.deletedRows, rowIds]
+      const newTable = deleteTableRows(table, deletedRows)
+      updateTable(id, newTable)
+    },
+    [id, table]
+  )
+
+  const handleUndo = useCallback(() => {
+    const deletedRows = table.deletedRows.slice(0, -1)
+    const newTable = deleteTableRows(table, deletedRows)
+    updateTable(id, newTable)
+  }, [id, table])
+
+  const filteredTable = useMemo(() => {
+    if (searchFilterIds === undefined) return table
+    const filteredRows = table.body.rows.filter((row) => searchFilterIds.has(row.id))
+    return { ...table, body: { ...table.body, rows: filteredRows } }
+  }, [table, searchFilterIds])
+
+  const { placeholder } = useMemo(() => {
+    const placeholder = Translator.translate(searchPlaceholder, locale)
+    return { placeholder }
+  }, [locale])
+
   return (
-    <div className="grid gap-8 max-w-full">
-      {tables.map((table) => {
-        return (
-          <div key={table.id} className="flex flex-col gap-4 mb-4">
-            <Title4 text={table.title} margin="" />
-            <div className="flex flex-wrap gap-4">
-              <Minimizable>
-                <Table {...table} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-              </Minimizable>
-              {visualizationSettings.map((vs) => {
-                if (vs.table_id !== table.id) return null
-                if (vs.position !== 'table') return null
-                return (
-                  <Minimizable key={vs.id}>
-                    <Figure table={table} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-                  </Minimizable>
-                )
-              })}
-            </div>
-          </div>
-        )
-      })}
+    <div key={table.id} className="flex flex-col gap-4 mb-4">
+      <div className="flex justify-between">
+        <Title4 text={table.title} margin="" />
+        <SearchBar placeholder={placeholder} onSearch={handleSearch} />
+      </div>
+      <div className="flex flex-wrap gap-4">
+        <Minimizable>
+          <Table {...filteredTable} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+        </Minimizable>
+        {tableVisualizations.map((vs) => {
+          return (
+            <Minimizable key={vs.id}>
+              <Figure table={filteredTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+            </Minimizable>
+          )
+        })}
+      </div>
     </div>
   )
+}
+
+function deleteTableRows(table: TableWithContext, deletedRows: string[][]): TableWithContext {
+  const deleteIds = new Set<string>()
+  for (const deletedSet of deletedRows) {
+    for (const id of deletedSet) {
+      deleteIds.add(id)
+    }
+  }
+
+  const rows = table.originalBody.rows.filter((row) => !deleteIds.has(row.id))
+  const deletedRowCount = table.originalBody.rows.length - rows.length
+  return { ...table, body: { ...table.body, rows }, deletedRowCount, deletedRows }
+}
+
+function searchRows(rows: PropsUITableRow[], query: string[]): Set<string> | undefined {
+  if (query.length === 0) return undefined
+  const regexes: RegExp[] = []
+  for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
+
+  const ids = new Set<string>()
+  outer: for (let row of rows) {
+    for (let regex of regexes) {
+      let anyCellMatches = false
+      for (let cell of row.cells) {
+        if (regex.test(cell.text)) {
+          anyCellMatches = true
+          break
+        }
+      }
+      if (!anyCellMatches) continue outer
+    }
+    ids.add(row.id)
+  }
+
+  return ids
 }
 
 interface Copy {
@@ -322,3 +365,5 @@ const description = new TextBundle()
     'nl',
     'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.'
   )
+
+const searchPlaceholder = new TextBundle().add('en', 'Search').add('nl', 'Zoeken')

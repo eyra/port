@@ -16,26 +16,25 @@ import { PageIcon } from './page_icon'
 type Props = Weak<PropsUITable> & TableContext & TableProps & ReactFactoryContext
 
 export interface TableProps {
-  handleDelete: (tableId: string, rowIds: string[]) => void
-  handleUndo: (tableId: string) => void
+  handleDelete: (rowIds: string[]) => void
+  handleUndo: () => void
 }
 
-export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageSize = 7, locale, handleDelete, handleUndo }: Props): JSX.Element => {
+export const Table = ({ head, body, deletedRowCount, readOnly = false, pageSize = 7, locale, handleDelete, handleUndo }: Props): JSX.Element => {
   const [query, setQuery] = useState<string[]>([])
   const [page, setPage] = useState<number>(0)
   const [adjust, setAdjust] = useState<boolean>(false)
   const [selected, setSelected] = useState<string[]>([])
 
-  const rows = useMemo(() => filterRows(body.rows, query), [body.rows, query])
-  const spage = safePage(page, rows.length, pageSize)
+  const spage = safePage(page, body.rows.length, pageSize)
   if (page !== spage) goToPage(page)
-  const pageRows = useMemo(() => rows.slice(page * pageSize, (page + 1) * pageSize), [rows, page, pageSize])
+  const pageRows = useMemo(() => body.rows.slice(page * pageSize, (page + 1) * pageSize), [body.rows, page, pageSize])
 
-  const pageCount = Math.ceil(rows.length / pageSize)
+  const pageCount = Math.ceil(body.rows.length / pageSize)
   const pageWindow = determinePageWindow(page, pageCount)
 
   function goToPage(page: number): void {
-    page = safePage(page, rows.length, pageSize)
+    page = safePage(page, body.rows.length, pageSize)
     setPage(page)
     setSelected((selected) => (selected.length > 0 ? [] : selected))
   }
@@ -47,15 +46,14 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
     if (element === 'search') visible = body.rows.length > pageSize
     if (element === 'undo') visible = deletedRowCount > 0
     if (element === 'delete') visible = adjust && body.rows.length > 0
-    if (element === 'table') visible = rows.length > 0
+    if (element === 'table') visible = body.rows.length > 0
     if (element === 'adjust') visible = !readOnly && body.rows.length > 0
     if (element === 'footer') visible = body.rows.length > 0 || deletedRowCount > 0
     if (element === 'pagination') visible = body.rows.length > pageSize
 
     const noData = body.rows.length === 0 && deletedRowCount === 0
     if (element === 'noData') visible = noData
-    if (element === 'noDataLeft') visible = !noData && rows.length === 0 && query.length === 0
-    if (element === 'noResults') visible = !noData && rows.length === 0 && query.length > 0
+    if (element === 'noDataLeft') visible = !noData && body.rows.length === 0
 
     return visible ? '' : 'hidden'
   }
@@ -189,8 +187,21 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
   }
 
   function onDelete(): void {
-    handleDelete(id, selected)
+    handleDelete(selected)
     setSelected([])
+  }
+
+  function prepareCopy(locale: string): Copy {
+    return {
+      edit: Translator.translate(editLabel, locale),
+      undo: Translator.translate(undoLabel, locale),
+      noData: Translator.translate(noDataLabel, locale),
+      noDataLeft: Translator.translate(noDataLeftLabel, locale),
+      pages: Translator.translate(pagesLabel(pageCount), locale),
+      delete: Translator.translate(deleteLabel, locale),
+      deleted: Translator.translate(deletedLabel(deletedRowCount), locale),
+      link: Translator.translate(link, locale)
+    }
   }
 
   return (
@@ -203,9 +214,6 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
         </div>
         <div className="flex-grow" />
         {pageCount > 1 && <Caption text={copy.pages} color="text-grey2" margin="" />}
-        <div className={`${display('search')}`}>
-          <SearchBar placeholder={copy.searchPlaceholder} onSearch={handleSearch} />
-        </div>
       </div>
       <div className={`flex flex-col gap-4 justify-center h-full  ${display('table')}`}>
         <table className="text-grey1 table-fixed divide-y divide-grey4 ">
@@ -219,9 +227,7 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
       <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noDataLeft')}`}>
         <Title3 text={copy.noDataLeft} color="text-grey3" margin="" />
       </div>
-      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noResults')}`}>
-        <Title3 text={copy.noResults} color="text-grey3" margin="" />
-      </div>
+
       <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${display('footer')} `}>
         <div className={`flex flex-row gap-4 items-center ${display('adjust')}`}>
           <CheckBox id="edit" selected={adjust} onSelect={() => setAdjust(!adjust)} />
@@ -233,26 +239,11 @@ export const Table = ({ id, head, body, deletedRowCount, readOnly = false, pageS
         <div className="flex-grow" />
         <Label text={copy.deleted} />
         <div className={`${display('undo')}`}>
-          <IconLabelButton label={copy.undo} color="text-primary" icon={UndoSvg} onClick={() => handleUndo(id)} />
+          <IconLabelButton label={copy.undo} color="text-primary" icon={UndoSvg} onClick={() => handleUndo()} />
         </div>
       </div>
     </div>
   )
-
-  function prepareCopy(locale: string): Copy {
-    return {
-      edit: Translator.translate(editLabel, locale),
-      undo: Translator.translate(undoLabel, locale),
-      noData: Translator.translate(noDataLabel, locale),
-      noDataLeft: Translator.translate(noDataLeftLabel, locale),
-      noResults: Translator.translate(noResultsLabel, locale),
-      pages: Translator.translate(pagesLabel(pageCount), locale),
-      delete: Translator.translate(deleteLabel, locale),
-      deleted: Translator.translate(deletedLabel(deletedRowCount), locale),
-      searchPlaceholder: Translator.translate(searchPlaceholder, locale),
-      link: Translator.translate(link, locale)
-    }
-  }
 }
 
 function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
@@ -319,23 +310,19 @@ interface Copy {
   undo: string
   noData: string
   noDataLeft: string
-  noResults: string
   pages: string
   delete: string
   deleted: string
-  searchPlaceholder: string
   link: String
 }
 
 const link = new TextBundle().add('en', 'Check out').add('nl', 'Bekijk')
 
-const searchPlaceholder = new TextBundle().add('en', 'Search').add('nl', 'Zoeken')
-
 const noDataLabel = new TextBundle().add('en', 'No data found').add('nl', 'Geen gegevens gevonden')
 
 const noDataLeftLabel = new TextBundle().add('en', 'All data removed').add('nl', 'Alle gegevens verwijderd')
 
-const noResultsLabel = new TextBundle().add('en', 'No search results').add('nl', 'Geen zoek resultaten')
+//const noResultsLabel = new TextBundle().add('en', 'No search results').add('nl', 'Geen zoek resultaten')
 
 const editLabel = new TextBundle().add('en', 'Adjust').add('nl', 'Aanpassen')
 
