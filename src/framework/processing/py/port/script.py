@@ -257,7 +257,7 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
         tables_to_render.extend(tables)
 
     # Extract Indicated preferences
-    df = netflix.my_list_to_df(netflix_zip, selected_user)
+    df = netflix.indicated_preferences_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix indicated preferences", "nl": "Netflix indicated preferences"})
         tables = create_consent_form_tables("netflix_indicated_preferences", table_title, df) 
