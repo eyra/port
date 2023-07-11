@@ -1,22 +1,31 @@
 import { PropsUITable, TableWithContext, TableContext } from '../../../../types/elements'
 import { VisualizationType, VisualizationData, DateFormat, AxisSettings, TickerFormat } from '../../../../types/visualizations'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 type Status = 'success' | 'error' | 'loading'
 
 export default function useVisualizationData(table: TableWithContext, visualization: VisualizationType): [VisualizationData | undefined, Status] {
   const [visualizationData, setVisualizationData] = useState<VisualizationData>()
   const [status, setStatus] = useState<Status>('loading')
-  const [worker] = useState(new Worker(new URL('../workers/visualizationDataWorker.ts', import.meta.url)))
+  const [worker, setWorker] = useState<Worker>()
 
   useEffect(() => {
-    if (window.Worker) {
+    const worker = new Worker(new URL('../workers/visualizationDataWorker.ts', import.meta.url))
+    setWorker(worker)
+    return () => {
+      console.log('unmount worker')
+      worker.terminate()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (worker && window.Worker) {
       setStatus('loading')
-      worker.postMessage({ table, visualization })
       worker.onmessage = (e: MessageEvent<{ status: Status; visualizationData: VisualizationData }>) => {
         setStatus(e.data.status)
         setVisualizationData(e.data.visualizationData)
       }
+      worker.postMessage({ table, visualization })
     }
   }, [table, visualization, worker])
 

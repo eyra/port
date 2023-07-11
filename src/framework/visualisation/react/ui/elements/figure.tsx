@@ -30,6 +30,8 @@ export interface VisualizationProps {
 export const Figure = ({ table, visualizationSettings, locale, handleDelete, handleUndo }: Props): JSX.Element => {
   const [visualizationData, status] = useVisualizationData(table, visualizationSettings.visualization)
 
+  console.log(visualizationData)
+
   const { title } = useMemo(() => {
     const title = Translator.translate(visualizationSettings.title, locale)
     return { title }
