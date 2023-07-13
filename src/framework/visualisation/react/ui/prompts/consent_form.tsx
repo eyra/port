@@ -266,8 +266,6 @@ const TableContainer = ({ id, table, visualizationSettings, updateTable, locale 
     return { ...table, body: { ...table.body, rows: filteredRows } }
   }, [table, searchFilterIds])
 
-  console.log(searchFilterIds)
-
   return (
     <div key={table.id} className="flex flex-col gap-4 mb-4">
       <Title4 text={table.title} margin="" />
@@ -286,9 +284,12 @@ const TableContainer = ({ id, table, visualizationSettings, updateTable, locale 
         </Minimizable>
         {tableVisualizations.map((vs) => {
           return (
-            <Minimizable key={vs.id} fullSize>
+            <div className={`w-full`}>
               <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-            </Minimizable>
+            </div>
+            // <Minimizable key={vs.id} size={size}>
+            //   <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+            // </Minimizable>
           )
         })}
       </div>

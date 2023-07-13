@@ -3,7 +3,7 @@ import { SearchBar } from './search_bar'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { TableWithContext, PropsUITableRow } from '../../../../types/elements'
-import { BodyLarge } from './text'
+import { BodyLarge, Title3, Title4 } from './text'
 import { Bullet } from './bullet'
 import { IconLabelButton } from './button'
 import UndoSvg from '../../../../../assets/images/undo.svg'
@@ -15,10 +15,11 @@ interface Props {
   handleDelete: (rowIds: string[]) => void
   handleUndo: () => void
   activeSearch: boolean
+  size?: string
   locale: string
 }
 
-export const SearchTable = ({ table, setSearchFilterIds, handleDelete, handleUndo, activeSearch, locale }: Props): JSX.Element => {
+export const SearchTable = ({ table, setSearchFilterIds, handleDelete, handleUndo, activeSearch, size = '', locale }: Props): JSX.Element => {
   const text = useMemo(() => getTranslations(locale), [locale])
   const [search, setSearch] = useState<string>('')
 
@@ -39,44 +40,42 @@ export const SearchTable = ({ table, setSearchFilterIds, handleDelete, handleUnd
     }
   }
 
-  function undoLabel() {
-    const n = table.deletedRows.length
-    if (n === 1) return text.undo
-    return text.undo + ' last'
-  }
-
   const deleted = table.deletedRowCount
   const n = table.body.rows.length
   const total = table.originalBody.rows.length - table.deletedRowCount
 
-  return (
-    <div className={`flex flex-col min-w-[20rem]`}>
-      <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
-      <div className="p-3 grid grid-cols-[max-content,1fr] gap-x-4 text-gray-900 ">
-        <GridRow label={text.total} show>
-          {total}
-        </GridRow>
-        <GridRow label={text.found} show>
-          {activeSearch ? n : '-'}
-          {activeSearch && n > 0 ? <IconLabelButton label={text.delete} color="text-delete" icon={DeleteSvg} onClick={onDelete} /> : null}
-        </GridRow>
+  const nLabel = n.toLocaleString('en', { useGrouping: true })
+  const totalLabel = total.toLocaleString('en', { useGrouping: true })
+  const itemLabel = activeSearch ? `${nLabel} / ${totalLabel}` : totalLabel + ' ' + text.items
+  const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
-        <GridRow label={text.deleted} show>
-          {deleted === 0 ? '-' : deleted}
-          {deleted > 0 ? <IconLabelButton label={undoLabel()} color="text-primary" icon={UndoSvg} onClick={handleUndo} /> : null}
-        </GridRow>
+  return (
+    <div className={`flex flex-col ${size}`}>
+      <div className="flex flex-col  text-gray-900 gap-y-3">
+        <div className="">
+          <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
+        </div>
+        <div className="pl-3 flex flex-col items-starst min-w-[250px] gap-1">
+          <div className="flex gap-x-4">
+            <div className="text-lg text-title6 font-label">{itemLabel}</div>
+            <IconButton icon={DeleteSvg} label={text.delete} onClick={onDelete} color="text-delete" hidden={!activeSearch || n === 0} />
+          </div>
+          <div className={`flex ${deleted > 0 ? '' : 'hidden'} gap-x-4 text-primary`}>
+            <div className="font-label text-delete">{deletedLabel}</div>
+            <IconButton icon={UndoSvg} label={text.undo} onClick={handleUndo} color="text-primary" hidden={deleted === 0} />
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-const GridRow = ({ label, children, show }: { label: string; children: ReactNode; show?: boolean }): JSX.Element => {
-  if (!show) return <></>
+function IconButton(props: { icon: string; label: string; onClick: () => void; color: string; hidden?: boolean }) {
   return (
-    <>
-      <div className="min-w-[3rem] mb-1 text-grey2 md:text-lg">{label}</div>
-      <div className="text-lg font-semibold flex gap-8 justify-between">{children}</div>
-    </>
+    <div className={`${props.hidden ? 'hidden' : ''} flex gap-1 cursor-pointer ${props.color}`} onClick={props.onClick}>
+      <img src={props.icon} className="w-5 h-5" />
+      {props.label}
+    </div>
   )
 }
 
@@ -114,9 +113,10 @@ function searchRows(rows: PropsUITableRow[], search: string): Set<string> | unde
 
 const translations = {
   searchPlaceholder: new TextBundle().add('en', 'Search').add('nl', 'Zoeken'),
+  items: new TextBundle().add('en', 'items').add('nl', 'items'),
   total: new TextBundle().add('en', 'total').add('nl', 'totaal'),
   found: new TextBundle().add('en', 'found').add('nl', 'gevonden'),
   deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd'),
-  delete: new TextBundle().add('en', 'Delete').add('nl', 'Verwijder'),
-  undo: new TextBundle().add('en', 'Undo').add('nl', 'Herstel')
+  delete: new TextBundle().add('en', 'delete').add('nl', 'verwijder'),
+  undo: new TextBundle().add('en', 'undo').add('nl', 'herstel')
 }

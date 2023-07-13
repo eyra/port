@@ -13,7 +13,7 @@ export const Minimizable = ({ children, size = 'h-[15rem] w-[24rem]', fullSize, 
   const containerStyle = isMinimized ? `${size} overflow-hidden animate-fadeIn` : fullSize ? 'w-full' : ''
   const childStyle = isMinimized ? `scale-50 origin-top-left z-10 p-5 w-[200%] ` : `transition-all duration-500`
   const toggleStyle = isMinimized
-    ? `transition-all absolute top-0 left-0 h-full w-full z-20 bg-primary/0 hover:bg-primary/25 border-solid border-2 cursor-zoom-in`
+    ? `transition-all absolute top-0 left-0 h-full w-full z-20 bg-primary/0 hover:bg-primary/25 border-solid  cursor-zoom-in`
     : `w-min mr-auto mt-2 cursor-zoom-out`
   const iconStyle = isMinimized ? `rounded-tr-sm bg-primary` : `rounded-sm mb-2 bg-primary`
 
