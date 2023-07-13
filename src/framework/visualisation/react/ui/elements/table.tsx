@@ -246,26 +246,6 @@ export const Table = ({ head, body, deletedRowCount, readOnly = false, pageSize 
   )
 }
 
-function filterRows(rows: PropsUITableRow[], query: string[]): PropsUITableRow[] {
-  if (query.length === 0) return rows
-  const regexes: RegExp[] = []
-  for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
-
-  return rows.filter((row) => {
-    for (let regex of regexes) {
-      let anyCellMatches = false
-      for (let cell of row.cells) {
-        if (regex.test(cell.text)) {
-          anyCellMatches = true
-          break
-        }
-      }
-      if (!anyCellMatches) return false
-    }
-    return true
-  })
-}
-
 function safePage(page: number, rowsCount: number, pageSize: number): number {
   const pageCount = Math.ceil(rowsCount / pageSize)
   const lastPage = Math.max(pageCount - 1, 0)

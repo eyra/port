@@ -412,9 +412,10 @@ export interface Annotation {
 
 export interface PropsUISearchBar {
   __type__: 'PropsUISearchBar'
-  placeholder: string
+  search: string
+  onSearch: (search: string) => void
+  placeholder?: string
   debounce?: number
-  onSearch: (words: string[]) => void
 }
 export function isPropsUISearchBar(arg: any): arg is PropsUISearchBar {
   return isInstanceOf<PropsUISearchBar>(arg, 'PropsUISearchBar', ['placeholder'])

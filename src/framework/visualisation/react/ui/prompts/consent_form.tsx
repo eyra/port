@@ -24,6 +24,7 @@ import { Figure } from '../elements/figure'
 import { Minimizable } from '../elements/Minimizable'
 import useUnloadWarning from '../hooks/useUnloadWarning'
 import { SearchBar } from '../elements/search_bar'
+import { SearchTable } from '../elements/search_table'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 
@@ -202,7 +203,9 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   return (
     <>
-      <BodyLarge text={description} />
+      <div className="max-w-3xl">
+        <BodyLarge text={description} />
+      </div>
       <div className="flex flex-col gap-16">
         <div className="grid gap-8 max-w-full">
           {tables.map((table) => {
@@ -242,14 +245,6 @@ const TableContainer = ({ id, table, visualizationSettings, updateTable, locale 
   const tableVisualizations = visualizationSettings.filter((vs) => vs.table_id === table.id)
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
 
-  const handleSearch = useCallback(
-    (query: string[]) => {
-      const ids = searchRows(table.originalBody.rows, query)
-      setSearchFilterIds(ids)
-    },
-    [table.originalBody]
-  )
-
   const handleDelete = useCallback(
     (rowIds: string[]) => {
       const deletedRows = [...table.deletedRows, rowIds]
@@ -265,31 +260,34 @@ const TableContainer = ({ id, table, visualizationSettings, updateTable, locale 
     updateTable(id, newTable)
   }, [id, table])
 
-  const filteredTable = useMemo(() => {
+  const searchedTable = useMemo(() => {
     if (searchFilterIds === undefined) return table
     const filteredRows = table.body.rows.filter((row) => searchFilterIds.has(row.id))
     return { ...table, body: { ...table.body, rows: filteredRows } }
   }, [table, searchFilterIds])
 
-  const { placeholder } = useMemo(() => {
-    const placeholder = Translator.translate(searchPlaceholder, locale)
-    return { placeholder }
-  }, [locale])
+  console.log(searchFilterIds)
 
   return (
     <div key={table.id} className="flex flex-col gap-4 mb-4">
-      <div className="flex justify-between">
-        <Title4 text={table.title} margin="" />
-        <SearchBar placeholder={placeholder} onSearch={handleSearch} />
-      </div>
+      <Title4 text={table.title} margin="" />
+
       <div className="flex flex-wrap gap-4">
+        <SearchTable
+          table={searchedTable}
+          setSearchFilterIds={setSearchFilterIds}
+          handleDelete={handleDelete}
+          handleUndo={handleUndo}
+          activeSearch={searchFilterIds !== undefined}
+          locale={locale}
+        />
         <Minimizable>
-          <Table {...filteredTable} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+          <Table {...searchedTable} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
         </Minimizable>
         {tableVisualizations.map((vs) => {
           return (
-            <Minimizable key={vs.id}>
-              <Figure table={filteredTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+            <Minimizable key={vs.id} fullSize>
+              <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
             </Minimizable>
           )
         })}
@@ -309,29 +307,6 @@ function deleteTableRows(table: TableWithContext, deletedRows: string[][]): Tabl
   const rows = table.originalBody.rows.filter((row) => !deleteIds.has(row.id))
   const deletedRowCount = table.originalBody.rows.length - rows.length
   return { ...table, body: { ...table.body, rows }, deletedRowCount, deletedRows }
-}
-
-function searchRows(rows: PropsUITableRow[], query: string[]): Set<string> | undefined {
-  if (query.length === 0) return undefined
-  const regexes: RegExp[] = []
-  for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
-
-  const ids = new Set<string>()
-  outer: for (let row of rows) {
-    for (let regex of regexes) {
-      let anyCellMatches = false
-      for (let cell of row.cells) {
-        if (regex.test(cell.text)) {
-          anyCellMatches = true
-          break
-        }
-      }
-      if (!anyCellMatches) continue outer
-    }
-    ids.add(row.id)
-  }
-
-  return ids
 }
 
 interface Copy {
@@ -365,5 +340,3 @@ const description = new TextBundle()
     'nl',
     'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.'
   )
-
-const searchPlaceholder = new TextBundle().add('en', 'Search').add('nl', 'Zoeken')
