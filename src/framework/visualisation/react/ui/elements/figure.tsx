@@ -8,7 +8,19 @@ import { VisualizationData, AxisSettings, TickerFormat } from '../../../../types
 import React, { useMemo } from 'react'
 
 import { ReactFactoryContext } from '../../factory'
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, AreaChart, Area } from 'recharts'
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area
+} from 'recharts'
 
 import useVisualizationData from '../hooks/useVisualizationData'
 import { Title6 } from './text'
@@ -27,8 +39,17 @@ export interface VisualizationProps {
   handleUndo: () => void
 }
 
-export const Figure = ({ table, visualizationSettings, locale, handleDelete, handleUndo }: Props): JSX.Element => {
-  const [visualizationData, status] = useVisualizationData(table, visualizationSettings.visualization)
+export const Figure = ({
+  table,
+  visualizationSettings,
+  locale,
+  handleDelete,
+  handleUndo
+}: Props): JSX.Element => {
+  const [visualizationData, status] = useVisualizationData(
+    table,
+    visualizationSettings.visualization
+  )
 
   console.log(visualizationData)
 
@@ -45,7 +66,9 @@ export const Figure = ({ table, visualizationSettings, locale, handleDelete, han
         <Lottie animationData={spinnerDark} loop />
       </div>
     )
-  if (status === 'error') return <div className="flex justify-center items-center text-error">{errorMsg}</div>
+
+  if (status === 'error')
+    return <div className="flex justify-center items-center text-error">{errorMsg}</div>
 
   const minHeight = visualizationSettings.height ? visualizationSettings.height + 'px' : `20rem`
 
@@ -63,7 +86,9 @@ interface RenderVisualizationProps {
   visualizationData: VisualizationData | undefined
 }
 
-const RenderVisualization = ({ visualizationData }: RenderVisualizationProps): JSX.Element | null => {
+const RenderVisualization = ({
+  visualizationData
+}: RenderVisualizationProps): JSX.Element | null => {
   if (!visualizationData) return null
 
   function tooltip() {
@@ -71,15 +96,24 @@ const RenderVisualization = ({ visualizationData }: RenderVisualizationProps): J
       <Tooltip
         allowEscapeViewBox={{ x: false, y: false }}
         labelStyle={{ marginBottom: '0.5rem' }}
-        contentStyle={{ fontSize: '0.8rem', lineHeight: '0.8rem', background: '#fff8', backdropFilter: 'blur(3px)' }}
+        contentStyle={{
+          fontSize: '0.8rem',
+          lineHeight: '0.8rem',
+          background: '#fff8',
+          backdropFilter: 'blur(3px)'
+        }}
       />
     )
   }
 
   function axes(minTickGap: number) {
     if (!visualizationData) return null
-    const secondary = Object.values(visualizationData.yKeys).findIndex((yKey: AxisSettings) => yKey.secondAxis) !== -1
-    const { tickFormatter, tickFormatter2 } = getTickFormatters(Object.values(visualizationData.yKeys))
+    const secondary =
+      Object.values(visualizationData.yKeys).findIndex((yKey: AxisSettings) => yKey.secondAxis) !==
+      -1
+    const { tickFormatter, tickFormatter2 } = getTickFormatters(
+      Object.values(visualizationData.yKeys)
+    )
 
     return (
       <>
@@ -91,7 +125,15 @@ const RenderVisualization = ({ visualizationData }: RenderVisualizationProps): J
   }
 
   function legend() {
-    return <Legend margin={{ left: 10 }} align="right" verticalAlign="top" iconType="plainline" wrapperStyle={{ fontSize: '0.8rem' }} />
+    return (
+      <Legend
+        margin={{ left: 10 }}
+        align="right"
+        verticalAlign="top"
+        iconType="plainline"
+        wrapperStyle={{ fontSize: '0.8rem' }}
+      />
+    )
   }
 
   let chart: JSX.Element | null = null
@@ -129,7 +171,14 @@ const RenderVisualization = ({ visualizationData }: RenderVisualizationProps): J
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {
           const { color, dash } = getLineStyle(i)
-          return <Bar key={yKey.label} yAxisId={yKey.secondAxis ? 'right' : 'left'} dataKey={yKey.label} fill={color} />
+          return (
+            <Bar
+              key={yKey.label}
+              yAxisId={yKey.secondAxis ? 'right' : 'left'}
+              dataKey={yKey.label}
+              fill={color}
+            />
+          )
         })}
       </BarChart>
     )
@@ -143,7 +192,14 @@ const RenderVisualization = ({ visualizationData }: RenderVisualizationProps): J
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {
           const { color, dash } = getLineStyle(i)
-          return <Area key={yKey.label} yAxisId={yKey.secondAxis ? 'right' : 'left'} dataKey={yKey.label} fill={color} />
+          return (
+            <Area
+              key={yKey.label}
+              yAxisId={yKey.secondAxis ? 'right' : 'left'}
+              dataKey={yKey.label}
+              fill={color}
+            />
+          )
         })}
       </AreaChart>
     )
@@ -163,7 +219,9 @@ function prepareCopy(locale: string): Record<string, string> {
   }
 }
 
-const errorMsg = new TextBundle().add('en', 'Could not create visualization').add('nl', 'Kon visualisatie niet maken')
+const errorMsg = new TextBundle()
+  .add('en', 'Could not create visualization')
+  .add('nl', 'Kon visualisatie niet maken')
 
 function getLineStyle(index: number): { color: string; dash: string } {
   const COLORS = ['#4272EF', '#FF5E5E', '#FFCF60', '#1E3FCC', '#CC3F3F', '#CC9F3F']

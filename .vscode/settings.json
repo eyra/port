@@ -3,7 +3,7 @@
   "prettier.tabWidth": 2,
   "prettier.semi": false,
   "prettier.singleQuote": true,
-  "prettier.printWidth": 150,
+  "prettier.printWidth": 100,
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true

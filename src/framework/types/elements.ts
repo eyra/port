@@ -299,6 +299,7 @@ export function isPropsUIRadioItem(arg: any): arg is PropsUIRadioItem {
 export interface PropsUICheckBox {
   id: string
   selected: boolean
+  size?: string
   onSelect: () => void
 }
 export function isPropsUICheckBox(arg: any): arg is PropsUICheckBox {

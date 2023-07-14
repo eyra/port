@@ -9,7 +9,11 @@ import {
   TableContext,
   isPropsUITableRow
 } from '../../../../types/elements'
-import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable, PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
+import {
+  PropsUIPromptConsentForm,
+  PropsUIPromptConsentFormTable,
+  PropsUIPromptConsentFormVisualization
+} from '../../../../types/prompts'
 import { LabelButton, PrimaryButton } from '../elements/button'
 import { BodyLarge, Title4 } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
@@ -25,6 +29,7 @@ import { Minimizable } from '../elements/Minimizable'
 import useUnloadWarning from '../hooks/useUnloadWarning'
 import { SearchBar } from '../elements/search_bar'
 import { SearchTable } from '../elements/search_table'
+import { ItemList } from '../elements/item_list'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 
@@ -33,7 +38,9 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
     __type__: 'PropsUIPromptConsentFormVisualization',
     id: 'netflix_viewings_area',
     table_id: 'netflix_viewings',
-    title: new TextBundle().add('en', 'Number of viewings over time').add('nl', 'Aantal gezien over tijd'),
+    title: new TextBundle()
+      .add('en', 'Number of viewings over time')
+      .add('nl', 'Aantal gezien over tijd'),
     visualization: {
       type: 'area',
       x: { column: 'Start Time' },
@@ -45,7 +52,9 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
     __type__: 'PropsUIPromptConsentFormVisualization',
     id: 'netflix_viewings_bar',
     table_id: 'netflix_viewings',
-    title: new TextBundle().add('en', 'Viewings by hour of the day').add('nl', 'Aantal gezien per uur van de dag'),
+    title: new TextBundle()
+      .add('en', 'Viewings by hour of the day')
+      .add('nl', 'Aantal gezien per uur van de dag'),
     visualization: {
       type: 'bar',
       x: { column: 'Start Time' },
@@ -57,7 +66,9 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
     __type__: 'PropsUIPromptConsentFormVisualization',
     id: 'netflix_playback_line',
     table_id: 'netflix_playback',
-    title: new TextBundle().add('en', 'Viewings by hour of the day').add('nl', 'Aantal gezien per uur van de dag'),
+    title: new TextBundle()
+      .add('en', 'Viewings by hour of the day')
+      .add('nl', 'Aantal gezien per uur van de dag'),
     visualization: {
       type: 'line',
       x: { column: 'Date time' },
@@ -75,7 +86,9 @@ const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
 export const ConsentForm = (props: Props): JSX.Element => {
   useUnloadWarning()
   const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
-  const [metaTables, setMetaTables] = useState<TableWithContext[]>(() => parseTables(props.metaTables))
+  const [metaTables, setMetaTables] = useState<TableWithContext[]>(() =>
+    parseTables(props.metaTables)
+  )
 
   //const { visualizationSettings, locale, resolve } = props
   const { locale, resolve } = props
@@ -135,7 +148,9 @@ export const ConsentForm = (props: Props): JSX.Element => {
     return result
   }
 
-  function parseTables(tablesData: PropsUIPromptConsentFormTable[]): Array<PropsUITable & TableContext> {
+  function parseTables(
+    tablesData: PropsUIPromptConsentFormTable[]
+  ): Array<PropsUITable & TableContext> {
     return tablesData.map((table) => parseTable(table))
   }
 
@@ -148,7 +163,17 @@ export const ConsentForm = (props: Props): JSX.Element => {
     const head: PropsUITableHead = { __type__: 'PropsUITableHead', cells: headCells }
     const body: PropsUITableBody = { __type__: 'PropsUITableBody', rows: rows(dataFrame) }
 
-    return { __type__: 'PropsUITable', id, head, body, title, deletedRowCount, annotations: [], originalBody: body, deletedRows: [] }
+    return {
+      __type__: 'PropsUITable',
+      id,
+      head,
+      body,
+      title,
+      deletedRowCount,
+      annotations: [],
+      originalBody: body,
+      deletedRows: []
+    }
   }
 
   function handleDonate(): void {
@@ -206,7 +231,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
       <div className="max-w-3xl">
         <BodyLarge text={description} />
       </div>
-      <div className="flex flex-col gap-16">
+      <div className="flex flex-col gap-16 w-full">
         <div className="grid gap-8 max-w-full">
           {tables.map((table) => {
             return (
@@ -224,7 +249,11 @@ export const ConsentForm = (props: Props): JSX.Element => {
         <div>
           <BodyLarge margin="" text={donateQuestion} />
           <div className="flex flex-row gap-4 mt-4 mb-4">
-            <PrimaryButton label={donateButton} onClick={handleDonate} color="bg-success text-white" />
+            <PrimaryButton
+              label={donateButton}
+              onClick={handleDonate}
+              color="bg-success text-white"
+            />
             <LabelButton label={cancelButton} onClick={handleCancel} color="text-grey1" />
           </div>
         </div>
@@ -241,7 +270,13 @@ interface TableContainerProps {
   locale: string
 }
 
-const TableContainer = ({ id, table, visualizationSettings, updateTable, locale }: TableContainerProps): JSX.Element => {
+const TableContainer = ({
+  id,
+  table,
+  visualizationSettings,
+  updateTable,
+  locale
+}: TableContainerProps): JSX.Element => {
   const tableVisualizations = visualizationSettings.filter((vs) => vs.table_id === table.id)
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
 
@@ -260,6 +295,8 @@ const TableContainer = ({ id, table, visualizationSettings, updateTable, locale 
     updateTable(id, newTable)
   }, [id, table])
 
+  console.log(table)
+
   const searchedTable = useMemo(() => {
     if (searchFilterIds === undefined) return table
     const filteredRows = table.body.rows.filter((row) => searchFilterIds.has(row.id))
@@ -267,25 +304,34 @@ const TableContainer = ({ id, table, visualizationSettings, updateTable, locale 
   }, [table, searchFilterIds])
 
   return (
-    <div key={table.id} className="flex flex-col gap-4 mb-4">
+    <div key={table.id} className="flex flex-col gap-4 w-full overflow-hidden">
       <Title4 text={table.title} margin="" />
 
-      <div className="flex flex-wrap gap-4">
-        <SearchTable
-          table={searchedTable}
-          setSearchFilterIds={setSearchFilterIds}
-          handleDelete={handleDelete}
-          handleUndo={handleUndo}
-          activeSearch={searchFilterIds !== undefined}
-          locale={locale}
-        />
-        <Minimizable>
+      <div className="flex flex-wrap gap-4 ">
+        <div className="flex flex-col-reverse md:flex-row justify-between gap-6 w-full">
+          <ItemList table={searchedTable} locale={locale} handleDelete={handleDelete} />
+          <SearchTable
+            table={searchedTable}
+            setSearchFilterIds={setSearchFilterIds}
+            handleDelete={handleDelete}
+            handleUndo={handleUndo}
+            activeSearch={searchFilterIds !== undefined}
+            locale={locale}
+          />
+          {/* <Minimizable>
           <Table {...searchedTable} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-        </Minimizable>
+        </Minimizable> */}
+        </div>
         {tableVisualizations.map((vs) => {
           return (
-            <div className={`w-full`}>
-              <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
+            <div className={`w-full max-w-xl`}>
+              <Figure
+                table={searchedTable}
+                visualizationSettings={vs}
+                locale={locale}
+                handleDelete={handleDelete}
+                handleUndo={handleUndo}
+              />
             </div>
             // <Minimizable key={vs.id} size={size}>
             //   <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
@@ -326,7 +372,9 @@ function prepareCopy({ locale }: Props): Copy {
   }
 }
 
-const donateQuestionLabel = new TextBundle().add('en', 'Do you want to donate the above data?').add('nl', 'Wilt u de bovenstaande gegevens doneren?')
+const donateQuestionLabel = new TextBundle()
+  .add('en', 'Do you want to donate the above data?')
+  .add('nl', 'Wilt u de bovenstaande gegevens doneren?')
 
 const donateButtonLabel = new TextBundle().add('en', 'Yes, donate').add('nl', 'Ja, doneer')
 

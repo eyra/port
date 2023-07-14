@@ -46,22 +46,25 @@ export const SearchTable = ({ table, setSearchFilterIds, handleDelete, handleUnd
 
   const nLabel = n.toLocaleString('en', { useGrouping: true })
   const totalLabel = total.toLocaleString('en', { useGrouping: true })
-  const itemLabel = activeSearch ? `${nLabel} / ${totalLabel}` : totalLabel + ' ' + text.items
+  const itemLabelSuffix = activeSearch ? ' / ' + totalLabel : ' ' + text.items
   const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
   return (
     <div className={`flex flex-col ${size}`}>
-      <div className="flex flex-col  text-gray-900 gap-y-3">
+      <div className="flex flex-col  text-gray-900 gap-y-4">
         <div className="">
           <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
         </div>
-        <div className="pl-3 flex flex-col items-starst min-w-[250px] gap-1">
-          <div className="flex gap-x-4">
-            <div className="text-lg text-title6 font-label">{itemLabel}</div>
+        <div className="pl-3 flex flex-col min-w-[250px] gap-2">
+          <div key={totalLabel} className="flex  items-center gap-x-4 animate-fadeIn">
+            <div className="text-lg text-title6  font-label animate-fadeIn">
+              {nLabel}
+              <span className="text-title7 text-grey1">{itemLabelSuffix}</span>
+            </div>
             <IconButton icon={DeleteSvg} label={text.delete} onClick={onDelete} color="text-delete" hidden={!activeSearch || n === 0} />
           </div>
-          <div className={`flex ${deleted > 0 ? '' : 'hidden'} gap-x-4 text-primary`}>
-            <div className="font-label text-delete">{deletedLabel}</div>
+          <div key={deleted > 0 ? 'changed' : ''} className={`flex ${deleted > 0 ? '' : 'hidden'} gap-x-4 text-primary animate-fadeIn`}>
+            <div className="font-label ">{deletedLabel}</div>
             <IconButton icon={UndoSvg} label={text.undo} onClick={handleUndo} color="text-primary" hidden={deleted === 0} />
           </div>
         </div>
@@ -71,10 +74,11 @@ export const SearchTable = ({ table, setSearchFilterIds, handleDelete, handleUnd
 }
 
 function IconButton(props: { icon: string; label: string; onClick: () => void; color: string; hidden?: boolean }) {
+  if (props.hidden) return null
   return (
-    <div className={`${props.hidden ? 'hidden' : ''} flex gap-1 cursor-pointer ${props.color}`} onClick={props.onClick}>
-      <img src={props.icon} className="w-5 h-5" />
-      {props.label}
+    <div className={`flex items-center gap-1 cursor-pointer ${props.color} animate-fadeIn `} onClick={props.onClick}>
+      {/* {props.label} */}
+      <img src={props.icon} className="w-5 h-5 translate-y-[-2px]" />
     </div>
   )
 }

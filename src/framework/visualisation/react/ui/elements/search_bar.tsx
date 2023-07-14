@@ -16,7 +16,7 @@ export const SearchBar = ({ search, onSearch, placeholder }: Weak<PropsUISearchB
         <input
           className="text-grey1 text-bodymedium font-body pl-3 pr-3 w-full border-2 border-solid border-grey3 focus:outline-none focus:border-primary rounded h-48px"
           placeholder={placeholder || ''}
-          name="query"
+          // name="query"  // autcomplete popup is annoying
           type="search"
           value={search}
           onChange={(e) => onSearch(e.target.value)}

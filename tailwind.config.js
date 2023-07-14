@@ -31,7 +31,8 @@ module.exports = {
       grey4: '#EEEEEE',
       grey5: '#F6F6F6',
       grey6: '#FAFAFA',
-      white: '#FFFFFF'
+      white: '#FFFFFF',
+      transparent: 'transparent'
     },
     extend: {
       opacity: {
@@ -191,7 +192,10 @@ module.exports = {
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         '.h-viewport': {
-          height: 'calc(var(--vh, 1vh) * 100)'
+          height: 'var(--screen-height, 100vh)'
+        },
+        '.w-viewport': {
+          width: 'var(--screen-width, 100vw)'
         },
         '.scrollbar-hide': {
           /* Firefox */
