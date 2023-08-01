@@ -1,26 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
-import { SearchBar } from './search_bar'
+import { useMemo } from 'react'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
-import { TableWithContext, PropsUITableRow } from '../../../../types/elements'
-
-import UndoSvg from '../../../../../assets/images/undo.svg'
-import DeleteSvg from '../../../../../assets/images/delete.svg'
-import { Title4 } from './text'
+import { TableWithContext } from '../../../../types/elements'
 
 interface Props {
   table: TableWithContext
-  handleDelete: (rowIds?: string[]) => void
-  handleUndo: () => void
-  activeSearch: boolean
+
   locale: string
 }
 
 export const TableItems = ({
   table,
-  handleDelete,
-  handleUndo,
-  activeSearch,
+
   locale
 }: Props): JSX.Element => {
   const text = useMemo(() => getTranslations(locale), [locale])
@@ -29,61 +20,42 @@ export const TableItems = ({
   const n = table.body.rows.length
   const total = table.originalBody.rows.length - table.deletedRowCount
 
-  const nLabel = n.toLocaleString('en', { useGrouping: true })
-  const totalLabel = total.toLocaleString('en', { useGrouping: true })
-  const itemLabelSuffix = activeSearch ? ' / ' + totalLabel : ' ' + text.items
+  const nLabel = n.toLocaleString(locale, { useGrouping: true })
+  const totalLabel = total.toLocaleString(locale, { useGrouping: true })
   const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
   return (
-    <div className="pl-0 flex flex-auto flex-col min-w-[200px] gap-1">
-      <div key={totalLabel} className="flex items-center gap-x-4 animate-fadeIn">
-        <div className="text-lg text-title6  font-label animate-fadeIn">
-          {nLabel}
-          <span className="text-title7 text-grey1">{itemLabelSuffix}</span>
-        </div>
-        <IconButton
-          icon={DeleteSvg}
-          label={text.delete}
-          onClick={() => handleDelete()}
-          color="text-delete"
-          hidden={!activeSearch || n === 0}
-        />
-      </div>
+    <div className="flex flex-auto  min-w-[200px] gap-1">
+      <div className="flex items-center px-1 ">{tableIcon}</div>
       <div
-        key={deleted > 0 ? 'changed' : ''}
-        className={`flex ${deleted > 0 ? '' : 'invisible'} gap-x-4 text-primary animate-fadeIn`}
+        key={totalLabel + '_' + deleted}
+        className="flex flex-wrap items-center pl-2  gap-x-2 animate-fadeIn text-lg text-title6 font-label "
       >
-        <div className="font-label ">{deletedLabel}</div>
-        <IconButton
-          icon={UndoSvg}
-          label={text.undo}
-          onClick={handleUndo}
-          color="text-primary"
-          hidden={deleted === 0}
-        />
+        <div>
+          {table.head.cells.length} {text.columns},
+        </div>
+        <div key={totalLabel} className="animate-fadeIn">
+          {nLabel} {text.rows}
+        </div>
+
+        <div className="flex text-grey2">({deletedLabel})</div>
       </div>
     </div>
   )
 }
 
-function IconButton(props: {
-  icon: string
-  label: string
-  onClick: () => void
-  color: string
-  hidden?: boolean
-}) {
-  if (props.hidden) return null
-  return (
-    <div
-      className={`flex items-center gap-1 cursor-pointer ${props.color} animate-fadeIn `}
-      onClick={props.onClick}
-    >
-      {/* {props.label} */}
-      <img src={props.icon} className="w-5 h-5 translate-y-[-2px]" />
-    </div>
-  )
-}
+const tableIcon = (
+  <svg className="h-9" viewBox="4 4 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="9" y="9" width="4" height="2" fill="#4272EF" />
+    <rect x="9" y="13" width="4" height="2" fill="#4272EF" />
+    <rect x="9" y="17" width="4" height="2" fill="#4272EF" />
+    <rect x="15" y="9" width="4" height="2" fill="#4272EF" />
+    <rect x="15" y="13" width="4" height="2" fill="#4272EF" />
+    <rect x="15" y="17" width="4" height="2" fill="#4272EF" />
+    <rect x="4" y="4" width="15" height="3" fill="#4272EF" />
+    <rect x="4" y="9" width="3" height="10" fill="#4272EF" />
+  </svg>
+)
 
 function getTranslations(locale: string) {
   const translated: Record<string, string> = {}
@@ -94,10 +66,7 @@ function getTranslations(locale: string) {
 }
 
 const translations = {
-  items: new TextBundle().add('en', 'items').add('nl', 'items'),
-  total: new TextBundle().add('en', 'total').add('nl', 'totaal'),
-  found: new TextBundle().add('en', 'found').add('nl', 'gevonden'),
-  deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd'),
-  delete: new TextBundle().add('en', 'delete').add('nl', 'verwijder'),
-  undo: new TextBundle().add('en', 'undo').add('nl', 'herstel')
+  columns: new TextBundle().add('en', 'columns').add('nl', 'kolommen'),
+  rows: new TextBundle().add('en', 'rows').add('nl', 'rijen'),
+  deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd')
 }

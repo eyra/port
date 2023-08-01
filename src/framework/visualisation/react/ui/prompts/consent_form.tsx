@@ -243,6 +243,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
         </div>
         <div>
           <BodyLarge margin="" text={donateQuestion} />
+
           <div className="flex flex-row gap-4 mt-4 mb-4">
             <PrimaryButton
               label={donateButton}

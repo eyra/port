@@ -4,15 +4,20 @@ import { CheckBox } from './check_box'
 
 export interface Props {
   table: TableWithContext
+  show: boolean
   locale: string
   handleDelete?: (rowIds: string[]) => void
   pageSize?: number
 }
 
-export const ItemList = ({ table, locale, handleDelete, pageSize = 6 }: Props): JSX.Element => {
-  const [n, setN] = useState(50)
+export const ItemList = ({
+  table,
+  show,
+  locale,
+  handleDelete,
+  pageSize = 7
+}: Props): JSX.Element => {
   const [page, setPage] = useState(0)
-  const [show, setShow] = useState(false)
   const columnNames = useMemo(() => table.head.cells.map((cell) => cell.text), [table])
   const ref = useRef<HTMLDivElement>(null)
 
@@ -21,15 +26,14 @@ export const ItemList = ({ table, locale, handleDelete, pageSize = 6 }: Props): 
     if (show) {
       ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
     } else {
-      ref.current.style.gridTemplateRows = `3rem`
+      ref.current.style.gridTemplateRows = `0rem`
     }
   }, [ref, show])
 
-  const headerClass = `px-3 sticky top-0 font-table-header text-table text-grey1 h-10 pt-3 pb-10 backdrop-blur-2 bg-gradient-to-t from-transparent to-white`
-  const cellClass = `px-3 min-h-[2.2rem] flex font-table-row text-table text-grey1 max-w-[10rem] pt-1 hyphens-auto transition-opacity ${
-    show ? 'opacity-1 max-w-[10rem]' : 'opacity-0 max-w-[1rem]'
-  }`
-  const gridTemplateColumns = `repeat(${columnNames.length + 1}, max-content)`
+  const headerClass = 'sticky top-0 left-0 bg-grey6 z-10 '
+  const cellClass = `px-2 min-h-[3rem] flex items-center font-table-row text-table border-b-2 border-grey4 border-solid
+  text-grey1 max-w-[10rem] pt-1 hyphens-auto transition-opacity max-w-[10rem]`
+  const gridTemplateColumns = `repeat(${columnNames.length + 1}, auto)`
 
   const items = useMemo(() => {
     const items: (PropsUITableRow | null)[] = new Array(pageSize).fill(null)
@@ -43,19 +47,16 @@ export const ItemList = ({ table, locale, handleDelete, pageSize = 6 }: Props): 
   return (
     <div
       ref={ref}
-      className={`grid transition-all duration-700 max-w-full relative overflow-x-auto overflow-y-hidden `}
+      className={`min-w-full grid transition-all duration-700 max-w-full relative overflow-x-auto overflow-y-hidden`}
     >
-      <div className={`grid transition-opacity duration-700`} style={{ gridTemplateColumns }}>
-        <button
-          className={'bg-primary text-label font-label text-white p-2 my-1 rounded'}
-          onClick={() => setShow(!show)}
-        >
-          Show table
-        </button>
+      <div className={`grid transition-opacity duration-700 `} style={{ gridTemplateColumns }}>
+        <div className={cellClass}>
+          <CheckBox id={'select_all'} selected={false} onSelect={() => {}} />
+        </div>
         {columnNames.map((name: string, i: number) => {
           return (
-            <div key={'header' + i} className={headerClass}>
-              <div className="max-w-min">{name}</div>
+            <div key={'header' + i} className={`${headerClass} ${cellClass}`}>
+              <div className="font-table-header text-grey1">{name}</div>
             </div>
           )
         })}

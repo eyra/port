@@ -39,12 +39,18 @@ export const PrimaryButton = ({
       >
         <div
           id="confirm-button"
-          className={`pt-15px pb-15px pr-4 pl-4 ${enabled ? 'active:pt-4 active:pb-14px' : ''} ${spinning ? 'opacity-0' : ''}`}
+          className={`pt-15px pb-15px pr-4 pl-4 ${enabled ? 'active:pt-4 active:pb-14px' : ''} ${
+            spinning ? 'opacity-0' : ''
+          }`}
         >
           {label}
         </div>
       </div>
-      <div className={`absolute top-0 h-full w-full flex flex-col justify-center items-center ${spinning ? '' : 'hidden'}`}>
+      <div
+        className={`absolute top-0 h-full w-full flex flex-col justify-center items-center ${
+          spinning ? '' : 'hidden'
+        }`}
+      >
         <div className="w-5 h-5">
           <Spinner color={spinnerColor(color)} spinning={spinning} />
         </div>
@@ -53,7 +59,11 @@ export const PrimaryButton = ({
   )
 }
 
-export const SecondaryButton = ({ label, color = 'bg-delete text-delete', onClick }: Weak<PropsUIButtonSecundary>): JSX.Element => {
+export const SecondaryButton = ({
+  label,
+  color = 'bg-delete text-delete',
+  onClick
+}: Weak<PropsUIButtonSecundary>): JSX.Element => {
   return (
     <div className="relative min-w-button">
       <div
@@ -84,7 +94,10 @@ export const ForwardIconButton = ({ onClick }: Weak<PropsUIButtonIconForward>): 
 
 export const IconButton = ({ icon, onClick }: Weak<PropsUIButtonIcon>): JSX.Element => {
   return (
-    <div className="active:pt-5px active:pb-3px focus:outline-none cursor-pointer w-6 h-6" onClick={onClick}>
+    <div
+      className="active:pt-5px active:pb-3px focus:outline-none cursor-pointer w-6 h-6"
+      onClick={onClick}
+    >
       <div className="flex flex-col items-center h-full w-full">
         <div className="flex-grow" />
         <div>
@@ -96,9 +109,18 @@ export const IconButton = ({ icon, onClick }: Weak<PropsUIButtonIcon>): JSX.Elem
   )
 }
 
-export const IconLabelButton = ({ icon, label, color = 'text-grey1', alignment = 'left', onClick }: Weak<PropsUIButtonIconLabel>): JSX.Element => {
+export const IconLabelButton = ({
+  icon,
+  label,
+  color = 'text-grey1',
+  alignment = 'left',
+  onClick
+}: Weak<PropsUIButtonIconLabel>): JSX.Element => {
   return (
-    <div className="pt-1 pb-1 active:pt-5px active:pb-3px rounded bg-opacity-0 focus:outline-none cursor-pointer " onClick={onClick}>
+    <div
+      className="pt-1 pb-1 active:pt-5px active:pb-3px rounded bg-opacity-0 focus:outline-none cursor-pointer "
+      onClick={onClick}
+    >
       <div className="flex items-center">
         <div className={`${alignment === 'left' ? '' : 'hidden'}`}>
           <img className="mr-2 -mt-2px" src={icon} alt={label} />
@@ -116,7 +138,11 @@ export const IconLabelButton = ({ icon, label, color = 'text-grey1', alignment =
   )
 }
 
-export const LabelButton = ({ label, color = 'text-grey1', onClick }: Weak<PropsUIButtonLabel>): JSX.Element => {
+export const LabelButton = ({
+  label,
+  color = 'text-grey1',
+  onClick
+}: Weak<PropsUIButtonLabel>): JSX.Element => {
   return (
     <div
       className={`pt-15px pb-15px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 cursor-pointer bg-opacity-0 ${color}`}

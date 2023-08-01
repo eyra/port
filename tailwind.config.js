@@ -162,7 +162,7 @@ module.exports = {
         mailto: '128px'
       },
       animation: {
-        fadeIn: 'fadeIn 0.5s ease-in-out'
+        fadeIn: 'fadeIn 0.25s ease-in-out'
       },
 
       // that is actual animation

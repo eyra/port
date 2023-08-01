@@ -71,7 +71,7 @@ export const Figure = ({
   const minHeight = visualizationSettings.height ? visualizationSettings.height + 'px' : `20rem`
 
   return (
-    <div className="flex flex-col overflow-hidden p-3 bg-grey5 rounded-md border border-[0.2rem] border-grey4">
+    <div className="flex flex-col overflow-hidden ">
       <Title6 text={title} margin="mt-2 mb-4" />
       <div className={`relative z-50 `} style={{ flex: `1 1 ${minHeight}`, minHeight }}>
         <RenderVisualization visualizationData={visualizationData} />
