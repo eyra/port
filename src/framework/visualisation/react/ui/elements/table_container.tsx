@@ -7,8 +7,7 @@ import { SearchBar } from './search_bar'
 import { Title4 } from './text'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
-import { ScrollTable } from './scroll_table'
-import { ItemList } from './item_list'
+import { Table } from './table'
 
 interface TableContainerProps {
   id: string
@@ -95,7 +94,7 @@ export const TableContainer = ({
             <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
           </div>
           <div className="px-4">
-            <ScrollTable
+            <Table
               show={zoom}
               table={searchedTable}
               handleDelete={handleDelete}
