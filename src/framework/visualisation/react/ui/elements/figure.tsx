@@ -51,8 +51,6 @@ export const Figure = ({
     visualizationSettings.visualization
   )
 
-  console.log(visualizationData)
-
   const { title } = useMemo(() => {
     const title = Translator.translate(visualizationSettings.title, locale)
     return { title }
@@ -60,7 +58,7 @@ export const Figure = ({
 
   const { errorMsg } = prepareCopy(locale)
 
-  if (status === 'loading')
+  if (!visualizationData && status === 'loading')
     return (
       <div className={`w-12 h-12`}>
         <Lottie animationData={spinnerDark} loop />
@@ -73,7 +71,7 @@ export const Figure = ({
   const minHeight = visualizationSettings.height ? visualizationSettings.height + 'px' : `20rem`
 
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="flex flex-col overflow-hidden p-3 bg-grey5 rounded-md border border-[0.2rem] border-grey4">
       <Title6 text={title} margin="mt-2 mb-4" />
       <div className={`relative z-50 `} style={{ flex: `1 1 ${minHeight}`, minHeight }}>
         <RenderVisualization visualizationData={visualizationData} />

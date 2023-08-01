@@ -22,14 +22,9 @@ import { ReactFactoryContext } from '../../factory'
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import _ from 'lodash'
 
-import { Table } from '../elements/table'
-import { Figure } from '../elements/figure'
-
-import { Minimizable } from '../elements/Minimizable'
 import useUnloadWarning from '../hooks/useUnloadWarning'
-import { SearchBar } from '../elements/search_bar'
-import { SearchTable } from '../elements/search_table'
-import { ItemList } from '../elements/item_list'
+
+import { TableContainer } from '../elements/table_container'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 
@@ -260,100 +255,6 @@ export const ConsentForm = (props: Props): JSX.Element => {
       </div>
     </>
   )
-}
-
-interface TableContainerProps {
-  id: string
-  table: TableWithContext
-  visualizationSettings: PropsUIPromptConsentFormVisualization[]
-  updateTable: (tableId: string, table: TableWithContext) => void
-  locale: string
-}
-
-const TableContainer = ({
-  id,
-  table,
-  visualizationSettings,
-  updateTable,
-  locale
-}: TableContainerProps): JSX.Element => {
-  const tableVisualizations = visualizationSettings.filter((vs) => vs.table_id === table.id)
-  const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
-
-  const handleDelete = useCallback(
-    (rowIds: string[]) => {
-      const deletedRows = [...table.deletedRows, rowIds]
-      const newTable = deleteTableRows(table, deletedRows)
-      updateTable(id, newTable)
-    },
-    [id, table]
-  )
-
-  const handleUndo = useCallback(() => {
-    const deletedRows = table.deletedRows.slice(0, -1)
-    const newTable = deleteTableRows(table, deletedRows)
-    updateTable(id, newTable)
-  }, [id, table])
-
-  console.log(table)
-
-  const searchedTable = useMemo(() => {
-    if (searchFilterIds === undefined) return table
-    const filteredRows = table.body.rows.filter((row) => searchFilterIds.has(row.id))
-    return { ...table, body: { ...table.body, rows: filteredRows } }
-  }, [table, searchFilterIds])
-
-  return (
-    <div key={table.id} className="flex flex-col gap-4 w-full overflow-hidden">
-      <Title4 text={table.title} margin="" />
-
-      <div className="flex flex-wrap gap-4 ">
-        <div className="flex flex-col-reverse md:flex-row justify-between gap-6 w-full">
-          <ItemList table={searchedTable} locale={locale} handleDelete={handleDelete} />
-          <SearchTable
-            table={searchedTable}
-            setSearchFilterIds={setSearchFilterIds}
-            handleDelete={handleDelete}
-            handleUndo={handleUndo}
-            activeSearch={searchFilterIds !== undefined}
-            locale={locale}
-          />
-          {/* <Minimizable>
-          <Table {...searchedTable} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-        </Minimizable> */}
-        </div>
-        {tableVisualizations.map((vs) => {
-          return (
-            <div className={`w-full max-w-xl`}>
-              <Figure
-                table={searchedTable}
-                visualizationSettings={vs}
-                locale={locale}
-                handleDelete={handleDelete}
-                handleUndo={handleUndo}
-              />
-            </div>
-            // <Minimizable key={vs.id} size={size}>
-            //   <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-            // </Minimizable>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-function deleteTableRows(table: TableWithContext, deletedRows: string[][]): TableWithContext {
-  const deleteIds = new Set<string>()
-  for (const deletedSet of deletedRows) {
-    for (const id of deletedSet) {
-      deleteIds.add(id)
-    }
-  }
-
-  const rows = table.originalBody.rows.filter((row) => !deleteIds.has(row.id))
-  const deletedRowCount = table.originalBody.rows.length - rows.length
-  return { ...table, body: { ...table.body, rows }, deletedRowCount, deletedRows }
 }
 
 interface Copy {

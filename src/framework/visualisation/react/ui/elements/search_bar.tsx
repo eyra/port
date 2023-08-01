@@ -3,7 +3,11 @@ import { Weak } from '../../../../helpers'
 import { PropsUISearchBar } from '../../../../types/elements'
 import _ from 'lodash'
 
-export const SearchBar = ({ search, onSearch, placeholder }: Weak<PropsUISearchBar>): JSX.Element => {
+export const SearchBar = ({
+  search,
+  onSearch,
+  placeholder
+}: Weak<PropsUISearchBar>): JSX.Element => {
   function handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>): void {
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -12,7 +16,7 @@ export const SearchBar = ({ search, onSearch, placeholder }: Weak<PropsUISearchB
 
   return (
     <form>
-      <div className="flex flex-row">
+      <div className="flex flex-row ">
         <input
           className="text-grey1 text-bodymedium font-body pl-3 pr-3 w-full border-2 border-solid border-grey3 focus:outline-none focus:border-primary rounded h-48px"
           placeholder={placeholder || ''}

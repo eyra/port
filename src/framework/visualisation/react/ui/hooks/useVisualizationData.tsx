@@ -1,10 +1,19 @@
 import { PropsUITable, TableWithContext, TableContext } from '../../../../types/elements'
-import { VisualizationType, VisualizationData, DateFormat, AxisSettings, TickerFormat } from '../../../../types/visualizations'
+import {
+  VisualizationType,
+  VisualizationData,
+  DateFormat,
+  AxisSettings,
+  TickerFormat
+} from '../../../../types/visualizations'
 import React, { useEffect, useRef, useState } from 'react'
 
-type Status = 'success' | 'error' | 'loading'
+type Status = 'loading' | 'success' | 'error'
 
-export default function useVisualizationData(table: TableWithContext, visualization: VisualizationType): [VisualizationData | undefined, Status] {
+export default function useVisualizationData(
+  table: TableWithContext,
+  visualization: VisualizationType
+): [VisualizationData | undefined, Status] {
   const [visualizationData, setVisualizationData] = useState<VisualizationData>()
   const [status, setStatus] = useState<Status>('loading')
   const [worker, setWorker] = useState<Worker>()
@@ -21,7 +30,9 @@ export default function useVisualizationData(table: TableWithContext, visualizat
   useEffect(() => {
     if (worker && window.Worker) {
       setStatus('loading')
-      worker.onmessage = (e: MessageEvent<{ status: Status; visualizationData: VisualizationData }>) => {
+      worker.onmessage = (
+        e: MessageEvent<{ status: Status; visualizationData: VisualizationData }>
+      ) => {
         setStatus(e.data.status)
         setVisualizationData(e.data.visualizationData)
       }
