@@ -32,10 +32,10 @@ export const TableContainer = ({
   const [show, setShow] = useState<boolean>(false)
 
   useEffect(() => {
-    if (search !== '' && lastSearch.current === '') setShow(true)
     const timer = setTimeout(() => {
       const ids = searchRows(table.originalBody.rows, search)
       setSearchFilterIds(ids)
+      if (search !== '' && lastSearch.current === '') setTimeout(() => setShow(true), 10)
       lastSearch.current = search
     }, 300)
     return () => clearTimeout(timer)
