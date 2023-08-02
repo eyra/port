@@ -5,28 +5,26 @@ import { TableWithContext } from '../../../../types/elements'
 
 interface Props {
   table: TableWithContext
-
+  searchedTable: TableWithContext
   locale: string
 }
 
-export const TableItems = ({
-  table,
-
-  locale
-}: Props): JSX.Element => {
+export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element => {
   const text = useMemo(() => getTranslations(locale), [locale])
 
   const deleted = table.deletedRowCount
   const n = table.body.rows.length
+  const searched = searchedTable.body.rows.length
   const total = table.originalBody.rows.length - table.deletedRowCount
 
   const nLabel = n.toLocaleString(locale, { useGrouping: true })
   const totalLabel = total.toLocaleString(locale, { useGrouping: true })
+  const searchLabel = searched.toLocaleString(locale, { useGrouping: true })
   const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
   return (
-    <div className="flex flex-auto  min-w-[200px] gap-1">
-      <div className="flex items-center px-1 ">{tableIcon}</div>
+    <div className="flex  min-w-[200px] gap-1">
+      <div className="flex items-center  ">{tableIcon}</div>
       <div
         key={totalLabel + '_' + deleted}
         className="flex flex-wrap items-center pl-2  gap-x-2 animate-fadeIn text-lg text-title6 font-label "
@@ -35,7 +33,7 @@ export const TableItems = ({
           {table.head.cells.length} {text.columns},
         </div>
         <div key={totalLabel} className="animate-fadeIn">
-          {nLabel} {text.rows}
+          {searched < n ? searchLabel + ' / ' + nLabel : nLabel} {text.rows}
         </div>
 
         <div className="flex text-grey2">({deletedLabel})</div>

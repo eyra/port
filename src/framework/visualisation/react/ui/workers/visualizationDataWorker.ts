@@ -1,5 +1,10 @@
 import { PropsUITable, TableContext, TableWithContext } from '../../../../types/elements'
-import { VisualizationData, VisualizationType, DateFormat, TickerFormat } from '../../../../types/visualizations'
+import {
+  VisualizationData,
+  VisualizationType,
+  DateFormat,
+  TickerFormat
+} from '../../../../types/visualizations'
 
 interface Input {
   table: TableWithContext
@@ -17,7 +22,10 @@ self.onmessage = (e: MessageEvent<Input>) => {
     })
 }
 
-async function createVisualizationData(table: PropsUITable & TableContext, visualization: VisualizationType): Promise<VisualizationData> {
+async function createVisualizationData(
+  table: PropsUITable & TableContext,
+  visualization: VisualizationType
+): Promise<VisualizationData> {
   const visualizationData: VisualizationData = {
     type: visualization.type,
     xKey: { label: visualization.x.label || visualization.x.column },
@@ -25,10 +33,13 @@ async function createVisualizationData(table: PropsUITable & TableContext, visua
     data: []
   }
 
+  if (table.body.rows.length === 0) return visualizationData
+
   // First get the unique values of the x column
   const rowIds = table.body.rows.map((row) => row.id)
   let x = getTableColumn(table, visualization.x.column)
-  if (!x || x.length === 0) throw new Error(`X column ${table.id}.${visualization.x.column} not found`)
+  if (!x || x.length === 0)
+    throw new Error(`X column ${table.id}.${visualization.x.column} not found`)
   let xSortable: (string | number)[] | null = null // separate variable allows using epoch time for sorting dates
 
   // ADD CODE TO TRANSFORM TO DATE, BUT THEN ALSO KEEP AN INDEX BASED ON THE DATE ORDER
@@ -66,15 +77,22 @@ async function createVisualizationData(table: PropsUITable & TableContext, visua
       if (aggFun === 'pct') groupSummary[group].sum += Number(yValue) || 0
 
       // add the AxisSettings for the yKeys in this loop, because we need to get the unique group values from the data (if group_by is used)
-      if (!visualizationData.yKeys[group]) visualizationData.yKeys[group] = { label: group, secondAxis: !!y.secondAxis, tickerFormat }
+      if (!visualizationData.yKeys[group])
+        visualizationData.yKeys[group] = { label: group, secondAxis: !!y.secondAxis, tickerFormat }
 
-      if (!aggregate[xValue]) aggregate[xValue] = { __rowIds: {}, __sortBy: sortBy, [visualizationData.xKey.label]: xValue }
+      if (!aggregate[xValue])
+        aggregate[xValue] = {
+          __rowIds: {},
+          __sortBy: sortBy,
+          [visualizationData.xKey.label]: xValue
+        }
       if (!aggregate[xValue].__rowIds[group]) aggregate[xValue].__rowIds[group] = []
       aggregate[xValue].__rowIds[group].push(rowIds[i])
 
       if (!aggregate[xValue][group]) aggregate[xValue][group] = 0
       if (aggFun === 'count' || aggFun === 'count_pct') aggregate[xValue][group] += 1
-      if (aggFun === 'sum' || aggFun === 'mean' || aggFun === 'pct') aggregate[xValue][group] += Number(yValue) || 0
+      if (aggFun === 'sum' || aggFun === 'mean' || aggFun === 'pct')
+        aggregate[xValue][group] += Number(yValue) || 0
     }
 
     Object.keys(groupSummary).forEach((group) => {
@@ -83,15 +101,20 @@ async function createVisualizationData(table: PropsUITable & TableContext, visua
           if (addZeroes) aggregate[xValue][group] = 0
           else continue
         }
-        if (aggFun === 'mean') aggregate[xValue][group] = aggregate[xValue][group] / groupSummary[group].n
-        if (aggFun === 'count_pct') aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].n
-        if (aggFun === 'pct') aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].sum
+        if (aggFun === 'mean')
+          aggregate[xValue][group] = aggregate[xValue][group] / groupSummary[group].n
+        if (aggFun === 'count_pct')
+          aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].n
+        if (aggFun === 'pct')
+          aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].sum
         aggregate[xValue][group] = Number(aggregate[xValue][group].toFixed(2))
       }
     })
   }
 
-  visualizationData.data = Object.values(aggregate).sort((a: any, b: any) => (a.__sortBy < b.__sortBy ? -1 : b.sortBy < a.sortBy ? 1 : 0))
+  visualizationData.data = Object.values(aggregate).sort((a: any, b: any) =>
+    a.__sortBy < b.__sortBy ? -1 : b.sortBy < a.sortBy ? 1 : 0
+  )
   return visualizationData
 }
 
@@ -108,7 +131,11 @@ function autoFormatDate(dateNumbers: number[], minValues: number): DateFormat {
   return autoFormat
 }
 
-function formatDate(dateString: string[], format: DateFormat, minValues: number = 10): [string[], number[] | null] {
+function formatDate(
+  dateString: string[],
+  format: DateFormat,
+  minValues: number = 10
+): [string[], number[] | null] {
   let formattedDate: string[] = dateString
   let dateNumbers = dateString.map((date) => new Date(date).getTime())
   let sortableDate: number[] | null = null
@@ -140,7 +167,9 @@ function formatDate(dateString: string[], format: DateFormat, minValues: number 
     sortableDate = dateNumbers
   }
   if (format === 'hour') {
-    formattedDate = dateNumbers.map((date) => new Date(date).toISOString().split('T')[1].split(':')[0])
+    formattedDate = dateNumbers.map(
+      (date) => new Date(date).toISOString().split('T')[1].split(':')[0]
+    )
     sortableDate = dateNumbers
   }
   if (format === 'month_cycle') {

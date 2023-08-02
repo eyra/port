@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import Highlighter from 'react-highlight-words'
 import { PropsUITableCell, TableWithContext, PropsUITableRow } from '../../../../types/elements'
 import { CheckBox } from './check_box'
 import { LabelButton } from './button'
@@ -12,6 +13,7 @@ export interface Props {
   table: TableWithContext
   show: boolean
   locale: string
+  search: string
   handleDelete?: (rowIds: string[]) => void
   handleUndo?: () => void
   pageSize?: number
@@ -21,6 +23,7 @@ export const Table = ({
   table,
   show,
   locale,
+  search,
   handleDelete,
   handleUndo,
   pageSize = 7
@@ -33,6 +36,10 @@ export const Table = ({
   const selectedLabel = selected.size.toLocaleString(locale, { useGrouping: true })
   const text = useMemo(() => getTranslations(locale), [locale])
 
+  const border = show ? 'bg-grey6 rounded-md border border-[0.2rem] border-grey4' : ''
+  const cellClass = `min-w-[8rem] h-[3rem] px-3 flex items-center`
+  const valueClass = `line-clamp-2`
+
   useEffect(() => {
     setSelected(new Set())
     setPage((page) => Math.max(0, Math.min(page, nPages - 1)))
@@ -41,23 +48,20 @@ export const Table = ({
   useLayoutEffect(() => {
     // set exact height of grid row for height transition
     if (!ref.current) return
-    function setHeight() {
-      if (!ref.current) return
-      if (show) {
-        ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
-      } else {
-        ref.current.style.gridTemplateRows = `0rem`
-      }
+    if (!show) {
+      ref.current.style.gridTemplateRows = `0rem`
+      return
     }
-    setHeight()
 
+    function responsiveHeight() {
+      if (!ref.current) return
+      ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
+    }
+    responsiveHeight()
     // just as a precaution, update height every second in case it changes
-    const interval = setInterval(setHeight, 1000)
+    const interval = setInterval(responsiveHeight, 1000)
     return () => clearInterval(interval)
   }, [ref, show])
-
-  const cellClass = `min-w-[8rem] h-[3rem] px-3 flex items-center`
-  const valueClass = `line-clamp-2`
 
   const items = useMemo(() => {
     const items: (PropsUITableRow | null)[] = new Array(pageSize).fill(null)
@@ -82,7 +86,14 @@ export const Table = ({
     return (
       <td key={i} className="">
         <div className={cellClass}>
-          <div className={valueClass}>{cell.text}</div>
+          <div className={valueClass}>
+            <Highlighter
+              searchWords={search.split(' ')}
+              autoEscape={true}
+              textToHighlight={cell.text}
+              highlightClassName="bg-tertiary rounded-sm"
+            />
+          </div>
         </div>
       </td>
     )
@@ -108,10 +119,10 @@ export const Table = ({
   return (
     <div
       ref={ref}
-      className={`grid grid-cols-1 transition-all duration-500 relative overflow-hidden`}
+      className={`grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden `}
     >
-      <div className="">
-        <div className="max-w-full overflow-auto">
+      <div className="my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]">
+        <div className="p-3 pt-1 pb-2 max-w-full overflow-scroll">
           <table className="table-fixed min-w-full">
             <thead className="">
               <tr className="border-b-2 border-grey4 border-solid">
@@ -129,10 +140,10 @@ export const Table = ({
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => {
+              {items.map((item, i) => {
                 if (!item)
                   return (
-                    <tr className="border-b-2 border-grey6">
+                    <tr key={'empty' + i} className="border-b-2 border-grey6">
                       <td>
                         <div className={cellClass} />
                       </td>
@@ -155,7 +166,7 @@ export const Table = ({
             </tbody>
           </table>
         </div>
-        <div className={`flex justify-between min-h-[3.5rem]`}>
+        <div className={`px-3 pb-2 flex justify-between min-h-[3.5rem]`}>
           <div className="pt-2">
             {selected.size > 0 ? (
               <IconButton

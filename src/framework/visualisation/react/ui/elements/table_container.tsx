@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react'
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import { TableWithContext, PropsUITableRow } from '../../../../types/elements'
 import { PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
 import { Figure } from '../elements/figure'
@@ -27,16 +27,19 @@ export const TableContainer = ({
   const tableVisualizations = visualizationSettings.filter((vs) => vs.table_id === table.id)
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
   const [search, setSearch] = useState<string>('')
+  const lastSearch = useRef<string>('')
   const text = useMemo(() => getTranslations(locale), [locale])
-  const [zoom, setZoom] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false)
 
   useEffect(() => {
+    if (search !== '' && lastSearch.current === '') setShow(true)
     const timer = setTimeout(() => {
       const ids = searchRows(table.originalBody.rows, search)
       setSearchFilterIds(ids)
+      lastSearch.current = search
     }, 300)
     return () => clearTimeout(timer)
-  }, [search])
+  }, [search, lastSearch])
 
   const searchedTable = useMemo(() => {
     if (searchFilterIds === undefined) return table
@@ -75,28 +78,37 @@ export const TableContainer = ({
       key={table.id}
       className="p-4 flex flex-col gap-4 w-full overflow-hidden border border-[0.2rem] border-grey4 rounded-lg"
     >
-      <div className="flex flex-wrap gap-3">
-        <div className="flex justify-between w-full">
-          <Title4 text={table.title} margin="mb-4" />
+      <div className="flex flex-wrap ">
+        <div key="Title" className="flex justify-between w-full ">
+          <Title4 text={table.title} margin="mb-2" />
+
+          <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
+        </div>
+        <div
+          key="TableSummary"
+          className="flex items-center justify-between w-full my-1 py-1 rounded "
+        >
+          <TableItems table={table} searchedTable={searchedTable} locale={locale} />
+
           <button
-            key={zoom ? 'animate' : ''}
+            key={show ? 'animate' : ''}
             className=" flex end gap-3 animate-fadeIn"
-            onClick={() => setZoom(!zoom)}
+            onClick={() => setShow(!show)}
           >
-            <div className="text-primary">{zoom ? zoomOutIcon : zoomInIcon}</div>
-            <div className="text-right">{zoom ? text.zoomOut : text.zoomIn}</div>
+            <div key="zoomout" className="text-primary">
+              {show ? zoomOutIcon : zoomInIcon}
+            </div>
+            <div key="zoomin" className="text-right">
+              {show ? text.hideTable : text.showTable}
+            </div>
           </button>
         </div>
-
-        <div className="w-full  bg-grey6 rounded-md border border-[0.2rem] border-grey4 ">
-          <div className="p-3 flex justify-between">
-            <TableItems table={searchedTable} locale={locale} />
-            <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
-          </div>
-          <div className="px-4">
+        <div key="Table" className={`w-full `}>
+          <div className="">
             <Table
-              show={zoom}
+              show={show}
               table={searchedTable}
+              search={search}
               handleDelete={handleDelete}
               handleUndo={handleUndo}
               locale={locale}
@@ -104,13 +116,17 @@ export const TableContainer = ({
           </div>
         </div>
         <div
-          className={`grid w-full gap-4 transition-all ${
-            zoom ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-1'
+          key="Visualizations"
+          className={`pt-2 grid w-full gap-4 transition-all ${
+            tableVisualizations.length ? '' : 'hidden'
           }`}
         >
           {tableVisualizations.map((vs) => {
             return (
-              <div className="p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4">
+              <div
+                key={vs.id}
+                className="p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4"
+              >
                 <Figure
                   table={searchedTable}
                   visualizationSettings={vs}
@@ -119,9 +135,6 @@ export const TableContainer = ({
                   handleUndo={handleUndo}
                 />
               </div>
-              // <Minimizable key={vs.id} size={size}>
-              //   <Figure table={searchedTable} visualizationSettings={vs} locale={locale} handleDelete={handleDelete} handleUndo={handleUndo} />
-              // </Minimizable>
             )
           })}
         </div>
@@ -213,6 +226,6 @@ function getTranslations(locale: string) {
 
 const translations = {
   searchPlaceholder: new TextBundle().add('en', 'Search').add('nl', 'Zoeken'),
-  zoomIn: new TextBundle().add('en', 'Zoom in').add('nl', 'Inzoomen'),
-  zoomOut: new TextBundle().add('en', 'Zoom out').add('nl', 'Uitzoomen')
+  showTable: new TextBundle().add('en', 'Show table').add('nl', 'Tabel tonen'),
+  hideTable: new TextBundle().add('en', 'Hide table').add('nl', 'Tabel verbergen')
 }

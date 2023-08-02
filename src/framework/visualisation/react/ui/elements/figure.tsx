@@ -56,7 +56,7 @@ export const Figure = ({
     return { title }
   }, [visualizationSettings])
 
-  const { errorMsg } = prepareCopy(locale)
+  const { errorMsg, noDataMsg } = prepareCopy(locale)
 
   if (!visualizationData && status === 'loading')
     return (
@@ -73,8 +73,12 @@ export const Figure = ({
   return (
     <div className="flex flex-col overflow-hidden ">
       <Title6 text={title} margin="mt-2 mb-4" />
-      <div className={`relative z-50 `} style={{ flex: `1 1 ${minHeight}`, minHeight }}>
-        <RenderVisualization visualizationData={visualizationData} />
+      <div className={`relative z-50 flex `} style={{ flex: `1 1 ${minHeight}`, minHeight }}>
+        {visualizationData?.data.length === 0 ? (
+          <div className="m-auto  font-bodybold text-4xl text-grey2">{noDataMsg}</div>
+        ) : (
+          <RenderVisualization visualizationData={visualizationData} />
+        )}
       </div>
     </div>
   )
@@ -213,9 +217,12 @@ const RenderVisualization = ({
 
 function prepareCopy(locale: string): Record<string, string> {
   return {
-    errorMsg: Translator.translate(errorMsg, locale)
+    errorMsg: Translator.translate(errorMsg, locale),
+    noDataMsg: Translator.translate(noDataMsg, locale)
   }
 }
+
+const noDataMsg = new TextBundle().add('en', 'No data').add('nl', 'Geen data')
 
 const errorMsg = new TextBundle()
   .add('en', 'Could not create visualization')
