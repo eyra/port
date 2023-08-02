@@ -36,7 +36,6 @@ export const Table = ({
   const selectedLabel = selected.size.toLocaleString(locale, { useGrouping: true })
   const text = useMemo(() => getTranslations(locale), [locale])
 
-  const border = show ? 'bg-grey6 rounded-md border border-[0.2rem] border-grey4' : ''
   const cellClass = `min-w-[8rem] h-[3rem] px-3 flex items-center`
   const valueClass = `line-clamp-2`
 

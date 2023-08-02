@@ -22,7 +22,6 @@ export default function useVisualizationData(
     const worker = new Worker(new URL('../workers/visualizationDataWorker.ts', import.meta.url))
     setWorker(worker)
     return () => {
-      console.log('unmount worker')
       worker.terminate()
     }
   }, [])
