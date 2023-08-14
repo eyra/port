@@ -146,38 +146,8 @@ def create_consent_form(table_list: list[props.PropsUIPromptConsentFormTable]) -
     """
     Assembles all donated data in consent form to be displayed
     """
-    return props.PropsUIPromptConsentForm(table_list, meta_tables=[], visualizations=specify_visualizations())
+    return props.PropsUIPromptConsentForm(table_list, meta_tables=[])
 
-
-def create_consent_form_tables(unique_table_id: str, title: props.Translatable, df: pd.DataFrame) -> list[props.PropsUIPromptConsentFormTable]:
-    """
-    This function chunks extracted data into tables of 5000 rows that can be renderd on screen
-
-    COMMENT KASPER: is chunking necessary? I don't think it matters how many rows a table has as long as UI doesn't render it all at once.
-    I removed it for now, because it also complicates linking visualizations to tables
-    """
-
-    #df_list = helpers.split_dataframe(df, 5000)
-    df_list = [df]
-    out = []
-
-    if len(df_list) == 1:
-        table = props.PropsUIPromptConsentFormTable(unique_table_id, title, df_list[0])
-        out.append(table)
-    else:
-        for i, df in enumerate(df_list):
-            index = i + 1
-            title_with_index = props.Translatable({lang: f"{val} {index}" for lang, val in title.translations.items()})
-            table = props.PropsUIPromptConsentFormTable(f"{unique_table_id}_{index}", title_with_index, df)
-            out.append(table)
-
-    return out
-
-def create_consent_form_visualization(unique_vis_id: str, title: props.Translatable, df: pd.DataFrame, settings: dict) -> props.PropsUIDataVisualization:
-    """
-    This function creates a visualization of the extracted data
-    """
-    return props.PropsUIDataVisualization(unique_vis_id, title, df, settings)
 
 def return_empty_result_set():
     result = {}
@@ -232,57 +202,69 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     df = netflix.ratings_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix ratings", "nl": "Netflix ratings"})
-        tables = create_consent_form_tables("netflix_ratings", table_title, df) 
-        tables_to_render.extend(tables)
+        wordcloud = props.PropsUIDataVisualization(
+            title=props.Translatable({"en": "Highest ratings", "nl": "Hoogste ratings"}),
+            type="wordcloud",
+            group= props.PropsUIDataVisualizationGroup(column="Title Name"),
+            values= [props.PropsUIDataVisualizationValue(label='N', column='Thumbs Value', aggregate='sum')]
+        )
+        table = props.PropsUIPromptConsentFormTable("netflix_rating", table_title, df, [wordcloud])
+        tables_to_render.append(table)
 
     # Extract the viewing activity
     df = netflix.viewing_activity_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
-        tables = create_consent_form_tables("netflix_viewings", table_title, df) 
-        tables_to_render.extend(tables)
+        date_graph = props.PropsUIDataVisualization(
+            title=props.Translatable({"en": "Number of viewings over time", "nl": "Aantal gezien over tijd"}),
+            type="area",
+            group= props.PropsUIDataVisualizationGroup(column="Start Time", dateFormat="auto"),
+            values= [props.PropsUIDataVisualizationValue(label='N', column='Duration', addZeroes= True)]
+        )
+        table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df, [date_graph]) 
+        tables_to_render.append(table)
     
     # Extract the clickstream
     df = netflix.clickstream_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix clickstream", "nl": "Netflix clickstream"})
-        tables = create_consent_form_tables("netflix_clickstream", table_title, df) 
-        tables_to_render.extend(tables)
+        table = props.PropsUIPromptConsentFormTable("netflix_clickstream", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract my list
     df = netflix.my_list_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix bookmarks", "nl": "Netflix bookmarks"})
-        tables = create_consent_form_tables("netflix_my_list", table_title, df) 
-        tables_to_render.extend(tables)
+        table = props.PropsUIPromptConsentFormTable("netflix_my_list", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract Indicated preferences
     df = netflix.indicated_preferences_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix indicated preferences", "nl": "Netflix indicated preferences"})
-        tables = create_consent_form_tables("netflix_indicated_preferences", table_title, df) 
-        tables_to_render.extend(tables)
+        table = props.PropsUIPromptConsentFormTable("netflix_indicated_preferences", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract playback related events
     df = netflix.playback_related_events_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix playback related events", "nl": "Netflix playback related events"})
-        tables = create_consent_form_tables("netflix_playback", table_title, df) 
-        tables_to_render.extend(tables)
+        table = props.PropsUIPromptConsentFormTable("netflix_playback", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract search history
     df = netflix.search_history_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix search history", "nl": "Netflix search history"})
-        tables = create_consent_form_tables("netflix_search", table_title, df) 
-        tables_to_render.extend(tables)
+        table = props.PropsUIPromptConsentFormTable("netflix_search", table_title, df) 
+        tables_to_render.append(table)
 
     # Extract messages sent by netflix
     df = netflix.messages_sent_by_netflix_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix messages", "nl": "Netflix messages"})
-        tables = create_consent_form_tables("netflix_messages", table_title, df) 
-        tables_to_render.extend(tables)
+        table = props.PropsUIPromptConsentFormTable("netflix_messages", table_title, df) 
+        tables_to_render.append(table)
 
     return tables_to_render
 
@@ -296,16 +278,6 @@ def extract_users(netflix_zip):
     df = unzipddp.read_csv_from_bytes_to_df(b)
     users = netflix.extract_users_from_df(df)
     return users
-
-
-##################################################################
-# Visualization settings
-
-def specify_visualizations():
-    settings = dict(type="keyword_frequency", keyword="title")
-    most_viewed = props.PropsUIDataVisualization(id="netflix_viewings", settings=settings)
-
-    return [most_viewed]
 
 
 ##########################################

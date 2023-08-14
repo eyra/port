@@ -14,7 +14,6 @@ class Translations(TypedDict):
     en: str
     nl: str
 
-
 @dataclass
 class Translatable:
     """Wrapper class for Translations""" 
@@ -80,6 +79,75 @@ class PropsUIPromptConfirm:
         dict["cancel"] = self.cancel.toDict()
         return dict
 
+@dataclass
+class PropsUIDataVisualizationGroup:
+    """Grouping variable for aggregating the data
+
+    Attributes:
+        column: name of the column to aggregate
+        label: Optionally, a label to display in the visualization (default is the column name)
+        dateFormat: if given, transforms a data column to the specified date format for aggregation
+    """
+    column: str
+    label: Optional[str] = None
+    dateFormat: Optional[str] = None
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIDataVisualizationGroup"
+        dict["column"] = self.column
+        dict["label"] = self.label
+        dict["dateFormat"] = self.dateFormat
+        return dict
+
+@dataclass
+class PropsUIDataVisualizationValue:
+    """Value to aggregate
+
+    Attributes:
+        column: name of the column to aggregate
+        label: Optionally, a label to display in the visualization (default is the column name)
+        aggregate: function for aggregating the values
+        addZeroes: if true, add zeroes for missing values
+    """
+    column: str
+    label: Optional[str] = None
+    aggregate: Optional[str] = "count"
+    addZeroes: Optional[bool] = False
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIDataVisualizationValue"
+        dict["column"] = self.column
+        dict["label"] = self.label
+        dict["aggregate"] = self.aggregate
+        dict["addZeroes"] = self.addZeroes
+        return dict
+
+@dataclass
+class PropsUIDataVisualization:
+    """Data visualization
+
+    Attributes:
+        title: title of the visualization
+        type: type of visualization
+        group: grouping variable for aggregating the data
+        values: list of values to aggregate
+    """
+    title: Translatable
+    type: str
+    group: PropsUIDataVisualizationGroup
+    values: list[PropsUIDataVisualizationValue]
+        
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIDataVisualization"
+        dict["title"] = self.title.toDict()
+        dict["type"] = self.type
+        dict["group"] = self.group.toDict()
+        dict["values"] = [value.toDict() for value in self.values]
+        return dict
+
 
 @dataclass
 class PropsUIPromptConsentFormTable:
@@ -89,10 +157,17 @@ class PropsUIPromptConsentFormTable:
         id: a unique string to itentify the table after donation
         title: title of the table
         data_frame: table to be shown
+        visualizations: optional list of visualizations to be shown
     """
     id: str
     title: Translatable
     data_frame: pd.DataFrame
+    visualizations: Optional[list[PropsUIDataVisualization]] = None
+
+    def translate_visualizations(self):
+        if self.visualizations is None:
+            return None
+        return [vis.toDict() for vis in self.visualizations]
 
     def toDict(self):
         dict = {}
@@ -100,26 +175,10 @@ class PropsUIPromptConsentFormTable:
         dict["id"] = self.id
         dict["title"] = self.title.toDict()
         dict["data_frame"] = self.data_frame.to_json()
+        dict["visualizations"] = self.translate_visualizations()
         return dict
     
-@dataclass
-class PropsUIDataVisualization:
-    """Instructions for which ConsentFormTables to visualize and how
 
-    Attributes:
-        id: id of the table (same as in PropsUIPromptConsentFormTable) to use as data 
-        title: title of the visualization
-        settings: configuration of the visualization. What type of visualization, what columns to use, etc.
-    """
-    id: str
-    settings: dict
-
-    def toDict(self):
-        dict = {}
-        dict["__type__"] = "PropsUIDataVisualization"
-        dict["id"] = self.id
-        dict["settings"] = self.settings
-        return dict
 
 @dataclass
 class PropsUIPromptConsentForm:
@@ -131,7 +190,6 @@ class PropsUIPromptConsentForm:
     """
     tables: list[PropsUIPromptConsentFormTable]
     meta_tables: list[PropsUIPromptConsentFormTable]
-    visualizations: Optional[list[PropsUIDataVisualization]] = None
 
     def translate_tables(self):
         output = []
@@ -145,17 +203,11 @@ class PropsUIPromptConsentForm:
             output.append(table.toDict())
         return output
 
-    def translate_visualizations(self):
-        if self.visualizations is None:
-            return None
-        return [vis.toDict() for vis in self.visualizations]
-
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPromptConsentForm"
         dict["tables"] = self.translate_tables()
         dict["metaTables"] = self.translate_meta_tables()
-        dict["visualizations"] = self.translate_visualizations()
         return dict
 
 

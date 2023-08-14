@@ -28,7 +28,7 @@ async function createVisualizationData(
 ): Promise<VisualizationData> {
   const visualizationData: VisualizationData = {
     type: visualization.type,
-    xKey: { label: visualization.x.label || visualization.x.column },
+    xKey: { label: visualization.group.label || visualization.group.column },
     yKeys: {},
     data: []
   }
@@ -37,39 +37,39 @@ async function createVisualizationData(
 
   // First get the unique values of the x column
   const rowIds = table.body.rows.map((row) => row.id)
-  let x = getTableColumn(table, visualization.x.column)
-  if (!x || x.length === 0)
-    throw new Error(`X column ${table.id}.${visualization.x.column} not found`)
+  let groupBy = getTableColumn(table, visualization.group.column)
+  if (!groupBy || groupBy.length === 0)
+    throw new Error(`X column ${table.id}.${visualization.group.column} not found`)
   let xSortable: (string | number)[] | null = null // separate variable allows using epoch time for sorting dates
 
   // ADD CODE TO TRANSFORM TO DATE, BUT THEN ALSO KEEP AN INDEX BASED ON THE DATE ORDER
-  if (visualization.dateFormat) {
-    ;[x, xSortable] = formatDate(x, visualization.dateFormat)
+  if (visualization.group.dateFormat) {
+    ;[groupBy, xSortable] = formatDate(groupBy, visualization.group.dateFormat)
   }
 
   const aggregate: Record<string, any> = {}
-  for (let y of visualization.ys) {
-    const aggFun = y.aggregate || 'count'
+  for (let value of visualization.values) {
+    const aggFun = value.aggregate || 'count'
     let tickerFormat: TickerFormat = 'default'
     if (aggFun === 'pct' || aggFun === 'count_pct') tickerFormat = 'percent'
 
-    const yValues = getTableColumn(table, y.column)
-    if (!yValues) throw new Error(`Y column ${table.id}.${y.column} not found`)
+    const yValues = getTableColumn(table, value.column)
+    if (!yValues) throw new Error(`Y column ${table.id}.${value.column} not found`)
 
     // If group_by column is specified, the columns in the aggregated data will be the unique group_by columns
-    const yGroup = y.group_by ? getTableColumn(table, y.group_by) : null
+    const yGroup = value.group_by ? getTableColumn(table, value.group_by) : null
 
     // if missing values should be treated as zero, we need to add the missing values after knowing all groups
-    const addZeroes = !!y.addZeroes
+    const addZeroes = !!value.addZeroes
     const groupSummary: Record<string, any> = {}
     const uniqueGroups = new Set<string>([])
 
-    for (let i = 0; i < x.length; i++) {
-      const xValue = x[i]
+    for (let i = 0; i < groupBy.length; i++) {
+      const xValue = groupBy[i]
       const yValue = yValues[i]
-      const group = yGroup ? yGroup[i] : y.label || y.column
+      const group = yGroup ? yGroup[i] : value.label || value.column
       if (addZeroes) uniqueGroups.add(group)
-      const sortBy = xSortable ? xSortable[i] : x[i]
+      const sortBy = xSortable ? xSortable[i] : groupBy[i]
 
       // calculate group summary statistics. This is used for the mean, pct and count_pct aggregations
       if (!groupSummary[group]) groupSummary[group] = { n: 0, sum: 0 }
@@ -78,7 +78,11 @@ async function createVisualizationData(
 
       // add the AxisSettings for the yKeys in this loop, because we need to get the unique group values from the data (if group_by is used)
       if (!visualizationData.yKeys[group])
-        visualizationData.yKeys[group] = { label: group, secondAxis: !!y.secondAxis, tickerFormat }
+        visualizationData.yKeys[group] = {
+          label: group,
+          secondAxis: !!value.secondAxis,
+          tickerFormat
+        }
 
       if (!aggregate[xValue])
         aggregate[xValue] = {

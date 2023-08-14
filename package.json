@@ -13,6 +13,7 @@
     "lodash": "^4.17.21",
     "lottie-react": "^2.3.1",
     "react-highlight-words": "^0.20.0",
+    "react-wordcloud": "^1.2.7",
     "recharts": "^2.7.1",
     "typescript": "^4.4.3",
     "web-vitals": "^2.1.4"

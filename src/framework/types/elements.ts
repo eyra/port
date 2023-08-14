@@ -2,6 +2,7 @@ import { isInstanceOf, isLike } from '../helpers'
 import {} from './commands'
 import { isPropsUIPage, PropsUIPage } from './pages'
 import { isPropsUIPrompt, PropsUIPrompt } from './prompts'
+import { VisualizationType } from './visualizations'
 
 export type PropsUI =
   | PropsUIText
@@ -96,7 +97,11 @@ export interface PropsUITextBodyLarge {
   margin?: string
 }
 export function isPropsUITextBodyLarge(arg: any): arg is PropsUITextBodyLarge {
-  return isInstanceOf<PropsUITextBodyLarge>(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin'])
+  return isInstanceOf<PropsUITextBodyLarge>(arg, 'PropsUITextBodyLarge', [
+    'text',
+    'color',
+    'margin'
+  ])
 }
 
 export interface PropsUITextBodyMedium {
@@ -106,7 +111,11 @@ export interface PropsUITextBodyMedium {
   margin?: string
 }
 export function isPropsUITextBodyMedium(arg: any): arg is PropsUITextBodyMedium {
-  return isInstanceOf<PropsUITextBodyMedium>(arg, 'PropsUITextBodyMedium', ['text', 'color', 'margin'])
+  return isInstanceOf<PropsUITextBodyMedium>(arg, 'PropsUITextBodyMedium', [
+    'text',
+    'color',
+    'margin'
+  ])
 }
 
 export interface PropsUITextBodySmall {
@@ -116,7 +125,11 @@ export interface PropsUITextBodySmall {
   margin?: string
 }
 export function isPropsUITextBodySmall(arg: any): arg is PropsUITextBodySmall {
-  return isInstanceOf<PropsUITextBodySmall>(arg, 'PropsUITextBodySmall', ['text', 'color', 'margin'])
+  return isInstanceOf<PropsUITextBodySmall>(arg, 'PropsUITextBodySmall', [
+    'text',
+    'color',
+    'margin'
+  ])
 }
 
 export interface PropsUITextTitle0 {
@@ -204,7 +217,11 @@ export interface PropsUIButtonPrimary {
   onClick: () => void
 }
 export function isPropsUIButtonPrimary(arg: any): arg is PropsUIButtonPrimary {
-  return isInstanceOf<PropsUIButtonPrimary>(arg, 'PropsUIButtonPrimary', ['label', 'color', 'onClick'])
+  return isInstanceOf<PropsUIButtonPrimary>(arg, 'PropsUIButtonPrimary', [
+    'label',
+    'color',
+    'onClick'
+  ])
 }
 
 export interface PropsUIButtonSecundary {
@@ -214,7 +231,11 @@ export interface PropsUIButtonSecundary {
   onClick: () => void
 }
 export function isPropsUIButtonSecundary(arg: any): arg is PropsUIButtonSecundary {
-  return isInstanceOf<PropsUIButtonSecundary>(arg, 'PropsUIButtonSecundary', ['label', 'color', 'onClick'])
+  return isInstanceOf<PropsUIButtonSecundary>(arg, 'PropsUIButtonSecundary', [
+    'label',
+    'color',
+    'onClick'
+  ])
 }
 
 export interface PropsUIButtonBack {
@@ -269,7 +290,13 @@ export interface PropsUIButtonIconLabel {
   onClick: () => void
 }
 export function isPropsUIButtonIconLabel(arg: any): arg is PropsUIButtonIconLabel {
-  return isInstanceOf<PropsUIButtonIconLabel>(arg, 'PropsUIButtonIconLabel', ['icon', 'label', 'color', 'alignment', 'onClick'])
+  return isInstanceOf<PropsUIButtonIconLabel>(arg, 'PropsUIButtonIconLabel', [
+    'icon',
+    'label',
+    'color',
+    'alignment',
+    'onClick'
+  ])
 }
 
 export interface PropsUIButtonLabel {
@@ -291,7 +318,12 @@ export interface PropsUIRadioItem {
   onSelect: () => void
 }
 export function isPropsUIRadioItem(arg: any): arg is PropsUIRadioItem {
-  return isInstanceOf<PropsUIRadioItem>(arg, 'PropsUIRadioItem', ['id', 'value', 'selected', 'onSelect'])
+  return isInstanceOf<PropsUIRadioItem>(arg, 'PropsUIRadioItem', [
+    'id',
+    'value',
+    'selected',
+    'onSelect'
+  ])
 }
 
 // Check box
@@ -358,7 +390,13 @@ export interface PropsUITable {
   pageSize?: number
 }
 export function isPropsUITable(arg: any): arg is PropsUITable {
-  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', ['readOnly', 'pageSize', 'id', 'head', 'body'])
+  return isInstanceOf<PropsUITable>(arg, 'PropsUITable', [
+    'readOnly',
+    'pageSize',
+    'id',
+    'head',
+    'body'
+  ])
 }
 
 export interface PropsUITableHead {
@@ -400,6 +438,7 @@ export interface TableContext {
   annotations: Annotation[]
   originalBody: PropsUITableBody
   deletedRows: string[][]
+  visualizations?: VisualizationType[]
 }
 
 export type TableWithContext = TableContext & PropsUITable

@@ -9,11 +9,7 @@ import {
   TableContext,
   isPropsUITableRow
 } from '../../../../types/elements'
-import {
-  PropsUIPromptConsentForm,
-  PropsUIPromptConsentFormTable,
-  PropsUIPromptConsentFormVisualization
-} from '../../../../types/prompts'
+import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable } from '../../../../types/prompts'
 import { LabelButton, PrimaryButton } from '../elements/button'
 import { BodyLarge, Title4 } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
@@ -28,55 +24,53 @@ import { TableContainer } from '../elements/table_container'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 
-const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
-  {
-    __type__: 'PropsUIPromptConsentFormVisualization',
-    id: 'netflix_viewings_area',
-    table_id: 'netflix_viewings',
-    title: new TextBundle()
-      .add('en', 'Number of viewings over time')
-      .add('nl', 'Aantal gezien over tijd'),
-    visualization: {
-      type: 'area',
-      x: { column: 'Start Time' },
-      ys: [{ label: 'N', column: 'Duration', addZeroes: true }],
-      dateFormat: 'auto'
-    }
-  },
-  {
-    __type__: 'PropsUIPromptConsentFormVisualization',
-    id: 'netflix_viewings_bar',
-    table_id: 'netflix_viewings',
-    title: new TextBundle()
-      .add('en', 'Viewings by hour of the day')
-      .add('nl', 'Aantal gezien per uur van de dag'),
-    visualization: {
-      type: 'bar',
-      x: { column: 'Start Time' },
-      ys: [{ label: 'N', column: 'Start Time', addZeroes: true, aggregate: 'count_pct' }],
-      dateFormat: 'hour_cycle'
-    }
-  },
-  {
-    __type__: 'PropsUIPromptConsentFormVisualization',
-    id: 'netflix_playback_line',
-    table_id: 'netflix_playback',
-    title: new TextBundle()
-      .add('en', 'Viewings by hour of the day')
-      .add('nl', 'Aantal gezien per uur van de dag'),
-    visualization: {
-      type: 'line',
-      x: { column: 'Date time' },
-      ys: [
-        { label: 'Start', column: 'start', addZeroes: true, aggregate: 'sum' },
-        { label: 'Playing', column: 'playing', addZeroes: true, aggregate: 'sum' },
-        { label: 'Stopped', column: 'stopped', addZeroes: true, aggregate: 'sum' },
-        { label: 'Paused', column: 'paused', addZeroes: true, aggregate: 'sum' }
-      ],
-      dateFormat: 'hour_cycle'
-    }
-  }
-]
+// const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
+//   {
+//     id: 'netflix_viewings_area',
+//     table_id: 'netflix_viewings',
+//     visualization: {
+//       title: new TextBundle()
+//         .add('en', 'Number of viewings over time')
+//         .add('nl', 'Aantal gezien over tijd'),
+//       type: 'area',
+//       group: { column: 'Start Time', dateFormat: 'auto' },
+//       values: [{ label: 'N', column: 'Duration', addZeroes: true }]
+//     }
+//   }
+//   // {
+//   //   __type__: 'PropsUIPromptConsentFormVisualization',
+//   //   id: 'netflix_viewings_bar',
+//   //   table_id: 'netflix_viewings',
+//   //   title: new TextBundle()
+//   //     .add('en', 'Viewings by hour of the day')
+//   //     .add('nl', 'Aantal gezien per uur van de dag'),
+//   //   visualization: {
+//   //     type: 'bar',
+//   //     x: { column: 'Start Time' },
+//   //     ys: [{ label: 'N', column: 'Start Time', addZeroes: true, aggregate: 'count_pct' }],
+//   //     dateFormat: 'hour_cycle'
+//   //   }
+//   // },
+//   // {
+//   //   __type__: 'PropsUIPromptConsentFormVisualization',
+//   //   id: 'netflix_playback_line',
+//   //   table_id: 'netflix_playback',
+//   //   title: new TextBundle()
+//   //     .add('en', 'Viewings by hour of the day')
+//   //     .add('nl', 'Aantal gezien per uur van de dag'),
+//   //   visualization: {
+//   //     type: 'line',
+//   //     x: { column: 'Date time' },
+//   //     ys: [
+//   //       { label: 'Start', column: 'start', addZeroes: true, aggregate: 'sum' },
+//   //       { label: 'Playing', column: 'playing', addZeroes: true, aggregate: 'sum' },
+//   //       { label: 'Stopped', column: 'stopped', addZeroes: true, aggregate: 'sum' },
+//   //       { label: 'Paused', column: 'paused', addZeroes: true, aggregate: 'sum' }
+//   //     ],
+//   //     dateFormat: 'hour_cycle'
+//   //   }
+//   // }
+// ]
 
 export const ConsentForm = (props: Props): JSX.Element => {
   useUnloadWarning()
@@ -87,7 +81,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   //const { visualizationSettings, locale, resolve } = props
   const { locale, resolve } = props
-  const visualizationSettings = testVisualizations
+  // const visualizationSettings = testVisualizations
 
   const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
 
@@ -167,7 +161,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
       deletedRowCount,
       annotations: [],
       originalBody: body,
-      deletedRows: []
+      deletedRows: [],
+      visualizations: tableData.visualizations
     }
   }
 
@@ -234,7 +229,6 @@ export const ConsentForm = (props: Props): JSX.Element => {
                 key={table.id}
                 id={table.id}
                 table={table}
-                visualizationSettings={visualizationSettings}
                 updateTable={updateTable}
                 locale={locale}
               />

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import { TableWithContext, PropsUITableRow } from '../../../../types/elements'
-import { PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
+import { VisualizationType } from '../../../../types/visualizations'
 import { Figure } from '../elements/figure'
 import { TableItems } from './table_items'
 import { SearchBar } from './search_bar'
@@ -12,7 +12,6 @@ import { Table } from './table'
 interface TableContainerProps {
   id: string
   table: TableWithContext
-  visualizationSettings: PropsUIPromptConsentFormVisualization[]
   updateTable: (tableId: string, table: TableWithContext) => void
   locale: string
 }
@@ -20,11 +19,10 @@ interface TableContainerProps {
 export const TableContainer = ({
   id,
   table,
-  visualizationSettings,
   updateTable,
   locale
 }: TableContainerProps): JSX.Element => {
-  const tableVisualizations = visualizationSettings.filter((vs) => vs.table_id === table.id)
+  const tableVisualizations = table.visualizations || []
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
   const [search, setSearch] = useState<string>('')
   const lastSearch = useRef<string>('')
@@ -121,15 +119,15 @@ export const TableContainer = ({
             tableVisualizations.length ? '' : 'hidden'
           }`}
         >
-          {tableVisualizations.map((vs) => {
+          {tableVisualizations.map((vs: VisualizationType, i: number) => {
             return (
               <div
-                key={vs.id}
+                key={table.id + '_' + i}
                 className="p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4"
               >
                 <Figure
                   table={searchedTable}
-                  visualizationSettings={vs}
+                  visualization={vs}
                   locale={locale}
                   handleDelete={handleDelete}
                   handleUndo={handleUndo}

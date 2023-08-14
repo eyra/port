@@ -36,7 +36,7 @@ export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element
           {searched < n ? searchLabel + ' / ' + nLabel : nLabel} {text.rows}
         </div>
 
-        <div className="flex text-grey2">({deletedLabel})</div>
+        <div className={`flex text-grey2 ${deleted ? '' : 'hidden'}`}>({deletedLabel})</div>
       </div>
     </div>
   )

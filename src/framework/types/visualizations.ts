@@ -1,3 +1,5 @@
+import { Text } from './elements'
+
 export type AggregationFunction = 'count' | 'mean' | 'sum' | 'count_pct' | 'pct'
 
 export interface Axis {
@@ -5,7 +7,15 @@ export interface Axis {
   column: string
 }
 
-export interface YAxis extends Axis {
+export interface AggregationGroup {
+  label?: string
+  column: string
+  dateFormat?: DateFormat
+}
+
+export interface AggregationValue {
+  label?: string
+  column: string
   aggregate?: AggregationFunction
   group_by?: string
   secondAxis?: boolean
@@ -15,9 +25,9 @@ export interface YAxis extends Axis {
 }
 
 export interface ChartProps {
-  x: Axis
-  ys: YAxis[]
-  dateFormat?: DateFormat
+  title: Text
+  group: AggregationGroup
+  values: AggregationValue[]
   height?: number
 }
 
@@ -33,6 +43,12 @@ export interface AreaChartProps extends ChartProps {
   type: 'area'
 }
 
+export interface WordcloudProps extends ChartProps {
+  type: 'wordcloud'
+}
+
+export type VisualizationType = LineChartProps | BarChartProps | AreaChartProps | WordcloudProps
+
 export type AggregateRowIds = Record<string, string[]>
 
 export type AggregatedData = Record<string, string | AggregateRowIds>[]
@@ -46,12 +62,20 @@ export interface AxisSettings {
 export type TickerFormat = 'percent' | 'default'
 
 export interface VisualizationData {
-  type: 'line' | 'bar' | 'area'
+  type: 'line' | 'bar' | 'area' | 'wordcloud'
   data: AggregatedData
   xKey: AxisSettings
   yKeys: Record<string, AxisSettings>
 }
 
-export type VisualizationType = LineChartProps | BarChartProps | AreaChartProps
-
-export type DateFormat = 'auto' | 'year' | 'quarter' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'day_cycle' | 'hour_cycle'
+export type DateFormat =
+  | 'auto'
+  | 'year'
+  | 'quarter'
+  | 'month'
+  | 'day'
+  | 'hour'
+  | 'month_cycle'
+  | 'weekday_cycle'
+  | 'day_cycle'
+  | 'hour_cycle'

@@ -60,7 +60,7 @@ export const Table = ({
     // just as a precaution, update height every second in case it changes
     const interval = setInterval(responsiveHeight, 1000)
     return () => clearInterval(interval)
-  }, [ref, show])
+  }, [ref, show, nPages])
 
   const items = useMemo(() => {
     const items: (PropsUITableRow | null)[] = new Array(pageSize).fill(null)
@@ -142,7 +142,7 @@ export const Table = ({
               {items.map((item, i) => {
                 if (!item)
                   return (
-                    <tr key={'empty' + i} className="border-b-2 border-grey6">
+                    <tr key={'empty' + i} className="border-b-2 border-grey4 ">
                       <td>
                         <div className={cellClass} />
                       </td>
@@ -166,23 +166,22 @@ export const Table = ({
           </table>
         </div>
         <div className={`px-3 pb-2 flex justify-between min-h-[3.5rem]`}>
-          <div className="pt-2">
-            {selected.size > 0 ? (
+          <div className={`pt-2 pb-4 ${selected.size || table.deletedRowCount ? '' : 'invisible'}`}>
+            {selected.size ? (
               <IconButton
                 icon={DeleteSvg}
                 label={`${text.delete} ${selectedLabel}`}
                 color="text-delete"
                 onClick={() => handleDelete?.([...selected])}
               />
-            ) : null}
-            {selected.size === 0 && table.deletedRowCount ? (
+            ) : (
               <IconButton
                 icon={UndoSvg}
                 label={text.undo}
                 color="text-primary"
                 onClick={() => handleUndo?.()}
               />
-            ) : null}
+            )}
           </div>
           <Pagination page={page} setPage={setPage} nPages={nPages} />
         </div>

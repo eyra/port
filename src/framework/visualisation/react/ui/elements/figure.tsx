@@ -1,11 +1,15 @@
 import { TableWithContext } from '../../../../types/elements'
-import { PropsUIPromptConsentFormVisualization } from '../../../../types/prompts'
 
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
-import { VisualizationData, AxisSettings, TickerFormat } from '../../../../types/visualizations'
+import {
+  VisualizationType,
+  VisualizationData,
+  AxisSettings,
+  TickerFormat
+} from '../../../../types/visualizations'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { ReactFactoryContext } from '../../factory'
 import {
@@ -26,14 +30,14 @@ import useVisualizationData from '../hooks/useVisualizationData'
 import { Title6 } from './text'
 
 import Lottie from 'lottie-react'
-import spinnerLight from '../../../../../assets/lottie/spinner-light.json'
 import spinnerDark from '../../../../../assets/lottie/spinner-dark.json'
+import ReactWordcloud, { Options } from 'react-wordcloud'
 
 type Props = VisualizationProps & ReactFactoryContext
 
 export interface VisualizationProps {
   table: TableWithContext
-  visualizationSettings: PropsUIPromptConsentFormVisualization
+  visualization: VisualizationType
   locale: string
   handleDelete: (rowIds: string[]) => void
   handleUndo: () => void
@@ -41,20 +45,17 @@ export interface VisualizationProps {
 
 export const Figure = ({
   table,
-  visualizationSettings,
+  visualization,
   locale,
   handleDelete,
   handleUndo
 }: Props): JSX.Element => {
-  const [visualizationData, status] = useVisualizationData(
-    table,
-    visualizationSettings.visualization
-  )
+  const [visualizationData, status] = useVisualizationData(table, visualization)
 
   const { title } = useMemo(() => {
-    const title = Translator.translate(visualizationSettings.title, locale)
+    const title = Translator.translate(visualization.title, locale)
     return { title }
-  }, [visualizationSettings])
+  }, [visualization])
 
   const { errorMsg, noDataMsg } = prepareCopy(locale)
 
@@ -68,8 +69,9 @@ export const Figure = ({
   if (status === 'error')
     return <div className="flex justify-center items-center text-error">{errorMsg}</div>
 
-  const minHeight = visualizationSettings.height ? visualizationSettings.height + 'px' : `20rem`
+  const minHeight = visualization.height ? visualization.height + 'px' : `20rem`
 
+  console.log(visualizationData)
   return (
     <div className="flex flex-col overflow-hidden ">
       <Title6 text={title} margin="mt-2 mb-4" />
@@ -84,15 +86,28 @@ export const Figure = ({
   )
 }
 
-interface RenderVisualizationProps {
-  visualizationData: VisualizationData | undefined
-}
-
 const RenderVisualization = ({
   visualizationData
-}: RenderVisualizationProps): JSX.Element | null => {
+}: {
+  visualizationData: VisualizationData | undefined
+}): JSX.Element | null => {
   if (!visualizationData) return null
 
+  if (['line', 'bar', 'area'].includes(visualizationData.type))
+    return <RenderRechartsGraph visualizationData={visualizationData} />
+
+  if (visualizationData.type === 'wordcloud')
+    return <RenderWordcloud visualizationData={visualizationData} />
+  return null
+}
+
+interface RenderVisualizationProps {
+  visualizationData: VisualizationData
+}
+
+const RenderRechartsGraph = ({
+  visualizationData
+}: RenderVisualizationProps): JSX.Element | null => {
   function tooltip() {
     return (
       <Tooltip
@@ -213,6 +228,32 @@ const RenderVisualization = ({
       {chart}
     </ResponsiveContainer>
   )
+}
+
+function RenderWordcloud({ visualizationData }: RenderVisualizationProps): JSX.Element | null {
+  const [options] = useState<any>({
+    rotations: 2,
+    rotationAngles: [0],
+    scale: 'sqrt',
+    fontSizes: [10, 50],
+    enableTooltip: true
+  })
+
+  const words = useMemo(() => {
+    const words = []
+    for (let row of visualizationData.data) {
+      const text = row[visualizationData?.xKey.label] as string
+      let value = 0
+      for (let yKey of Object.values(visualizationData.yKeys)) {
+        value += Number(row[yKey.label]) || 0
+      }
+      words.push({ text, value })
+    }
+
+    return words.sort((a, b) => b.value - a.value).slice(0, 50)
+  }, [visualizationData])
+
+  return <ReactWordcloud words={words} options={options} />
 }
 
 function prepareCopy(locale: string): Record<string, string> {
