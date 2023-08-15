@@ -123,7 +123,7 @@ export const TableContainer = ({
             return (
               <div
                 key={table.id + '_' + i}
-                className="p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4"
+                className="p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4 w-full overflow-auto"
               >
                 <Figure
                   table={searchedTable}

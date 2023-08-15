@@ -1,13 +1,23 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction
+} from 'react'
 import Highlighter from 'react-highlight-words'
 import { PropsUITableCell, TableWithContext, PropsUITableRow } from '../../../../types/elements'
 import { CheckBox } from './check_box'
-import { LabelButton } from './button'
+
 import UndoSvg from '../../../../../assets/images/undo.svg'
 import DeleteSvg from '../../../../../assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
+import { useFloating, useFocus, useHover, useInteractions } from '@floating-ui/react'
 
 export interface Props {
   table: TableWithContext
@@ -17,6 +27,13 @@ export interface Props {
   handleDelete?: (rowIds: string[]) => void
   handleUndo?: () => void
   pageSize?: number
+}
+
+interface Tooltip {
+  show: boolean
+  content: ReactNode
+  x: number
+  y: number
 }
 
 export const Table = ({
@@ -36,13 +53,28 @@ export const Table = ({
   const selectedLabel = selected.size.toLocaleString(locale, { useGrouping: true })
   const text = useMemo(() => getTranslations(locale), [locale])
 
-  const cellClass = `min-w-[8rem] h-[3rem] px-3 flex items-center`
-  const valueClass = `line-clamp-2`
+  const [tooltip, setTooltip] = useState<Tooltip>({
+    show: false,
+    content: null,
+    x: 0,
+    y: 0
+  })
+
+  const cellClass = ` h-[3rem] px-3 flex items-center font-table-row`
 
   useEffect(() => {
     setSelected(new Set())
     setPage((page) => Math.max(0, Math.min(page, nPages - 1)))
   }, [table, nPages])
+
+  useEffect(() => {
+    // rm tooltip on scroll
+    function rmTooltip() {
+      setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
+    }
+    window.addEventListener('scroll', rmTooltip)
+    return () => window.removeEventListener('scroll', rmTooltip)
+  })
 
   useLayoutEffect(() => {
     // set exact height of grid row for height transition
@@ -81,20 +113,32 @@ export const Table = ({
     )
   }
 
-  function renderCell(cell: PropsUITableCell, i: number) {
+  function renderRow(item: PropsUITableRow | null, i: number) {
+    if (!item)
+      return (
+        <tr key={'empty' + i} className="border-b-2 border-grey4 ">
+          <td>
+            <div className={cellClass} />
+          </td>
+        </tr>
+      )
     return (
-      <td key={i} className="">
-        <div className={cellClass}>
-          <div className={valueClass}>
-            <Highlighter
-              searchWords={search.split(' ')}
-              autoEscape={true}
-              textToHighlight={cell.text}
-              highlightClassName="bg-tertiary rounded-sm"
-            />
-          </div>
-        </div>
-      </td>
+      <tr key={item.id} className="border-b-2 border-grey4 border-solid">
+        <td key={'select'}>
+          <CheckBox
+            id={item.id}
+            size="w-7 h-7"
+            selected={selected.has(item.id)}
+            onSelect={() => toggleSelected(item.id)}
+          />
+        </td>
+
+        {item.cells.map((cell, j) => (
+          <td key={j}>
+            <Cell cell={cell} search={search} cellClass={cellClass} setTooltip={setTooltip} />
+          </td>
+        ))}
+      </tr>
     )
   }
 
@@ -121,7 +165,7 @@ export const Table = ({
       className={`grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden `}
     >
       <div className="my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]">
-        <div className="p-3 pt-1 pb-2 max-w-full overflow-scroll">
+        <div className="p-3 pt-1 pb-2 max-w-full overflow-x-scroll">
           <table className="table-fixed min-w-full">
             <thead className="">
               <tr className="border-b-2 border-grey4 border-solid">
@@ -138,31 +182,7 @@ export const Table = ({
                 {columnNames.map(renderHeaderCell)}
               </tr>
             </thead>
-            <tbody>
-              {items.map((item, i) => {
-                if (!item)
-                  return (
-                    <tr key={'empty' + i} className="border-b-2 border-grey4 ">
-                      <td>
-                        <div className={cellClass} />
-                      </td>
-                    </tr>
-                  )
-                return (
-                  <tr key={item.id} className="border-b-2 border-grey4 border-solid">
-                    <td key={'select'}>
-                      <CheckBox
-                        id={item.id}
-                        size="w-7 h-7"
-                        selected={selected.has(item.id)}
-                        onSelect={() => toggleSelected(item.id)}
-                      />
-                    </td>
-                    {item.cells.map(renderCell)}
-                  </tr>
-                )
-              })}
-            </tbody>
+            <tbody>{items.map(renderRow)}</tbody>
           </table>
         </div>
         <div className={`px-3 pb-2 flex justify-between min-h-[3.5rem]`}>
@@ -186,7 +206,103 @@ export const Table = ({
           <Pagination page={page} setPage={setPage} nPages={nPages} />
         </div>
       </div>
+      <div
+        className={`TestTest ${
+          tooltip.show ? '' : 'invisible'
+        } fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
+        style={{ left: tooltip.x, top: tooltip.y } as any}
+      >
+        {tooltip.content}
+      </div>
     </div>
+  )
+}
+
+function Cell({
+  cell,
+  search,
+  cellClass,
+  setTooltip
+}: {
+  cell: PropsUITableCell
+  search: string
+  cellClass: string
+  setTooltip: Dispatch<SetStateAction<Tooltip>>
+}) {
+  const textRef = useRef<HTMLDivElement>(null)
+  const [overflows, setOverflows] = useState(false)
+
+  useEffect(() => {
+    if (!textRef.current) return
+    setOverflows(textRef.current.scrollWidth > textRef.current.clientWidth)
+  }, [textRef])
+
+  function onSetTooltip() {
+    if (!textRef.current) return
+    if (!overflows) return
+
+    const rect = textRef.current.getBoundingClientRect()
+
+    const content = (
+      <Highlighter
+        searchWords={search.split(' ')}
+        autoEscape={true}
+        textToHighlight={cell.text}
+        highlightClassName="bg-tertiary rounded-sm"
+      />
+    )
+
+    setTooltip({
+      show: true,
+      content,
+      x: rect.x,
+      y: rect.y
+    })
+  }
+  function onRmTooltip() {
+    setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
+  }
+
+  return (
+    <div
+      className={`relative ${cellClass}`}
+      onMouseEnter={onSetTooltip}
+      onMouseLeave={onRmTooltip}
+      onClick={onSetTooltip}
+    >
+      <div
+        ref={textRef}
+        className={`whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10`}
+      >
+        <Highlighter
+          searchWords={search.split(' ')}
+          autoEscape={true}
+          textToHighlight={cell.text}
+          highlightClassName="bg-tertiary rounded-sm"
+        />
+      </div>
+      {overflows && <TooltipIcon />}
+    </div>
+  )
+}
+
+function TooltipIcon() {
+  return (
+    <svg
+      className="w-3 h-3 mb-1 text-gray-800 dark:text-white"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 10 16"
+    >
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="m2.707 14.293 5.586-5.586a1 1 0 0 0 0-1.414L2.707 1.707A1 1 0 0 0 1 2.414v11.172a1 1 0 0 0 1.707.707Z"
+      />
+    </svg>
   )
 }
 
