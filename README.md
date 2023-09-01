@@ -374,6 +374,10 @@ Workers can not be reused over sessions. Re-run code above for every new donatio
 
 </details>
 
+### Previous studies done with Port 
+
+Here you can find a [list](https://github.com/eyra/port/wiki/Previous-data-donation-studies) of previous studies that were completed using Port. These studies can serve as inspiration or example for your own data donation study!
+
 # Technical details of Port
 
 You can use Port as is, but if your study has demand for something you are free to change the way Port works.
