@@ -202,11 +202,11 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     df = netflix.ratings_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix ratings", "nl": "Netflix ratings"})
-        wordcloud = props.PropsUIDataVisualization(
+        wordcloud = props.PropsUITextVisualization(
             title=props.Translatable({"en": "Highest ratings", "nl": "Hoogste ratings"}),
             type="wordcloud",
-            group= props.PropsUIDataVisualizationGroup(column="Title Name"),
-            values= [props.PropsUIDataVisualizationValue(label='N', column='Thumbs Value', aggregate='sum')]
+            text_column="Title Name",
+            value_column="Thumbs Value"        
         )
         table = props.PropsUIPromptConsentFormTable("netflix_rating", table_title, df, [wordcloud])
         tables_to_render.append(table)
@@ -215,11 +215,13 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     df = netflix.viewing_activity_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
-        date_graph = props.PropsUIDataVisualization(
+
+        
+        date_graph = props.PropsUIChartVisualization(
             title=props.Translatable({"en": "Number of viewings over time", "nl": "Aantal gezien over tijd"}),
             type="area",
-            group= props.PropsUIDataVisualizationGroup(column="Start Time", dateFormat="auto"),
-            values= [props.PropsUIDataVisualizationValue(label='N', column='Duration', addZeroes= True)]
+            group= props.PropsUIChartGroup(column="Start Time", dateFormat="auto"),
+            values= [props.PropsUIChartValue(label='N', column='Duration', addZeroes= True)]
         )
         table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df, [date_graph]) 
         tables_to_render.append(table)

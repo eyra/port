@@ -1,10 +1,13 @@
 import { PropsUITable, TableContext, TableWithContext } from '../../../../types/elements'
 import {
-  VisualizationData,
+  ChartVisualization,
+  TextVisualization,
+  ChartVisualizationData,
   VisualizationType,
-  DateFormat,
-  TickerFormat
+  VisualizationData
 } from '../../../../types/visualizations'
+import { prepareChartData } from './visualizationDataFunctions/prepareChartData'
+import { prepareTextData } from './visualizationDataFunctions/prepareTextData'
 
 interface Input {
   table: TableWithContext
@@ -22,188 +25,15 @@ self.onmessage = (e: MessageEvent<Input>) => {
     })
 }
 
-async function createVisualizationData(
+async function createVisualizationData (
   table: PropsUITable & TableContext,
   visualization: VisualizationType
 ): Promise<VisualizationData> {
-  const visualizationData: VisualizationData = {
-    type: visualization.type,
-    xKey: { label: visualization.group.label || visualization.group.column },
-    yKeys: {},
-    data: []
-  }
+  if (!table || !visualization) throw new Error('Table and visualization are required')
 
-  if (table.body.rows.length === 0) return visualizationData
+  if (['line', 'bar', 'area'].includes(visualization.type)) { return await prepareChartData(table, visualization as ChartVisualization) }
 
-  // First get the unique values of the x column
-  const rowIds = table.body.rows.map((row) => row.id)
-  let groupBy = getTableColumn(table, visualization.group.column)
-  if (!groupBy || groupBy.length === 0)
-    throw new Error(`X column ${table.id}.${visualization.group.column} not found`)
-  let xSortable: (string | number)[] | null = null // separate variable allows using epoch time for sorting dates
+  if (['wordcloud'].includes(visualization.type)) { return await prepareTextData(table, visualization as TextVisualization) }
 
-  // ADD CODE TO TRANSFORM TO DATE, BUT THEN ALSO KEEP AN INDEX BASED ON THE DATE ORDER
-  if (visualization.group.dateFormat) {
-    ;[groupBy, xSortable] = formatDate(groupBy, visualization.group.dateFormat)
-  }
-
-  const aggregate: Record<string, any> = {}
-  for (let value of visualization.values) {
-    const aggFun = value.aggregate || 'count'
-    let tickerFormat: TickerFormat = 'default'
-    if (aggFun === 'pct' || aggFun === 'count_pct') tickerFormat = 'percent'
-
-    const yValues = getTableColumn(table, value.column)
-    if (!yValues) throw new Error(`Y column ${table.id}.${value.column} not found`)
-
-    // If group_by column is specified, the columns in the aggregated data will be the unique group_by columns
-    const yGroup = value.group_by ? getTableColumn(table, value.group_by) : null
-
-    // if missing values should be treated as zero, we need to add the missing values after knowing all groups
-    const addZeroes = !!value.addZeroes
-    const groupSummary: Record<string, any> = {}
-    const uniqueGroups = new Set<string>([])
-
-    for (let i = 0; i < groupBy.length; i++) {
-      const xValue = groupBy[i]
-      const yValue = yValues[i]
-      const group = yGroup ? yGroup[i] : value.label || value.column
-      if (addZeroes) uniqueGroups.add(group)
-      const sortBy = xSortable ? xSortable[i] : groupBy[i]
-
-      // calculate group summary statistics. This is used for the mean, pct and count_pct aggregations
-      if (!groupSummary[group]) groupSummary[group] = { n: 0, sum: 0 }
-      if (aggFun === 'count_pct' || aggFun === 'mean') groupSummary[group].n += 1
-      if (aggFun === 'pct') groupSummary[group].sum += Number(yValue) || 0
-
-      // add the AxisSettings for the yKeys in this loop, because we need to get the unique group values from the data (if group_by is used)
-      if (!visualizationData.yKeys[group])
-        visualizationData.yKeys[group] = {
-          label: group,
-          secondAxis: !!value.secondAxis,
-          tickerFormat
-        }
-
-      if (!aggregate[xValue])
-        aggregate[xValue] = {
-          __rowIds: {},
-          __sortBy: sortBy,
-          [visualizationData.xKey.label]: xValue
-        }
-      if (!aggregate[xValue].__rowIds[group]) aggregate[xValue].__rowIds[group] = []
-      aggregate[xValue].__rowIds[group].push(rowIds[i])
-
-      if (!aggregate[xValue][group]) aggregate[xValue][group] = 0
-      if (aggFun === 'count' || aggFun === 'count_pct') aggregate[xValue][group] += 1
-      if (aggFun === 'sum' || aggFun === 'mean' || aggFun === 'pct')
-        aggregate[xValue][group] += Number(yValue) || 0
-    }
-
-    Object.keys(groupSummary).forEach((group) => {
-      for (let xValue of Object.keys(aggregate)) {
-        if (!aggregate[xValue][group]) {
-          if (addZeroes) aggregate[xValue][group] = 0
-          else continue
-        }
-        if (aggFun === 'mean')
-          aggregate[xValue][group] = aggregate[xValue][group] / groupSummary[group].n
-        if (aggFun === 'count_pct')
-          aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].n
-        if (aggFun === 'pct')
-          aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].sum
-        aggregate[xValue][group] = Number(aggregate[xValue][group].toFixed(2))
-      }
-    })
-  }
-
-  visualizationData.data = Object.values(aggregate).sort((a: any, b: any) =>
-    a.__sortBy < b.__sortBy ? -1 : b.sortBy < a.sortBy ? 1 : 0
-  )
-  return visualizationData
+  throw new Error(`Visualization type ${visualization.type} not supported`)
 }
-
-function autoFormatDate(dateNumbers: number[], minValues: number): DateFormat {
-  const minTime = Math.min(...dateNumbers)
-  const maxTime = Math.max(...dateNumbers)
-
-  let autoFormat: DateFormat = 'hour'
-  if (maxTime - minTime > 1000 * 60 * 60 * 24 * minValues) autoFormat = 'day'
-  if (maxTime - minTime > 1000 * 60 * 60 * 24 * 30 * minValues) autoFormat = 'month'
-  if (maxTime - minTime > 1000 * 60 * 60 * 24 * 30 * 3 * minValues) autoFormat = 'quarter'
-  if (maxTime - minTime > 1000 * 60 * 60 * 24 * 365 * minValues) autoFormat = 'year'
-
-  return autoFormat
-}
-
-function formatDate(
-  dateString: string[],
-  format: DateFormat,
-  minValues: number = 10
-): [string[], number[] | null] {
-  let formattedDate: string[] = dateString
-  let dateNumbers = dateString.map((date) => new Date(date).getTime())
-  let sortableDate: number[] | null = null
-
-  if (format === 'auto') format = autoFormatDate(dateNumbers, minValues)
-
-  if (format === 'year') {
-    formattedDate = dateNumbers.map((date) => new Date(date).getFullYear().toString())
-    sortableDate = dateNumbers
-  }
-  if (format === 'quarter') {
-    formattedDate = dateNumbers.map((date) => {
-      const year = new Date(date).getFullYear().toString()
-      const quarter = Math.floor(new Date(date).getMonth() / 3) + 1
-      return year + '-Q' + quarter
-    })
-    sortableDate = dateNumbers
-  }
-  if (format === 'month') {
-    formattedDate = dateNumbers.map((date) => {
-      const year = new Date(date).getFullYear().toString()
-      const month = new Date(date).toLocaleString('default', { month: 'short' })
-      return year + '-' + month
-    })
-    sortableDate = dateNumbers
-  }
-  if (format === 'day') {
-    formattedDate = dateNumbers.map((date) => new Date(date).toISOString().split('T')[0])
-    sortableDate = dateNumbers
-  }
-  if (format === 'hour') {
-    formattedDate = dateNumbers.map(
-      (date) => new Date(date).toISOString().split('T')[1].split(':')[0]
-    )
-    sortableDate = dateNumbers
-  }
-  if (format === 'month_cycle') {
-    const formatter = new Intl.DateTimeFormat('default', { month: 'long' })
-    formattedDate = dateNumbers.map((date) => formatter.format(new Date(date)))
-    sortableDate = dateNumbers.map((date) => new Date(date).getMonth())
-  }
-  if (format === 'weekday_cycle') {
-    const formatter = new Intl.DateTimeFormat('default', { weekday: 'long' })
-    formattedDate = dateNumbers.map((date) => formatter.format(new Date(date)))
-    sortableDate = dateNumbers.map((date) => new Date(date).getDay())
-  }
-  if (format === 'day_cycle') {
-    const formatter = new Intl.DateTimeFormat('default', { day: 'numeric' })
-    formattedDate = dateNumbers.map((date) => formatter.format(new Date(date)))
-    sortableDate = dateNumbers.map((date) => new Date(date).getDay())
-  }
-  if (format === 'hour_cycle') {
-    const formatter = new Intl.DateTimeFormat('default', { hour: 'numeric' })
-    formattedDate = dateNumbers.map((date) => formatter.format(new Date(date)))
-    sortableDate = dateNumbers.map((date) => new Date(date).getHours())
-  }
-
-  return [formattedDate, sortableDate]
-}
-
-function getTableColumn(table: PropsUITable & TableContext, column: string): string[] | undefined {
-  const columnIndex = table.head.cells.findIndex((cell) => cell.text === column)
-  if (columnIndex >= 0) return table.body.rows.map((row) => row.cells[columnIndex].text)
-  return undefined
-}
-
-export {}

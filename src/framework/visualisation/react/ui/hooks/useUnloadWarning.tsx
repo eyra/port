@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function useUnloadWarning(disable?: boolean): void {
+export default function useUnloadWarning (disable?: boolean): void {
   useEffect(() => {
     // Warn users that they will lose their progress if they leave the page.
     // Should use this in components where such as warning is acceptable.

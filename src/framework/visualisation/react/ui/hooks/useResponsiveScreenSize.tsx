@@ -4,17 +4,15 @@ import { useEffect } from 'react'
 // subtracing 1 seems to work, but I can't explain why
 const darkmass = 1
 
-export default function useResponsiveScreen(): void {
+export default function useResponsiveScreen (): void {
   useEffect(() => {
     // Listen for changes to screen size and orientation
     window.addEventListener('resize', updateSize)
-    if (window?.screen?.orientation)
-      window.screen.orientation?.addEventListener('change', updateSize)
+    if (window?.screen?.orientation) { window.screen.orientation?.addEventListener('change', updateSize) }
 
     return () => {
       window.removeEventListener('resize', updateSize)
-      if (window?.screen?.orientation)
-        window.screen.orientation.removeEventListener('change', updateSize)
+      if (window?.screen?.orientation) { window.screen.orientation.removeEventListener('change', updateSize) }
     }
   }, [])
 
@@ -30,13 +28,11 @@ export default function useResponsiveScreen(): void {
   }, [])
 }
 
-function updateSize() {
+function updateSize () {
   const height = `${window.innerHeight - darkmass}px`
   const width = `${document.documentElement.clientWidth - darkmass}px`
 
-  if (height !== document.documentElement.style.getPropertyValue('--screen-height'))
-    document.documentElement.style.setProperty('--screen-height', height)
+  if (height !== document.documentElement.style.getPropertyValue('--screen-height')) { document.documentElement.style.setProperty('--screen-height', height) }
 
-  if (width !== document.documentElement.style.getPropertyValue('--screen-width'))
-    document.documentElement.style.setProperty('--screen-width', width)
+  if (width !== document.documentElement.style.getPropertyValue('--screen-width')) { document.documentElement.style.setProperty('--screen-width', width) }
 }

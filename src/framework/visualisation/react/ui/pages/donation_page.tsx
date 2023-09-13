@@ -25,7 +25,7 @@ export const DonationPage = (props: Props): JSX.Element => {
   const { title, forwardButton } = prepareCopy(props)
   const { platform, locale, resolve } = props
 
-  function renderBody(props: Props): JSX.Element {
+  function renderBody (props: Props): JSX.Element {
     const context = { locale: locale, resolve: props.resolve }
     const body = props.body
     if (isPropsUIPromptFileInput(body)) {
@@ -43,7 +43,7 @@ export const DonationPage = (props: Props): JSX.Element => {
     throw new TypeError('Unknown body type')
   }
 
-  function handleSkip(): void {
+  function handleSkip (): void {
     resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
@@ -51,8 +51,8 @@ export const DonationPage = (props: Props): JSX.Element => {
     <Footer
       middle={<Progress percentage={props.footer.progressPercentage} />}
       right={
-        <div className="flex flex-row">
-          <div className="flex-grow" />
+        <div className='flex flex-row'>
+          <div className='flex-grow' />
           <ForwardButton label={forwardButton} onClick={handleSkip} />
         </div>
       }
@@ -70,7 +70,7 @@ export const DonationPage = (props: Props): JSX.Element => {
   // )
   // COMMENT BY KASPER: MADE SIDEBAR OPTIONAL IN <Page /> COMPONENT,
   // SO THAT IT DOESN'T AFFECT THE LAYOUT OF THE PAGE
-  //const sidebar: JSX.Element = <></>
+  // const sidebar: JSX.Element = <></>
 
   const body: JSX.Element = (
     <>
@@ -87,7 +87,7 @@ interface Copy {
   forwardButton: string
 }
 
-function prepareCopy({ header: { title }, locale }: Props): Copy {
+function prepareCopy ({ header: { title }, locale }: Props): Copy {
   return {
     title: Translator.translate(title, locale),
     forwardButton: Translator.translate(forwardButtonLabel(), locale)

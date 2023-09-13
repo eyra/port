@@ -9,7 +9,7 @@ export const CheckBox = ({
   onSelect
 }: PropsUICheckBox): JSX.Element => {
   return (
-    <div id={id} className="radio-item flex flex-row gap-3 cursor-pointer" onClick={onSelect}>
+    <div id={id} className='radio-item flex flex-row gap-3 cursor-pointer' onClick={onSelect}>
       <div className={`flex-shrink-0  ${size}`}>
         <img
           src={CheckSvg}

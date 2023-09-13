@@ -8,7 +8,7 @@ export type PropsUIPrompt =
   | PropsUIPromptConsentForm
   | PropsUIPromptConfirm
 
-export function isPropsUIPrompt(arg: any): arg is PropsUIPrompt {
+export function isPropsUIPrompt (arg: any): arg is PropsUIPrompt {
   return (
     isPropsUIPromptFileInput(arg) ||
     isPropsUIPromptRadioInput(arg) ||
@@ -22,7 +22,7 @@ export interface PropsUIPromptConfirm {
   ok: Text
   cancel: Text
 }
-export function isPropsUIPromptConfirm(arg: any): arg is PropsUIPromptConfirm {
+export function isPropsUIPromptConfirm (arg: any): arg is PropsUIPromptConfirm {
   return isInstanceOf<PropsUIPromptConfirm>(arg, 'PropsUIPromptConfirm', ['text', 'ok', 'cancel'])
 }
 
@@ -31,7 +31,7 @@ export interface PropsUIPromptFileInput {
   description: Text
   extensions: string
 }
-export function isPropsUIPromptFileInput(arg: any): arg is PropsUIPromptFileInput {
+export function isPropsUIPromptFileInput (arg: any): arg is PropsUIPromptFileInput {
   return isInstanceOf<PropsUIPromptFileInput>(arg, 'PropsUIPromptFileInput', [
     'description',
     'extensions'
@@ -44,7 +44,7 @@ export interface PropsUIPromptRadioInput {
   description: Text
   items: PropsUIRadioItem[]
 }
-export function isPropsUIPromptRadioInput(arg: any): arg is PropsUIPromptRadioInput {
+export function isPropsUIPromptRadioInput (arg: any): arg is PropsUIPromptRadioInput {
   return isInstanceOf<PropsUIPromptRadioInput>(arg, 'PropsUIPromptRadioInput', [
     'title',
     'description',
@@ -56,7 +56,7 @@ export interface PropsUIPromptConsentForm {
   tables: PropsUIPromptConsentFormTable[]
   metaTables: PropsUIPromptConsentFormTable[]
 }
-export function isPropsUIPromptConsentForm(arg: any): arg is PropsUIPromptConsentForm {
+export function isPropsUIPromptConsentForm (arg: any): arg is PropsUIPromptConsentForm {
   return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', [
     'tables',
     'metaTables'
@@ -71,7 +71,7 @@ export interface PropsUIPromptConsentFormTable {
   data_frame: any
   visualizations?: VisualizationType[]
 }
-export function isPropsUIPromptConsentFormTable(arg: any): arg is PropsUIPromptConsentFormTable {
+export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPromptConsentFormTable {
   return isInstanceOf<PropsUIPromptConsentFormTable>(arg, 'PropsUIPromptConsentFormTable', [
     'id',
     'title',

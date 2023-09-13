@@ -17,7 +17,6 @@ import DeleteSvg from '../../../../../assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
-import { useFloating, useFocus, useHover, useInteractions } from '@floating-ui/react'
 
 export interface Props {
   table: TableWithContext
@@ -60,7 +59,7 @@ export const Table = ({
     y: 0
   })
 
-  const cellClass = ` h-[3rem] px-3 flex items-center font-table-row`
+  const cellClass = ' h-[3rem] px-3 flex items-center font-table-row'
 
   useEffect(() => {
     setSelected(new Set())
@@ -69,7 +68,7 @@ export const Table = ({
 
   useEffect(() => {
     // rm tooltip on scroll
-    function rmTooltip() {
+    function rmTooltip () {
       setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
     }
     window.addEventListener('scroll', rmTooltip)
@@ -78,14 +77,14 @@ export const Table = ({
 
   useLayoutEffect(() => {
     // set exact height of grid row for height transition
-    if (!ref.current) return
+    if (ref.current == null) return
     if (!show) {
-      ref.current.style.gridTemplateRows = `0rem`
+      ref.current.style.gridTemplateRows = '0rem'
       return
     }
 
-    function responsiveHeight() {
-      if (!ref.current) return
+    function responsiveHeight () {
+      if (ref.current == null) return
       ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
     }
     responsiveHeight()
@@ -95,7 +94,7 @@ export const Table = ({
   }, [ref, show, nPages])
 
   const items = useMemo(() => {
-    const items: (PropsUITableRow | null)[] = new Array(pageSize).fill(null)
+    const items: Array<PropsUITableRow | null> = new Array(pageSize).fill(null)
     for (let i = 0; i < pageSize; i++) {
       const index = page * pageSize + i
       if (table.body.rows[index]) items[i] = table.body.rows[index]
@@ -103,7 +102,7 @@ export const Table = ({
     return items
   }, [table, page, pageSize])
 
-  function renderHeaderCell(value: string, i: number) {
+  function renderHeaderCell (value: string, i: number) {
     return (
       <th key={'header' + i}>
         <div className={`text-left ${cellClass}`}>
@@ -113,21 +112,22 @@ export const Table = ({
     )
   }
 
-  function renderRow(item: PropsUITableRow | null, i: number) {
-    if (!item)
+  function renderRow (item: PropsUITableRow | null, i: number) {
+    if (item == null) {
       return (
-        <tr key={'empty' + i} className="border-b-2 border-grey4 ">
+        <tr key={'empty' + i} className='border-b-2 border-grey4 '>
           <td>
             <div className={cellClass} />
           </td>
         </tr>
       )
+    }
     return (
-      <tr key={item.id} className="border-b-2 border-grey4 border-solid">
-        <td key={'select'}>
+      <tr key={item.id} className='border-b-2 border-grey4 border-solid'>
+        <td key='select'>
           <CheckBox
             id={item.id}
-            size="w-7 h-7"
+            size='w-7 h-7'
             selected={selected.has(item.id)}
             onSelect={() => toggleSelected(item.id)}
           />
@@ -142,7 +142,7 @@ export const Table = ({
     )
   }
 
-  function toggleSelected(id: string) {
+  function toggleSelected (id: string) {
     if (selected.has(id)) {
       selected.delete(id)
     } else {
@@ -151,7 +151,7 @@ export const Table = ({
     setSelected(new Set(selected))
   }
 
-  function toggleSelectAll() {
+  function toggleSelectAll () {
     if (selected.size === table.body.rows.length) {
       setSelected(new Set())
     } else {
@@ -162,17 +162,17 @@ export const Table = ({
   return (
     <div
       ref={ref}
-      className={`grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden `}
+      className='grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden '
     >
-      <div className="my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]">
-        <div className="p-3 pt-1 pb-2 max-w-full overflow-x-scroll">
-          <table className="table-fixed min-w-full">
-            <thead className="">
-              <tr className="border-b-2 border-grey4 border-solid">
-                <td className="w-8">
+      <div className='my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]'>
+        <div className='p-3 pt-1 pb-2 max-w-full overflow-x-scroll'>
+          <table className='table-fixed min-w-full'>
+            <thead className=''>
+              <tr className='border-b-2 border-grey4 border-solid'>
+                <td className='w-8'>
                   <CheckBox
-                    id={'selectAll'}
-                    size="w-7 h-7"
+                    id='selectAll'
+                    size='w-7 h-7'
                     selected={
                       table.body.rows.length > 0 && selected.size === table.body.rows.length
                     }
@@ -185,23 +185,25 @@ export const Table = ({
             <tbody>{items.map(renderRow)}</tbody>
           </table>
         </div>
-        <div className={`px-3 pb-2 flex justify-between min-h-[3.5rem]`}>
+        <div className='px-3 pb-2 flex justify-between min-h-[3.5rem]'>
           <div className={`pt-2 pb-4 ${selected.size || table.deletedRowCount ? '' : 'invisible'}`}>
-            {selected.size ? (
-              <IconButton
-                icon={DeleteSvg}
-                label={`${text.delete} ${selectedLabel}`}
-                color="text-delete"
-                onClick={() => handleDelete?.([...selected])}
-              />
-            ) : (
-              <IconButton
-                icon={UndoSvg}
-                label={text.undo}
-                color="text-primary"
-                onClick={() => handleUndo?.()}
-              />
-            )}
+            {selected.size
+              ? (
+                <IconButton
+                  icon={DeleteSvg}
+                  label={`${text.delete} ${selectedLabel}`}
+                  color='text-delete'
+                  onClick={() => handleDelete?.([...selected])}
+                />
+                )
+              : (
+                <IconButton
+                  icon={UndoSvg}
+                  label={text.undo}
+                  color='text-primary'
+                  onClick={() => handleUndo?.()}
+                />
+                )}
           </div>
           <Pagination page={page} setPage={setPage} nPages={nPages} />
         </div>
@@ -218,7 +220,7 @@ export const Table = ({
   )
 }
 
-function Cell({
+function Cell ({
   cell,
   search,
   cellClass,
@@ -233,12 +235,12 @@ function Cell({
   const [overflows, setOverflows] = useState(false)
 
   useEffect(() => {
-    if (!textRef.current) return
+    if (textRef.current == null) return
     setOverflows(textRef.current.scrollWidth > textRef.current.clientWidth)
   }, [textRef])
 
-  function onSetTooltip() {
-    if (!textRef.current) return
+  function onSetTooltip () {
+    if (textRef.current == null) return
     if (!overflows) return
 
     const rect = textRef.current.getBoundingClientRect()
@@ -246,9 +248,9 @@ function Cell({
     const content = (
       <Highlighter
         searchWords={search.split(' ')}
-        autoEscape={true}
+        autoEscape
         textToHighlight={cell.text}
-        highlightClassName="bg-tertiary rounded-sm"
+        highlightClassName='bg-tertiary rounded-sm'
       />
     )
 
@@ -259,7 +261,7 @@ function Cell({
       y: rect.y
     })
   }
-  function onRmTooltip() {
+  function onRmTooltip () {
     setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
   }
 
@@ -272,13 +274,13 @@ function Cell({
     >
       <div
         ref={textRef}
-        className={`whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10`}
+        className='whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10'
       >
         <Highlighter
           searchWords={search.split(' ')}
-          autoEscape={true}
+          autoEscape
           textToHighlight={cell.text}
-          highlightClassName="bg-tertiary rounded-sm"
+          highlightClassName='bg-tertiary rounded-sm'
         />
       </div>
       {overflows && <TooltipIcon />}
@@ -286,27 +288,27 @@ function Cell({
   )
 }
 
-function TooltipIcon() {
+function TooltipIcon () {
   return (
     <svg
-      className="w-3 h-3 mb-1 text-gray-800 dark:text-white"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 10 16"
+      className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
+      aria-hidden='true'
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 10 16'
     >
       <path
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="m2.707 14.293 5.586-5.586a1 1 0 0 0 0-1.414L2.707 1.707A1 1 0 0 0 1 2.414v11.172a1 1 0 0 0 1.707.707Z"
+        stroke='currentColor'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth='2'
+        d='m2.707 14.293 5.586-5.586a1 1 0 0 0 0-1.414L2.707 1.707A1 1 0 0 0 1 2.414v11.172a1 1 0 0 0 1.707.707Z'
       />
     </svg>
   )
 }
 
-function IconButton(props: {
+function IconButton (props: {
   icon: string
   label: string
   onClick: () => void
@@ -319,15 +321,15 @@ function IconButton(props: {
       className={`flex items-center gap-2 cursor-pointer ${props.color} animate-fadeIn text-button `}
       onClick={props.onClick}
     >
-      <img src={props.icon} className="w-9 h-9 -translate-x-[3px]" />
+      <img src={props.icon} className='w-9 h-9 -translate-x-[3px]' />
       {props.label}
     </div>
   )
 }
 
-function getTranslations(locale: string) {
+function getTranslations (locale: string) {
   const translated: Record<string, string> = {}
-  for (let [key, value] of Object.entries(translations)) {
+  for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)
   }
   return translated

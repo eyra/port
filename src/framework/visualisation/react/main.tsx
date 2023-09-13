@@ -11,5 +11,5 @@ export const Main = ({ elements }: MainProps): JSX.Element => {
     return { ...element, key: `${index}` }
   })
 
-  return <div className="w-full h-full">{elements}</div>
+  return <div className='w-full h-full'>{elements}</div>
 }

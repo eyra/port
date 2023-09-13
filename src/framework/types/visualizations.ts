@@ -1,5 +1,12 @@
 import { Text } from './elements'
 
+export interface VisualizationProps {
+  title: Text
+  height?: number
+}
+
+// Chart visualization
+
 export type AggregationFunction = 'count' | 'mean' | 'sum' | 'count_pct' | 'pct'
 
 export interface Axis {
@@ -11,6 +18,7 @@ export interface AggregationGroup {
   label?: string
   column: string
   dateFormat?: DateFormat
+  tokenize?: boolean
 }
 
 export interface AggregationValue {
@@ -24,34 +32,33 @@ export interface AggregationValue {
   addZeroes?: boolean
 }
 
-export interface ChartProps {
-  title: Text
+export interface ChartVisualization extends VisualizationProps {
+  type: 'line' | 'bar' | 'area'
   group: AggregationGroup
   values: AggregationValue[]
-  height?: number
 }
 
-export interface LineChartProps extends ChartProps {
-  type: 'line'
-}
+// Text visualization
 
-export interface BarChartProps extends ChartProps {
-  type: 'bar'
-}
-
-export interface AreaChartProps extends ChartProps {
-  type: 'area'
-}
-
-export interface WordcloudProps extends ChartProps {
+export interface TextVisualization extends VisualizationProps {
   type: 'wordcloud'
+  textColumn: string
+  valueColumn?: string
+  tokenize?: boolean
+}
+export interface ScoredTerm {
+  text: string
+  value: number
+  importance: number
 }
 
-export type VisualizationType = LineChartProps | BarChartProps | AreaChartProps | WordcloudProps
+// General
+
+export type VisualizationType = ChartVisualization | TextVisualization
 
 export type AggregateRowIds = Record<string, string[]>
 
-export type AggregatedData = Record<string, string | AggregateRowIds>[]
+export type AggregatedData = Array<Record<string, string | AggregateRowIds>>
 
 export interface AxisSettings {
   label: string
@@ -61,12 +68,17 @@ export interface AxisSettings {
 
 export type TickerFormat = 'percent' | 'default'
 
-export interface VisualizationData {
-  type: 'line' | 'bar' | 'area' | 'wordcloud'
+export interface ChartVisualizationData {
+  type: 'line' | 'bar' | 'area'
   data: AggregatedData
   xKey: AxisSettings
   yKeys: Record<string, AxisSettings>
 }
+export interface TextVisualizationData {
+  type: 'wordcloud'
+  topTerms: ScoredTerm[]
+}
+export type VisualizationData = ChartVisualizationData | TextVisualizationData
 
 export type DateFormat =
   | 'auto'

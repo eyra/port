@@ -1,5 +1,9 @@
 import TextBundle from '../../../../../text_bundle'
-import { VisualizationData, AxisSettings, TickerFormat } from '../../../../../types/visualizations'
+import {
+  AxisSettings,
+  TickerFormat,
+  ChartVisualizationData
+} from '../../../../../types/visualizations'
 
 import {
   ResponsiveContainer,
@@ -16,11 +20,11 @@ import {
 } from 'recharts'
 
 interface Props {
-  visualizationData: VisualizationData
+  visualizationData: ChartVisualizationData
 }
 
-export default function RechartsGraph({ visualizationData }: Props): JSX.Element | null {
-  function tooltip() {
+export default function RechartsGraph ({ visualizationData }: Props): JSX.Element | null {
+  function tooltip () {
     return (
       <Tooltip
         allowEscapeViewBox={{ x: false, y: false }}
@@ -35,7 +39,7 @@ export default function RechartsGraph({ visualizationData }: Props): JSX.Element
     )
   }
 
-  function axes(minTickGap: number) {
+  function axes (minTickGap: number) {
     if (!visualizationData) return null
     const secondary =
       Object.values(visualizationData.yKeys).findIndex((yKey: AxisSettings) => yKey.secondAxis) !==
@@ -47,19 +51,19 @@ export default function RechartsGraph({ visualizationData }: Props): JSX.Element
     return (
       <>
         <XAxis dataKey={visualizationData.xKey.label} minTickGap={minTickGap} />
-        <YAxis yAxisId="left" tickFormatter={tickFormatter} />
-        {secondary && <YAxis yAxisId="right" orientation="right" tickFormatter={tickFormatter2} />}
+        <YAxis yAxisId='left' tickFormatter={tickFormatter} />
+        {secondary && <YAxis yAxisId='right' orientation='right' tickFormatter={tickFormatter2} />}
       </>
     )
   }
 
-  function legend() {
+  function legend () {
     return (
       <Legend
         margin={{ left: 10 }}
-        align="right"
-        verticalAlign="top"
-        iconType="plainline"
+        align='right'
+        verticalAlign='top'
+        iconType='plainline'
         wrapperStyle={{ fontSize: '0.8rem' }}
       />
     )
@@ -79,7 +83,7 @@ export default function RechartsGraph({ visualizationData }: Props): JSX.Element
             <Line
               key={yKey.label}
               yAxisId={yKey.secondAxis ? 'right' : 'left'}
-              type="monotone"
+              type='monotone'
               dataKey={yKey.label}
               dot={false}
               strokeWidth={2}
@@ -134,15 +138,15 @@ export default function RechartsGraph({ visualizationData }: Props): JSX.Element
     )
   }
 
-  if (!chart) return null
+  if (chart == null) return null
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width='100%' height='100%'>
       {chart}
     </ResponsiveContainer>
   )
 }
 
-function getLineStyle(index: number): { color: string; dash: string } {
+function getLineStyle (index: number): { color: string, dash: string } {
   const COLORS = ['#4272EF', '#FF5E5E', '#FFCF60', '#1E3FCC', '#CC3F3F', '#CC9F3F']
   const DASHES = ['1', '5 5', '10 10', '5 5 10 10']
 
@@ -153,10 +157,10 @@ function getLineStyle(index: number): { color: string; dash: string } {
   return { color: COLORS[row], dash: DASHES[column] }
 }
 
-function getTickFormatters(yKeys: AxisSettings[]) {
-  let tickerFormat: TickerFormat | undefined = undefined
-  let tickerFormat2: TickerFormat | undefined = undefined
-  for (let yKey of yKeys) {
+function getTickFormatters (yKeys: AxisSettings[]) {
+  let tickerFormat: TickerFormat | undefined
+  let tickerFormat2: TickerFormat | undefined
+  for (const yKey of yKeys) {
     if (!yKey.secondAxis) {
       if (!tickerFormat) tickerFormat = yKey.tickerFormat
       if (tickerFormat !== yKey.tickerFormat) tickerFormat = 'default'
@@ -171,7 +175,7 @@ function getTickFormatters(yKeys: AxisSettings[]) {
   return { tickFormatter, tickFormatter2 }
 }
 
-function getTickFormatter(format: TickerFormat) {
+function getTickFormatter (format: TickerFormat) {
   if (format === 'percent') return (value: number) => `${value}%`
   return undefined
 }

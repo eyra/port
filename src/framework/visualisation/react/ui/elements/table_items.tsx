@@ -23,16 +23,16 @@ export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element
   const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
   return (
-    <div className="flex  min-w-[200px] gap-1">
-      <div className="flex items-center  ">{tableIcon}</div>
+    <div className='flex  min-w-[200px] gap-1'>
+      <div className='flex items-center  '>{tableIcon}</div>
       <div
         key={totalLabel + '_' + deleted}
-        className="flex flex-wrap items-center pl-2  gap-x-2 animate-fadeIn text-lg text-title6 font-label "
+        className='flex flex-wrap items-center pl-2  gap-x-2 animate-fadeIn text-lg text-title6 font-label '
       >
         <div>
           {table.head.cells.length} {text.columns},
         </div>
-        <div key={totalLabel} className="animate-fadeIn">
+        <div key={totalLabel} className='animate-fadeIn'>
           {searched < n ? searchLabel + ' / ' + nLabel : nLabel} {text.rows}
         </div>
 
@@ -43,21 +43,21 @@ export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element
 }
 
 const tableIcon = (
-  <svg className="h-9" viewBox="4 4 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="9" y="9" width="4" height="2" fill="#4272EF" />
-    <rect x="9" y="13" width="4" height="2" fill="#4272EF" />
-    <rect x="9" y="17" width="4" height="2" fill="#4272EF" />
-    <rect x="15" y="9" width="4" height="2" fill="#4272EF" />
-    <rect x="15" y="13" width="4" height="2" fill="#4272EF" />
-    <rect x="15" y="17" width="4" height="2" fill="#4272EF" />
-    <rect x="4" y="4" width="15" height="3" fill="#4272EF" />
-    <rect x="4" y="9" width="3" height="10" fill="#4272EF" />
+  <svg className='h-9' viewBox='4 4 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <rect x='9' y='9' width='4' height='2' fill='#4272EF' />
+    <rect x='9' y='13' width='4' height='2' fill='#4272EF' />
+    <rect x='9' y='17' width='4' height='2' fill='#4272EF' />
+    <rect x='15' y='9' width='4' height='2' fill='#4272EF' />
+    <rect x='15' y='13' width='4' height='2' fill='#4272EF' />
+    <rect x='15' y='17' width='4' height='2' fill='#4272EF' />
+    <rect x='4' y='4' width='15' height='3' fill='#4272EF' />
+    <rect x='4' y='9' width='3' height='10' fill='#4272EF' />
   </svg>
 )
 
-function getTranslations(locale: string) {
+function getTranslations (locale: string) {
   const translated: Record<string, string> = {}
-  for (let [key, value] of Object.entries(translations)) {
+  for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)
   }
   return translated

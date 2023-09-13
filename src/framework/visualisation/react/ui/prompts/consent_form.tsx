@@ -24,54 +24,6 @@ import { TableContainer } from '../elements/table_container'
 
 type Props = Weak<PropsUIPromptConsentForm> & ReactFactoryContext
 
-// const testVisualizations: PropsUIPromptConsentFormVisualization[] = [
-//   {
-//     id: 'netflix_viewings_area',
-//     table_id: 'netflix_viewings',
-//     visualization: {
-//       title: new TextBundle()
-//         .add('en', 'Number of viewings over time')
-//         .add('nl', 'Aantal gezien over tijd'),
-//       type: 'area',
-//       group: { column: 'Start Time', dateFormat: 'auto' },
-//       values: [{ label: 'N', column: 'Duration', addZeroes: true }]
-//     }
-//   }
-//   // {
-//   //   __type__: 'PropsUIPromptConsentFormVisualization',
-//   //   id: 'netflix_viewings_bar',
-//   //   table_id: 'netflix_viewings',
-//   //   title: new TextBundle()
-//   //     .add('en', 'Viewings by hour of the day')
-//   //     .add('nl', 'Aantal gezien per uur van de dag'),
-//   //   visualization: {
-//   //     type: 'bar',
-//   //     x: { column: 'Start Time' },
-//   //     ys: [{ label: 'N', column: 'Start Time', addZeroes: true, aggregate: 'count_pct' }],
-//   //     dateFormat: 'hour_cycle'
-//   //   }
-//   // },
-//   // {
-//   //   __type__: 'PropsUIPromptConsentFormVisualization',
-//   //   id: 'netflix_playback_line',
-//   //   table_id: 'netflix_playback',
-//   //   title: new TextBundle()
-//   //     .add('en', 'Viewings by hour of the day')
-//   //     .add('nl', 'Aantal gezien per uur van de dag'),
-//   //   visualization: {
-//   //     type: 'line',
-//   //     x: { column: 'Date time' },
-//   //     ys: [
-//   //       { label: 'Start', column: 'start', addZeroes: true, aggregate: 'sum' },
-//   //       { label: 'Playing', column: 'playing', addZeroes: true, aggregate: 'sum' },
-//   //       { label: 'Stopped', column: 'stopped', addZeroes: true, aggregate: 'sum' },
-//   //       { label: 'Paused', column: 'paused', addZeroes: true, aggregate: 'sum' }
-//   //     ],
-//   //     dateFormat: 'hour_cycle'
-//   //   }
-//   // }
-// ]
-
 export const ConsentForm = (props: Props): JSX.Element => {
   useUnloadWarning()
   const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
@@ -79,7 +31,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
     parseTables(props.metaTables)
   )
 
-  //const { visualizationSettings, locale, resolve } = props
+  // const { visualizationSettings, locale, resolve } = props
   const { locale, resolve } = props
   // const visualizationSettings = testVisualizations
 
@@ -101,24 +53,24 @@ export const ConsentForm = (props: Props): JSX.Element => {
     })
   }, [])
 
-  function rowCell(dataFrame: any, column: string, row: number): PropsUITableCell {
+  function rowCell (dataFrame: any, column: string, row: number): PropsUITableCell {
     const text = String(dataFrame[column][`${row}`])
     return { __type__: 'PropsUITableCell', text: text }
   }
 
-  function headCell(dataFrame: any, column: string): PropsUITableCell {
+  function headCell (dataFrame: any, column: string): PropsUITableCell {
     return { __type__: 'PropsUITableCell', text: column }
   }
 
-  function columnNames(dataFrame: any): string[] {
+  function columnNames (dataFrame: any): string[] {
     return Object.keys(dataFrame)
   }
 
-  function columnCount(dataFrame: any): number {
+  function columnCount (dataFrame: any): number {
     return columnNames(dataFrame).length
   }
 
-  function rowCount(dataFrame: any): number {
+  function rowCount (dataFrame: any): number {
     if (columnCount(dataFrame) === 0) {
       return 0
     } else {
@@ -127,7 +79,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
     }
   }
 
-  function rows(data: any): PropsUITableRow[] {
+  function rows (data: any): PropsUITableRow[] {
     const result: PropsUITableRow[] = []
     for (let row = 0; row <= rowCount(data); row++) {
       const id = `${row}`
@@ -137,13 +89,13 @@ export const ConsentForm = (props: Props): JSX.Element => {
     return result
   }
 
-  function parseTables(
+  function parseTables (
     tablesData: PropsUIPromptConsentFormTable[]
   ): Array<PropsUITable & TableContext> {
     return tablesData.map((table) => parseTable(table))
   }
 
-  function parseTable(tableData: PropsUIPromptConsentFormTable): PropsUITable & TableContext {
+  function parseTable (tableData: PropsUIPromptConsentFormTable): PropsUITable & TableContext {
     const id = tableData.id
     const title = Translator.translate(tableData.title, props.locale)
     const deletedRowCount = 0
@@ -166,33 +118,33 @@ export const ConsentForm = (props: Props): JSX.Element => {
     }
   }
 
-  function handleDonate(): void {
+  function handleDonate (): void {
     const value = serializeConsentData()
     resolve?.({ __type__: 'PayloadJSON', value })
   }
 
-  function handleCancel(): void {
+  function handleCancel (): void {
     resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
-  function serializeConsentData(): string {
+  function serializeConsentData (): string {
     const array = serializeTables().concat(serializeMetaData())
     return JSON.stringify(array)
   }
 
-  function serializeMetaData(): any[] {
+  function serializeMetaData (): any[] {
     return serializeMetaTables().concat(serializeDeletedMetaData())
   }
 
-  function serializeTables(): any[] {
+  function serializeTables (): any[] {
     return tables.map((table) => serializeTable(table))
   }
 
-  function serializeMetaTables(): any[] {
+  function serializeMetaTables (): any[] {
     return metaTables.map((table) => serializeTable(table))
   }
 
-  function serializeDeletedMetaData(): any {
+  function serializeDeletedMetaData (): any {
     const rawData = tables
       .filter(({ deletedRowCount }) => deletedRowCount > 0)
       .map(({ id, deletedRowCount }) => `User deleted ${deletedRowCount} rows from table: ${id}`)
@@ -201,12 +153,12 @@ export const ConsentForm = (props: Props): JSX.Element => {
     return { user_omissions: data }
   }
 
-  function serializeTable({ id, head, body: { rows } }: PropsUITable): any {
+  function serializeTable ({ id, head, body: { rows } }: PropsUITable): any {
     const data = rows.map((row) => serializeRow(row, head))
     return { [id]: data }
   }
 
-  function serializeRow(row: PropsUITableRow, head: PropsUITableHead): any {
+  function serializeRow (row: PropsUITableRow, head: PropsUITableHead): any {
     assert(
       row.cells.length === head.cells.length,
       `Number of cells in row (${row.cells.length}) should be equals to number of cells in head (${head.cells.length})`
@@ -218,11 +170,11 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   return (
     <>
-      <div className="max-w-3xl">
+      <div className='max-w-3xl'>
         <BodyLarge text={description} />
       </div>
-      <div className="flex flex-col gap-16 w-full">
-        <div className="grid gap-8 max-w-full">
+      <div className='flex flex-col gap-16 w-full'>
+        <div className='grid gap-8 max-w-full'>
           {tables.map((table) => {
             return (
               <TableContainer
@@ -236,15 +188,15 @@ export const ConsentForm = (props: Props): JSX.Element => {
           })}
         </div>
         <div>
-          <BodyLarge margin="" text={donateQuestion} />
+          <BodyLarge margin='' text={donateQuestion} />
 
-          <div className="flex flex-row gap-4 mt-4 mb-4">
+          <div className='flex flex-row gap-4 mt-4 mb-4'>
             <PrimaryButton
               label={donateButton}
               onClick={handleDonate}
-              color="bg-success text-white"
+              color='bg-success text-white'
             />
-            <LabelButton label={cancelButton} onClick={handleCancel} color="text-grey1" />
+            <LabelButton label={cancelButton} onClick={handleCancel} color='text-grey1' />
           </div>
         </div>
       </div>
@@ -259,7 +211,7 @@ interface Copy {
   cancelButton: string
 }
 
-function prepareCopy({ locale }: Props): Copy {
+function prepareCopy ({ locale }: Props): Copy {
   return {
     description: Translator.translate(description, locale),
     donateQuestion: Translator.translate(donateQuestionLabel, locale),

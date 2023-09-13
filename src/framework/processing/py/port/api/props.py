@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Literal
 
 import pandas as pd
 
@@ -80,7 +80,7 @@ class PropsUIPromptConfirm:
         return dict
 
 @dataclass
-class PropsUIDataVisualizationGroup:
+class PropsUIChartGroup:
     """Grouping variable for aggregating the data
 
     Attributes:
@@ -91,17 +91,18 @@ class PropsUIDataVisualizationGroup:
     column: str
     label: Optional[str] = None
     dateFormat: Optional[str] = None
+    tokenize: Optional[bool] = False
 
     def toDict(self):
         dict = {}
-        dict["__type__"] = "PropsUIDataVisualizationGroup"
+        dict["__type__"] = "PropsUIChartGroup"
         dict["column"] = self.column
         dict["label"] = self.label
         dict["dateFormat"] = self.dateFormat
         return dict
 
 @dataclass
-class PropsUIDataVisualizationValue:
+class PropsUIChartValue:
     """Value to aggregate
 
     Attributes:
@@ -117,7 +118,7 @@ class PropsUIDataVisualizationValue:
 
     def toDict(self):
         dict = {}
-        dict["__type__"] = "PropsUIDataVisualizationValue"
+        dict["__type__"] = "PropsUIChartValue"
         dict["column"] = self.column
         dict["label"] = self.label
         dict["aggregate"] = self.aggregate
@@ -125,7 +126,7 @@ class PropsUIDataVisualizationValue:
         return dict
 
 @dataclass
-class PropsUIDataVisualization:
+class PropsUIChartVisualization:
     """Data visualization
 
     Attributes:
@@ -135,17 +136,38 @@ class PropsUIDataVisualization:
         values: list of values to aggregate
     """
     title: Translatable
-    type: str
-    group: PropsUIDataVisualizationGroup
-    values: list[PropsUIDataVisualizationValue]
+    type: Literal["bar", "line", "area"]
+    group: PropsUIChartGroup
+    values: list[PropsUIChartValue]
         
     def toDict(self):
         dict = {}
-        dict["__type__"] = "PropsUIDataVisualization"
+        dict["__type__"] = "PropsUIChartVisualization"
         dict["title"] = self.title.toDict()
         dict["type"] = self.type
         dict["group"] = self.group.toDict()
         dict["values"] = [value.toDict() for value in self.values]
+        return dict
+    
+@dataclass
+class PropsUITextVisualization:
+    """Word cloud visualization
+
+    """
+    title: Translatable
+    type: Literal["wordcloud"]
+    text_column: str
+    value_column: Optional[str] = None
+    tokenize: Optional[bool] = False
+        
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUITextVisualization"
+        dict["title"] = self.title.toDict()
+        dict["type"] = self.type
+        dict["textColumn"] = self.text_column
+        dict["valueColumn"] = self.value_column
+        dict["tokenize"] = self.tokenize
         return dict
 
 
@@ -162,7 +184,7 @@ class PropsUIPromptConsentFormTable:
     id: str
     title: Translatable
     data_frame: pd.DataFrame
-    visualizations: Optional[list[PropsUIDataVisualization]] = None
+    visualizations: Optional[list[PropsUIChartVisualization | PropsUITextVisualization]] = None
 
     def translate_visualizations(self):
         if self.visualizations is None:
