@@ -185,7 +185,7 @@ class PropsUIPromptConsentFormTable:
     id: str
     title: Translatable
     data_frame: pd.DataFrame
-    editable: bool = True
+    #editable: bool = True
     visualizations: Optional[list[PropsUIChartVisualization | PropsUITextVisualization]] = None
 
     def translate_visualizations(self):
@@ -199,7 +199,7 @@ class PropsUIPromptConsentFormTable:
         dict["id"] = self.id
         dict["title"] = self.title.toDict()
         dict["data_frame"] = self.data_frame.to_json()
-        dict["editable"] = self.editable
+        #dict["editable"] = self.editable
         dict["visualizations"] = self.translate_visualizations()
         return dict
     

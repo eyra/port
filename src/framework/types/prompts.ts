@@ -69,7 +69,6 @@ export interface PropsUIPromptConsentFormTable {
   title: Text
   description: Text
   data_frame: any
-  editable: boolean
   visualizations?: VisualizationType[]
 }
 export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPromptConsentFormTable {
@@ -78,6 +77,5 @@ export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPrompt
         'title', 
         'description', 
         'data_frame', 
-        'editable'
     ])
 }

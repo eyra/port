@@ -7,15 +7,14 @@ import {
   PropsUITableRow,
   TableWithContext,
   TableContext,
-  isPropsUITableRow
 } from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable } from '../../../../types/prompts'
 import { LabelButton, PrimaryButton } from '../elements/button'
-import { BodyLarge, Title4 } from '../elements/text'
+import { BodyLarge } from '../elements/text'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
-import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import _ from 'lodash'
 
 import useUnloadWarning from '../hooks/useUnloadWarning'
@@ -97,7 +96,6 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   function parseTable (tableData: PropsUIPromptConsentFormTable): PropsUITable & TableContext {
     const id = tableData.id
-    const editable = tableData.editable
     const title = Translator.translate(tableData.title, props.locale)
     const deletedRowCount = 0
     const dataFrame = JSON.parse(tableData.data_frame)

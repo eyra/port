@@ -40,7 +40,6 @@ export const Table = ({
   show,
   locale,
   search,
-  editable,
   handleDelete,
   handleUndo,
   pageSize = 7
