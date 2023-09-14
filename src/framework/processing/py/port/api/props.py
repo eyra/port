@@ -292,6 +292,103 @@ class PropsUIPromptRadioInput:
 
 
 @dataclass
+class PropsUIQuestionOpen:
+    """Question: Open Question
+
+    This class can be used to ask an open question to a user. 
+    The user can type the answer in the a text field
+
+    Attributes:
+        id: Should be a unique ID to identify the question, example: "1"
+        question: The question that will be asked
+    """
+    id: int
+    question: Translatable
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIQuestionOpen"
+        dict["id"] = self.id
+        dict["question"] = self.question.toDict()
+        return dict
+
+
+@dataclass
+class PropsUIQuestionMultipleChoiceCheckbox:
+    """Question: Multiple choice checkbox
+
+    This class can be used to ask an multiple choice question to a user. 
+    Multiple answers can be given
+
+    Attributes:
+        id: Should be a unique ID to identify the question, example: "1"
+        question: The question that will be asked
+    """
+    id: int
+    question: Translatable
+    choices: list[Translatable]
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIQuestionMultipleChoiceCheckbox"
+        dict["id"] = self.id
+        dict["question"] = self.question.toDict()
+        dict["choices"] = [c.toDict() for c in self.choices]
+        return dict
+
+
+@dataclass
+class PropsUIQuestionMultipleChoice:
+    """Question: Multiple choice
+
+    This class can be used to ask an multiple choice question to a user. 
+    Only one answer can be given
+
+    Attributes:
+        id: Should be a unique ID to identify the question, example: "1"
+        question: The question that will be asked
+    """
+    id: int
+    question: Translatable
+    choices: list[Translatable]
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIQuestionMultipleChoice"
+        dict["id"] = self.id
+        dict["question"] = self.question.toDict()
+        dict["choices"] = [c.toDict() for c in self.choices]
+        return dict
+
+
+@dataclass
+class PropsUIPromptQuestionnaire:
+    """A class to collection questions
+
+    This class can be used to assemble question in a questionnaire.
+    This class can be used as a body in PropsUIPageDonation
+
+    * All questions are optional 
+    * Results are returned to the script after the user clicks the continue button
+        The results will be in your_results.value, example: 
+        {"1": "answer 1", "2": ["answer 1", "answer 2"], "3": "open answer"}
+
+    Attributes:
+        description: Short descrition
+        questions: List of questions that need to be asked
+    """
+    description: Translatable
+    questions: list[PropsUIQuestionMultipleChoice | PropsUIQuestionMultipleChoiceCheckbox | PropsUIQuestionOpen]
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIPromptQuestionnaire"
+        dict["description"] = self.description.toDict()
+        dict["questions"] = [q.toDict() for q in self.questions]
+        return dict
+
+
+@dataclass
 class PropsUIPageDonation:
     """A multi-purpose page that gets shown to the user
 
@@ -303,7 +400,7 @@ class PropsUIPageDonation:
     """
     platform: str
     header: PropsUIHeader
-    body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm
+    body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptQuestionnaire
     footer: PropsUIFooter
 
     def toDict(self):
