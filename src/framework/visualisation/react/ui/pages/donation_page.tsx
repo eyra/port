@@ -59,14 +59,18 @@ export const DonationPage = (props: Props): JSX.Element => {
     />
   )
 
-  const sidebar: JSX.Element = (
-    <Sidebar
-      logo={LogoSvg}
-      content={
-        <Instructions platform={platform} locale={locale} />
-      }
-    />
-  )
+  // COMMENT BY NIEK: I TURNED OFF THE SIDEBAR (UGLY)
+  // const sidebar: JSX.Element = (
+  //  <Sidebar
+  //    logo={LogoSvg}
+  //    content={
+  //      <Instructions platform={platform} locale={locale} />
+  //    }
+  //  />
+  // )
+  // COMMENT BY KASPER: MADE SIDEBAR OPTIONAL IN <Page /> COMPONENT,
+  // SO THAT IT DOESN'T AFFECT THE LAYOUT OF THE PAGE
+  // const sidebar: JSX.Element = <></>
 
   const body: JSX.Element = (
     <>
@@ -75,13 +79,7 @@ export const DonationPage = (props: Props): JSX.Element => {
     </>
   )
 
-  return (
-    <Page
-      body={body}
-      sidebar={sidebar}
-      footer={footer}
-    />
-  )
+  return <Page body={body} footer={footer} />
 }
 
 interface Copy {
@@ -97,7 +95,5 @@ function prepareCopy ({ header: { title }, locale }: Props): Copy {
 }
 
 const forwardButtonLabel = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Skip')
-    .add('nl', 'Overslaan')
+  return new TextBundle().add('en', 'Skip').add('nl', 'Overslaan')
 }

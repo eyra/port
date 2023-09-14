@@ -40,10 +40,8 @@ export const FileInput = (props: Props): JSX.Element => {
 
   return (
     <>
-      <div id='select-panel'>
-        <div className='flex-wrap text-bodylarge font-body text-grey1 text-left'>
-          {description}
-        </div>
+      <div id='select-panel' className='max-w-3xl'>
+        <div className='flex-wrap text-bodylarge font-body text-grey1 text-left'>{description}</div>
         <div className='mt-8' />
         <div className='p-6 border-grey4 border-2 rounded'>
           <input ref={input} id='input' type='file' className='hidden' accept={extensions} onChange={handleSelect} />
@@ -87,25 +85,22 @@ function prepareCopy ({ description, extensions, locale }: Props): Copy {
 }
 
 const continueButtonLabel = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Continue')
-    .add('nl', 'Verder')
+  return new TextBundle().add('en', 'Continue').add('nl', 'Verder')
 }
 
 const selectButtonLabel = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Choose file')
-    .add('nl', 'Kies bestand')
+  return new TextBundle().add('en', 'Choose file').add('nl', 'Kies bestand')
 }
 
 const note = (): Translatable => {
   return new TextBundle()
     .add('en', 'Note: The process to extract the correct data from the file is done on your own computer. No data is stored or sent yet.')
-    .add('nl', 'NB: Het proces om de juiste gegevens uit het bestand te halen gebeurt op uw eigen computer. Er worden nog geen gegevens opgeslagen of verstuurd.')
+    .add(
+      'nl',
+      'NB: Het proces om de juiste gegevens uit het bestand te halen gebeurt op uw eigen computer. Er worden nog geen gegevens opgeslagen of verstuurd.'
+    )
 }
 
 const placeholder = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'Choose a file')
-    .add('nl', 'Kies een bestand')
+  return new TextBundle().add('en', 'Choose a file').add('nl', 'Kies een bestand')
 }

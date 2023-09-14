@@ -1,16 +1,19 @@
 import { isInstanceOf } from '../helpers'
 import { PropsUIRadioItem, Text } from './elements'
+import { VisualizationType } from './visualizations'
 
 export type PropsUIPrompt =
-  PropsUIPromptFileInput |
-  PropsUIPromptRadioInput |
-  PropsUIPromptConsentForm |
-  PropsUIPromptConfirm
+  | PropsUIPromptFileInput
+  | PropsUIPromptRadioInput
+  | PropsUIPromptConsentForm
+  | PropsUIPromptConfirm
 
 export function isPropsUIPrompt (arg: any): arg is PropsUIPrompt {
-  return isPropsUIPromptFileInput(arg) ||
+  return (
+    isPropsUIPromptFileInput(arg) ||
     isPropsUIPromptRadioInput(arg) ||
     isPropsUIPromptConsentForm(arg)
+  )
 }
 
 export interface PropsUIPromptConfirm {
@@ -29,7 +32,10 @@ export interface PropsUIPromptFileInput {
   extensions: string
 }
 export function isPropsUIPromptFileInput (arg: any): arg is PropsUIPromptFileInput {
-  return isInstanceOf<PropsUIPromptFileInput>(arg, 'PropsUIPromptFileInput', ['description', 'extensions'])
+  return isInstanceOf<PropsUIPromptFileInput>(arg, 'PropsUIPromptFileInput', [
+    'description',
+    'extensions'
+  ])
 }
 
 export interface PropsUIPromptRadioInput {
@@ -39,7 +45,11 @@ export interface PropsUIPromptRadioInput {
   items: PropsUIRadioItem[]
 }
 export function isPropsUIPromptRadioInput (arg: any): arg is PropsUIPromptRadioInput {
-  return isInstanceOf<PropsUIPromptRadioInput>(arg, 'PropsUIPromptRadioInput', ['title', 'description', 'items'])
+  return isInstanceOf<PropsUIPromptRadioInput>(arg, 'PropsUIPromptRadioInput', [
+    'title',
+    'description',
+    'items'
+  ])
 }
 export interface PropsUIPromptConsentForm {
   __type__: 'PropsUIPromptConsentForm'
@@ -47,7 +57,10 @@ export interface PropsUIPromptConsentForm {
   metaTables: PropsUIPromptConsentFormTable[]
 }
 export function isPropsUIPromptConsentForm (arg: any): arg is PropsUIPromptConsentForm {
-  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', ['tables', 'metaTables'])
+  return isInstanceOf<PropsUIPromptConsentForm>(arg, 'PropsUIPromptConsentForm', [
+    'tables',
+    'metaTables'
+  ])
 }
 
 export interface PropsUIPromptConsentFormTable {
@@ -57,7 +70,14 @@ export interface PropsUIPromptConsentFormTable {
   description: Text
   data_frame: any
   editable: boolean
+  visualizations?: VisualizationType[]
 }
 export function isPropsUIPromptConsentFormTable (arg: any): arg is PropsUIPromptConsentFormTable {
-  return isInstanceOf<PropsUIPromptConsentFormTable>(arg, 'PropsUIPromptConsentFormTable', ['id', 'title', 'description', 'data_frame', 'editable'])
+  return isInstanceOf<PropsUIPromptConsentFormTable>(arg, 'PropsUIPromptConsentFormTable', [
+        'id', 
+        'title', 
+        'description', 
+        'data_frame', 
+        'editable'
+    ])
 }

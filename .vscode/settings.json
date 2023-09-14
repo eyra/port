@@ -1,0 +1,20 @@
+{
+  "prettier.trailingComma": "none",
+  "prettier.tabWidth": 2,
+  "prettier.semi": false,
+  "prettier.singleQuote": true,
+  "prettier.printWidth": 100,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "css": "css"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  }
+}

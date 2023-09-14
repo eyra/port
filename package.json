@@ -10,8 +10,14 @@
     "@types/node": "^16.11.59",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "@visx/responsive": "^3.3.0",
+    "@visx/scale": "^3.3.0",
+    "@visx/text": "^3.3.0",
+    "@visx/wordcloud": "^3.3.0",
     "lodash": "^4.17.21",
     "lottie-react": "^2.3.1",
+    "react-highlight-words": "^0.20.0",
+    "recharts": "^2.7.1",
     "typescript": "^4.4.3",
     "web-vitals": "^2.1.4"
   },
@@ -31,7 +37,8 @@
     "prod": "run-s dev:fix:ts dev:build:py prod:build:ts prod:build:css prod:cp:py prod:cp:assets",
     "ci:fix": "run-s dev:fix:ts",
     "ci:test": "CI=true react-scripts test",
-    "watch": "npm run dev:start & nodemon --ext py --exec \"npm run dev:build:py && npm run dev:install:py\""
+    "watch": "npm run dev:start & nodemon --ext py --exec \"npm run dev:build:py && npm run dev:install:py\"",
+    "watch:ts": "tsc -watch"
   },
   "browserslist": {
     "production": [
@@ -47,6 +54,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.185",
+    "@types/react-highlight-words": "^0.16.4",
     "autoprefixer": "^10.4.12",
     "husky": "^8.0.1",
     "nodemon": "^2.0.20",
@@ -55,7 +63,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "tailwindcss": "^3.1.8",
+    "tailwindcss": "^3.3.3",
     "ts-standard": "^11.0.0"
   },
   "ts-standard": {
