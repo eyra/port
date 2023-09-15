@@ -8,11 +8,6 @@ interface Props {
   visualizationData: TextVisualizationData
 }
 
-interface Word {
-  text: string
-  value: number
-}
-
 function VisxWordcloud ({ visualizationData }: Props): JSX.Element | null {
   const fontRange = [12, 60]
   const colors = ['#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60']
@@ -44,7 +39,7 @@ function VisxWordcloud ({ visualizationData }: Props): JSX.Element | null {
                   fontSize={w.size}
                   textAnchor='middle'
                   fontFamily={w.font}
-                  transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+                  transform={`translate(${w.x ?? 0}, ${w.y ?? 0}) rotate(${w.rotate ?? 0})`}
                 >
                   {w.text}
                 </Text>

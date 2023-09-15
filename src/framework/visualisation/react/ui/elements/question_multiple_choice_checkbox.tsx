@@ -2,7 +2,7 @@ import React from 'react'
 import { PropsUIQuestionMultipleChoiceCheckbox } from '../../../../types/elements'
 import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
-import {Title3 } from './text'
+import { Title3 } from './text'
 
 interface parentSetter {
   parentSetter: (arg: any) => any
@@ -10,52 +10,51 @@ interface parentSetter {
 
 type Props = PropsUIQuestionMultipleChoiceCheckbox & parentSetter & ReactFactoryContext
 
-
 export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
   const { question, choices, id, parentSetter, locale } = props
-  const [selectedChoices, setSelectedChoices] = React.useState<string[]>([]);
+  const [selectedChoices, setSelectedChoices] = React.useState<string[]>([])
 
   const copy = prepareCopy(locale)
 
-  const setParentState = ()  => {
+  const setParentState = (): any => {
     parentSetter((prevState: any) => {
-       prevState[id] = selectedChoices
-       return prevState
+      prevState[id] = selectedChoices
+      return prevState
     })
   }
 
   React.useEffect(() => {
-      setParentState()
+    setParentState()
   })
 
-  const handleChoiceSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = event.target;
+  const handleChoiceSelect = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const { value, checked } = event.target
     if (checked) {
       setSelectedChoices((prevSelectedChoices) => [
         ...prevSelectedChoices,
-        value,
-      ]);
+        value
+      ])
     } else {
       setSelectedChoices((prevSelectedChoices) =>
         prevSelectedChoices.filter((choice) => choice !== value)
-      );
+      )
     }
-  };
+  }
 
   return (
-    <div className="p-4">
+    <div className='p-4'>
       <Title3 text={copy.question} />
-      <ul className="mt-4 space-y-1">
+      <ul className='mt-4 space-y-1'>
         {copy.choices.map((choice, index) => (
           <li key={index}>
-            <label className="flex items-center">
+            <label className='flex items-center'>
               <input
-                type="checkbox"
-                name="choice"
+                type='checkbox'
+                name='choice'
                 value={choice}
                 checked={selectedChoices.includes(choice)}
                 onChange={handleChoiceSelect}
-                className="mr-1 form-checkbox"
+                className='mr-1 form-checkbox'
               />
               {choice}
             </label>
@@ -63,7 +62,7 @@ export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
         ))}
       </ul>
     </div>
-  );
+  )
 
   function prepareCopy (locale: string): Copy {
     return {

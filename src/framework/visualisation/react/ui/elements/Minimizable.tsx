@@ -17,7 +17,7 @@ export const Minimizable = ({
 
   const containerStyle = isMinimized
     ? `${size} overflow-hidden animate-fadeIn`
-    : fullSize
+    : fullSize ?? false
       ? 'w-full'
       : ''
   const childStyle = isMinimized
@@ -28,9 +28,10 @@ export const Minimizable = ({
     : 'w-min mr-auto mt-2 cursor-zoom-out'
   const iconStyle = isMinimized ? 'rounded-tr-sm bg-primary' : 'rounded-sm mb-2 bg-primary'
 
-  const child = minimized || (
-    <div className={`relative  ${childStyle}`}>{minimized || children}</div>
-  )
+  const minimizedTruthy = Boolean(minimized)
+  const child = minimizedTruthy
+    ? minimized
+    : (<div className={`relative  ${childStyle}`}>{minimizedTruthy ? minimized : children}</div>)
 
   return (
     <div className={`overflow-auto relative ${containerStyle}`}>

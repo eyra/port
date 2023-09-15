@@ -1,11 +1,11 @@
 import { isInstanceOf } from '../helpers'
 import { PropsUIFooter, PropsUIHeader } from './elements'
-import { 
-    PropsUIPromptFileInput, 
-    PropsUIPromptConfirm,
-    PropsUIPromptConsentForm,
-    PropsUIPromptRadioInput,
-    PropsUIPromptQuestionnaire 
+import {
+  PropsUIPromptFileInput,
+  PropsUIPromptConfirm,
+  PropsUIPromptConsentForm,
+  PropsUIPromptRadioInput,
+  PropsUIPromptQuestionnaire
 } from './prompts'
 
 export type PropsUIPage =

@@ -8,11 +8,11 @@ export default function useResponsiveScreen (): void {
   useEffect(() => {
     // Listen for changes to screen size and orientation
     window.addEventListener('resize', updateSize)
-    if (window?.screen?.orientation) { window.screen.orientation?.addEventListener('change', updateSize) }
+    if (window?.screen?.orientation !== undefined) { window.screen.orientation?.addEventListener('change', updateSize) }
 
     return () => {
       window.removeEventListener('resize', updateSize)
-      if (window?.screen?.orientation) { window.screen.orientation.removeEventListener('change', updateSize) }
+      if (window?.screen?.orientation !== undefined) { window.screen.orientation.removeEventListener('change', updateSize) }
     }
   }, [])
 
@@ -28,7 +28,7 @@ export default function useResponsiveScreen (): void {
   }, [])
 }
 
-function updateSize () {
+function updateSize (): void {
   const height = `${window.innerHeight - darkmass}px`
   const width = `${document.documentElement.clientWidth - darkmass}px`
 

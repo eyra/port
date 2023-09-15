@@ -1,7 +1,6 @@
 
 import { EndPage } from './ui/pages/end_page'
-import { isPropsUIPageEnd, isPropsUIPageDonation, PropsUIPage, isPropsUIPageSplashScreen } from '../../types/pages'
-import { isPropsUIPageError } from '../../types/pages'
+import { isPropsUIPageEnd, isPropsUIPageDonation, PropsUIPage, isPropsUIPageSplashScreen, isPropsUIPageError } from '../../types/pages'
 import { DonationPage } from './ui/pages/donation_page'
 import { Payload } from '../../types/commands'
 import { SplashScreen } from './ui/pages/splash_screen'

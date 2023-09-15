@@ -68,7 +68,7 @@ export const Table = ({
 
   useEffect(() => {
     // rm tooltip on scroll
-    function rmTooltip() {
+    function rmTooltip (): void {
       setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
     }
     window.addEventListener('scroll', rmTooltip)
@@ -83,7 +83,7 @@ export const Table = ({
       return
     }
 
-    function responsiveHeight() {
+    function responsiveHeight (): void {
       if (ref.current == null) return
       ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
     }
@@ -97,14 +97,14 @@ export const Table = ({
     const items: Array<PropsUITableRow | null> = new Array(pageSize).fill(null)
     for (let i = 0; i < pageSize; i++) {
       const index = page * pageSize + i
-      if (table.body.rows[index]) items[i] = table.body.rows[index]
+      if (table.body.rows[index] !== undefined) items[i] = table.body.rows[index]
     }
     return items
   }, [table, page, pageSize])
 
-  function renderHeaderCell(value: string, i: number) {
+  function renderHeaderCell (value: string, i: number): JSX.Element {
     return (
-      <th key={'header' + i}>
+      <th key={`header ${i}`}>
         <div className={`text-left ${cellClass}`}>
           <div>{value}</div>
         </div>
@@ -112,10 +112,10 @@ export const Table = ({
     )
   }
 
-  function renderRow(item: PropsUITableRow | null, i: number) {
+  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element {
     if (item == null) {
       return (
-        <tr key={'empty' + i} className="border-b-2 border-grey4 ">
+        <tr key={`{empty ${i}`} className='border-b-2 border-grey4 '>
           <td>
             <div className={cellClass} />
           </td>
@@ -123,11 +123,11 @@ export const Table = ({
       )
     }
     return (
-      <tr key={item.id} className="border-b-2 border-grey4 border-solid">
-        <td key="select">
+      <tr key={item.id} className='border-b-2 border-grey4 border-solid'>
+        <td key='select'>
           <CheckBox
             id={item.id}
-            size="w-7 h-7"
+            size='w-7 h-7'
             selected={selected.has(item.id)}
             onSelect={() => toggleSelected(item.id)}
           />
@@ -142,7 +142,7 @@ export const Table = ({
     )
   }
 
-  function toggleSelected(id: string) {
+  function toggleSelected (id: string): void {
     if (selected.has(id)) {
       selected.delete(id)
     } else {
@@ -151,7 +151,7 @@ export const Table = ({
     setSelected(new Set(selected))
   }
 
-  function toggleSelectAll() {
+  function toggleSelectAll (): void {
     if (selected.size === table.body.rows.length) {
       setSelected(new Set())
     } else {
@@ -162,17 +162,17 @@ export const Table = ({
   return (
     <div
       ref={ref}
-      className="grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden "
+      className='grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden '
     >
-      <div className="my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]">
-        <div className="p-3 pt-1 pb-2 max-w-full overflow-x-scroll">
-          <table className="table-fixed min-w-full">
-            <thead className="">
-              <tr className="border-b-2 border-grey4 border-solid">
-                <td className="w-8">
+      <div className='my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]'>
+        <div className='p-3 pt-1 pb-2 max-w-full overflow-x-scroll'>
+          <table className='table-fixed min-w-full'>
+            <thead className=''>
+              <tr className='border-b-2 border-grey4 border-solid'>
+                <td className='w-8'>
                   <CheckBox
-                    id="selectAll"
-                    size="w-7 h-7"
+                    id='selectAll'
+                    size='w-7 h-7'
                     selected={
                       table.body.rows.length > 0 && selected.size === table.body.rows.length
                     }
@@ -185,23 +185,25 @@ export const Table = ({
             <tbody>{items.map(renderRow)}</tbody>
           </table>
         </div>
-        <div className="px-3 pb-2 flex justify-between min-h-[3.5rem]">
-          <div className={`pt-2 pb-4 ${selected.size || table.deletedRowCount ? '' : 'invisible'}`}>
-            {selected.size ? (
-              <IconButton
-                icon={DeleteSvg}
-                label={`${text.delete} ${selectedLabel}`}
-                color="text-delete"
-                onClick={() => handleDelete?.([...selected])}
-              />
-            ) : (
-              <IconButton
-                icon={UndoSvg}
-                label={text.undo}
-                color="text-primary"
-                onClick={() => handleUndo?.()}
-              />
-            )}
+        <div className='px-3 pb-2 flex justify-between min-h-[3.5rem]'>
+          <div className={`pt-2 pb-4 ${(selected.size > 0) || (table.deletedRowCount > 0) ? '' : 'invisible'}`}>
+            {selected.size > 0
+              ? (
+                <IconButton
+                  icon={DeleteSvg}
+                  label={`${text.delete} ${selectedLabel}`}
+                  color='text-delete'
+                  onClick={() => handleDelete?.([...selected])}
+                />
+                )
+              : (
+                <IconButton
+                  icon={UndoSvg}
+                  label={text.undo}
+                  color='text-primary'
+                  onClick={() => handleUndo?.()}
+                />
+                )}
           </div>
           <Pagination page={page} setPage={setPage} nPages={nPages} />
         </div>
@@ -218,7 +220,7 @@ export const Table = ({
   )
 }
 
-function Cell({
+function Cell ({
   cell,
   search,
   cellClass,
@@ -228,7 +230,7 @@ function Cell({
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
-}) {
+}): JSX.Element {
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
 
@@ -237,7 +239,7 @@ function Cell({
     setOverflows(textRef.current.scrollWidth > textRef.current.clientWidth)
   }, [textRef])
 
-  function onSetTooltip() {
+  function onSetTooltip (): void {
     if (textRef.current == null) return
     if (!overflows) return
 
@@ -248,7 +250,7 @@ function Cell({
         searchWords={search.split(' ')}
         autoEscape
         textToHighlight={cell.text}
-        highlightClassName="bg-tertiary rounded-sm"
+        highlightClassName='bg-tertiary rounded-sm'
       />
     )
 
@@ -259,7 +261,8 @@ function Cell({
       y: rect.y
     })
   }
-  function onRmTooltip() {
+
+  function onRmTooltip (): void {
     setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
   }
 
@@ -272,13 +275,13 @@ function Cell({
     >
       <div
         ref={textRef}
-        className="whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10"
+        className='whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10'
       >
         <Highlighter
           searchWords={search.split(' ')}
           autoEscape
           textToHighlight={cell.text}
-          highlightClassName="bg-tertiary rounded-sm"
+          highlightClassName='bg-tertiary rounded-sm'
         />
       </div>
       {overflows && <TooltipIcon />}
@@ -286,46 +289,46 @@ function Cell({
   )
 }
 
-function TooltipIcon() {
+function TooltipIcon (): JSX.Element {
   return (
     <svg
-      className="w-3 h-3 mb-1 text-gray-800 dark:text-white"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 10 16"
+      className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
+      aria-hidden='true'
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 10 16'
     >
       <path
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="m2.707 14.293 5.586-5.586a1 1 0 0 0 0-1.414L2.707 1.707A1 1 0 0 0 1 2.414v11.172a1 1 0 0 0 1.707.707Z"
+        stroke='currentColor'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth='2'
+        d='m2.707 14.293 5.586-5.586a1 1 0 0 0 0-1.414L2.707 1.707A1 1 0 0 0 1 2.414v11.172a1 1 0 0 0 1.707.707Z'
       />
     </svg>
   )
 }
 
-function IconButton(props: {
+function IconButton (props: {
   icon: string
   label: string
   onClick: () => void
   color: string
   hidden?: boolean
-}) {
-  if (props.hidden) return null
+}): JSX.Element | null {
+  if (props.hidden ?? false) return null
   return (
     <div
       className={`flex items-center gap-2 cursor-pointer ${props.color} animate-fadeIn text-button `}
       onClick={props.onClick}
     >
-      <img src={props.icon} className="w-9 h-9 -translate-x-[3px]" />
+      <img src={props.icon} className='w-9 h-9 -translate-x-[3px]' />
       {props.label}
     </div>
   )
 }
 
-function getTranslations(locale: string) {
+function getTranslations (locale: string): Record<string, string> {
   const translated: Record<string, string> = {}
   for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)

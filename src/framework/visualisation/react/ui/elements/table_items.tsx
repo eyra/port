@@ -26,7 +26,7 @@ export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element
     <div className='flex  min-w-[200px] gap-1'>
       <div className='flex items-center  '>{tableIcon}</div>
       <div
-        key={totalLabel + '_' + deleted}
+        key={`${totalLabel}_${deleted}`}
         className='flex flex-wrap items-center pl-2  gap-x-2 animate-fadeIn text-lg text-title6 font-label '
       >
         <div>
@@ -36,7 +36,7 @@ export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element
           {searched < n ? searchLabel + ' / ' + nLabel : nLabel} {text.rows}
         </div>
 
-        <div className={`flex text-grey2 ${deleted ? '' : 'hidden'}`}>({deletedLabel})</div>
+        <div className={`flex text-grey2 ${deleted > 0 ? '' : 'hidden'}`}>({deletedLabel})</div>
       </div>
     </div>
   )
@@ -55,7 +55,7 @@ const tableIcon = (
   </svg>
 )
 
-function getTranslations (locale: string) {
+function getTranslations (locale: string): Record<string, string> {
   const translated: Record<string, string> = {}
   for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)

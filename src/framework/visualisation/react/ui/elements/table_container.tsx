@@ -48,9 +48,12 @@ export const TableContainer = ({
   const handleDelete = useCallback(
     (rowIds?: string[]) => {
       if (rowIds == null) {
-        if (!searchedTable) return
-        // if no rowIds specified, delete all rows that meet search condition
-        rowIds = searchedTable.body.rows.map((row) => row.id)
+        if (searchedTable !== null) {
+          // if no rowIds specified, delete all rows that meet search condition
+          rowIds = searchedTable.body.rows.map((row) => row.id)
+        } else {
+          return
+        }
       }
       if (rowIds.length > 0) {
         if (rowIds.length === searchedTable?.body?.rows?.length) {
@@ -122,7 +125,7 @@ export const TableContainer = ({
           {tableVisualizations.map((vs: VisualizationType, i: number) => {
             return (
               <div
-                key={table.id + '_' + i}
+                key={`${table.id}_${i}`}
                 className='p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4 w-full overflow-auto'
               >
                 <Figure
@@ -161,7 +164,7 @@ function searchRows (rows: PropsUITableRow[], search: string): Set<string> | und
   for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
 
   const ids = new Set<string>()
-  outer: for (const row of rows) {
+  for (const row of rows) {
     for (const regex of regexes) {
       let anyCellMatches = false
       for (const cell of row.cells) {
@@ -170,9 +173,8 @@ function searchRows (rows: PropsUITableRow[], search: string): Set<string> | und
           break
         }
       }
-      if (!anyCellMatches) continue outer
+      if (anyCellMatches) ids.add(row.id)
     }
-    ids.add(row.id)
   }
 
   return ids
@@ -214,7 +216,7 @@ const zoomOutIcon = (
   </svg>
 )
 
-function getTranslations (locale: string) {
+function getTranslations (locale: string): Record<string, string> {
   const translated: Record<string, string> = {}
   for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)

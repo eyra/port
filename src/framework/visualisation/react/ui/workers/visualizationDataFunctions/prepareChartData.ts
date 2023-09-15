@@ -12,7 +12,7 @@ export async function prepareChartData (
 ): Promise<ChartVisualizationData> {
   const visualizationData: ChartVisualizationData = {
     type: visualization.type,
-    xKey: { label: visualization.group.label || visualization.group.column },
+    xKey: { label: visualization.group.label !== undefined ? visualization.group.label : visualization.group.column },
     yKeys: {},
     data: []
   }
@@ -23,40 +23,44 @@ export async function prepareChartData (
   const rowIds = table.body.rows.map((row) => row.id)
 
   let groupBy = getTableColumn(table, visualization.group.column)
-  if (!groupBy || groupBy.length === 0) { throw new Error(`X column ${table.id}.${visualization.group.column} not found`) }
+  // KASPER CHECK: I think the first clause in the statement can go
+  // getTableColumn will return a string array or errs out
+  // so only check for length is still doing something
+  if (groupBy.length === 0) { throw new Error(`X column ${table.id}.${visualization.group.column} not found`) }
   let xSortable: Array<string | number> | null = null // separate variable allows using epoch time for sorting dates
 
   // ADD CODE TO TRANSFORM TO DATE, BUT THEN ALSO KEEP AN INDEX BASED ON THE DATE ORDER
-  if (visualization.group.dateFormat) {
+  if (visualization.group.dateFormat !== undefined) {
     ;[groupBy, xSortable] = formatDate(groupBy, visualization.group.dateFormat)
   }
 
   const aggregate: Record<string, any> = {}
   for (const value of visualization.values) {
-    const aggFun = value.aggregate || 'count'
+    const aggFun = value.aggregate !== undefined ? value.aggregate : 'count'
     let tickerFormat: TickerFormat = 'default'
     if (aggFun === 'pct' || aggFun === 'count_pct') tickerFormat = 'percent'
 
     const yValues = getTableColumn(table, value.column)
-    if (!yValues) throw new Error(`Y column ${table.id}.${value.column} not found`)
+    // KASPER CHECK
+    if (yValues.length === 0) throw new Error(`Y column ${table.id}.${value.column} not found`)
 
     // If group_by column is specified, the columns in the aggregated data will be the unique group_by columns
-    const yGroup = value.group_by ? getTableColumn(table, value.group_by) : null
+    const yGroup = value.group_by !== undefined ? getTableColumn(table, value.group_by) : null
 
     // if missing values should be treated as zero, we need to add the missing values after knowing all groups
-    const addZeroes = !!value.addZeroes
+    const addZeroes = value.addZeroes ?? false
     const groupSummary: Record<string, any> = {}
     const uniqueGroups = new Set<string>([])
 
     for (let i = 0; i < groupBy.length; i++) {
       const xValue = groupBy[i]
       const yValue = yValues[i]
-      const group = (yGroup != null) ? yGroup[i] : value.label || value.column
+      const group = (yGroup != null) ? yGroup[i] : (value.label !== undefined ? value.label : value.column)
       if (addZeroes) uniqueGroups.add(group)
       const sortBy = (xSortable != null) ? xSortable[i] : groupBy[i]
 
       // calculate group summary statistics. This is used for the mean, pct and count_pct aggregations
-      if (!groupSummary[group]) groupSummary[group] = { n: 0, sum: 0 }
+      if (groupSummary[group] === undefined) groupSummary[group] = { n: 0, sum: 0 }
       if (aggFun === 'count_pct' || aggFun === 'mean') groupSummary[group].n += 1
       if (aggFun === 'pct') groupSummary[group].sum += Number(yValue) || 0
 

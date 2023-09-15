@@ -6,7 +6,7 @@ import {
   PropsUITableHead,
   PropsUITableRow,
   TableWithContext,
-  TableContext,
+  TableContext
 } from '../../../../types/elements'
 import { PropsUIPromptConsentForm, PropsUIPromptConsentFormTable } from '../../../../types/prompts'
 import { LabelButton, PrimaryButton } from '../elements/button'

@@ -1,4 +1,3 @@
-import TextBundle from '../../../../../text_bundle'
 import {
   AxisSettings,
   TickerFormat,
@@ -24,7 +23,7 @@ interface Props {
 }
 
 export default function RechartsGraph ({ visualizationData }: Props): JSX.Element | null {
-  function tooltip () {
+  function tooltip (): JSX.Element {
     return (
       <Tooltip
         allowEscapeViewBox={{ x: false, y: false }}
@@ -39,8 +38,9 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
     )
   }
 
-  function axes (minTickGap: number) {
-    if (!visualizationData) return null
+  function axes (minTickGap: number): JSX.Element | null {
+    const hasVisualizationData = Boolean(visualizationData)
+    if (!hasVisualizationData) return null
     const secondary =
       Object.values(visualizationData.yKeys).findIndex((yKey: AxisSettings) => yKey.secondAxis) !==
       -1
@@ -57,7 +57,7 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
     )
   }
 
-  function legend () {
+  function legend (): JSX.Element {
     return (
       <Legend
         margin={{ left: 10 }}
@@ -82,7 +82,7 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
           return (
             <Line
               key={yKey.label}
-              yAxisId={yKey.secondAxis ? 'right' : 'left'}
+              yAxisId={yKey.secondAxis ?? false ? 'right' : 'left'}
               type='monotone'
               dataKey={yKey.label}
               dot={false}
@@ -103,11 +103,11 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
         {tooltip()}
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {
-          const { color, dash } = getLineStyle(i)
+          const { color } = getLineStyle(i)
           return (
             <Bar
               key={yKey.label}
-              yAxisId={yKey.secondAxis ? 'right' : 'left'}
+              yAxisId={yKey.secondAxis ?? false ? 'right' : 'left'}
               dataKey={yKey.label}
               fill={color}
             />
@@ -124,11 +124,11 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
         {tooltip()}
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {
-          const { color, dash } = getLineStyle(i)
+          const { color } = getLineStyle(i)
           return (
             <Area
               key={yKey.label}
-              yAxisId={yKey.secondAxis ? 'right' : 'left'}
+              yAxisId={yKey.secondAxis ?? false ? 'right' : 'left'}
               dataKey={yKey.label}
               fill={color}
             />
@@ -157,25 +157,26 @@ function getLineStyle (index: number): { color: string, dash: string } {
   return { color: COLORS[row], dash: DASHES[column] }
 }
 
-function getTickFormatters (yKeys: AxisSettings[]) {
+function getTickFormatters (yKeys: AxisSettings[]): {tickFormatter: ((value: number) => string) | undefined, tickFormatter2: ((value: number) => string) | undefined } {
   let tickerFormat: TickerFormat | undefined
   let tickerFormat2: TickerFormat | undefined
+
   for (const yKey of yKeys) {
-    if (!yKey.secondAxis) {
-      if (!tickerFormat) tickerFormat = yKey.tickerFormat
+    if (!(yKey.secondAxis ?? false)) {
+      if (tickerFormat === undefined) tickerFormat = yKey.tickerFormat
       if (tickerFormat !== yKey.tickerFormat) tickerFormat = 'default'
     } else {
-      if (!tickerFormat2) tickerFormat2 = yKey.tickerFormat
+      if (tickerFormat2 === undefined) tickerFormat2 = yKey.tickerFormat
       if (tickerFormat2 !== yKey.tickerFormat) tickerFormat2 = 'default'
     }
   }
 
-  const tickFormatter = getTickFormatter(tickerFormat || 'default')
-  const tickFormatter2 = getTickFormatter(tickerFormat2 || 'default')
+  const tickFormatter = getTickFormatter(tickerFormat ?? 'default')
+  const tickFormatter2 = getTickFormatter(tickerFormat2 ?? 'default')
   return { tickFormatter, tickFormatter2 }
 }
 
-function getTickFormatter (format: TickerFormat) {
+function getTickFormatter (format: TickerFormat): ((value: number) => string) | undefined {
   if (format === 'percent') return (value: number) => `${value}%`
   return undefined
 }

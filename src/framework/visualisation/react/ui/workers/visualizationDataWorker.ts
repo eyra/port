@@ -2,7 +2,6 @@ import { PropsUITable, TableContext, TableWithContext } from '../../../../types/
 import {
   ChartVisualization,
   TextVisualization,
-  ChartVisualizationData,
   VisualizationType,
   VisualizationData
 } from '../../../../types/visualizations'
@@ -29,7 +28,7 @@ async function createVisualizationData (
   table: PropsUITable & TableContext,
   visualization: VisualizationType
 ): Promise<VisualizationData> {
-  if (!table || !visualization) throw new Error('Table and visualization are required')
+  if (table === undefined || visualization === undefined) throw new Error('Table and visualization are required')
 
   if (['line', 'bar', 'area'].includes(visualization.type)) { return await prepareChartData(table, visualization as ChartVisualization) }
 

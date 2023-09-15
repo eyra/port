@@ -33,7 +33,7 @@ export function formatDate (
     formattedDate = dateNumbers.map((date) => {
       const year = new Date(date).getFullYear().toString()
       const quarter = Math.floor(new Date(date).getMonth() / 3) + 1
-      return year + '-Q' + quarter
+      return `${year}-Q${quarter}`
     })
     sortableDate = dateNumbers
   }
@@ -96,6 +96,6 @@ export function rescaleToRange (
   max: number,
   newMin: number,
   newMax: number
-) {
+): number {
   return ((value - min) / (max - min)) * (newMax - newMin) + newMin
 }

@@ -1,17 +1,14 @@
-import React from 'react';
+import React from 'react'
 import { ReactFactoryContext } from '../../factory'
 import { Weak } from '../../../../helpers'
 import TextBundle from '../../../../text_bundle'
 import { PrimaryButton } from '../elements/button'
 import { PropsUIPromptQuestionnaire } from '../../../../types/prompts'
 import { Translator } from '../../../../translator'
-import { isPropsUIQuestionMultipleChoice } from '../../../../types/elements'
-import { isPropsUIQuestionMultipleChoiceCheckbox } from '../../../../types/elements'
-import { isPropsUIQuestionOpen } from '../../../../types/elements'
+import { isPropsUIQuestionMultipleChoice, isPropsUIQuestionMultipleChoiceCheckbox, isPropsUIQuestionOpen } from '../../../../types/elements'
 import { MultipleChoiceQuestion } from '../../ui/elements/question_multiple_choice'
 import { MultipleChoiceQuestionCheckbox } from '../../ui/elements/question_multiple_choice_checkbox'
 import { OpenQuestion } from '../../ui/elements/question_open'
-
 
 interface Copy {
   description: string
@@ -22,7 +19,7 @@ type Props = Weak<PropsUIPromptQuestionnaire> & ReactFactoryContext
 
 export const Questionnaire = (props: Props): JSX.Element => {
   const { questions, description, resolve, locale } = props
-  const [answers, setAnswers] = React.useState<{}>({});
+  const [answers, setAnswers] = React.useState<{}>({})
   const copy = prepareCopy(locale)
 
   function handleDonate (): void {
@@ -35,7 +32,7 @@ export const Questionnaire = (props: Props): JSX.Element => {
   //   resolve?.({ __type__: 'PayloadFalse', value: false })
   // }
 
-  const renderQuestion = (item: any) => {
+  const renderQuestion = (item: any): JSX.Element => {
     if (isPropsUIQuestionMultipleChoice(item)) {
       return (
         <div key={item.id}>
@@ -56,11 +53,15 @@ export const Questionnaire = (props: Props): JSX.Element => {
           <OpenQuestion {...item} locale={locale} parentSetter={setAnswers} />
         </div>
       )
+    } else {
+      return (
+        <div />
+      )
     }
   }
 
-  const renderQuestions = () => {
-   return questions.map((item) => renderQuestion(item))
+  const renderQuestions = (): JSX.Element[] => {
+    return questions.map((item) => renderQuestion(item))
   }
 
   return (
@@ -75,7 +76,7 @@ export const Questionnaire = (props: Props): JSX.Element => {
         <PrimaryButton label={copy.continueLabel} onClick={handleDonate} color='bg-success text-white' />
       </div>
     </div>
-  );
+  )
 
   function prepareCopy (locale: string): Copy {
     return {
@@ -83,7 +84,7 @@ export const Questionnaire = (props: Props): JSX.Element => {
       continueLabel: Translator.translate(continueLabel, locale)
     }
   }
-};
+}
 
 const continueLabel = new TextBundle()
   .add('en', 'Continue')

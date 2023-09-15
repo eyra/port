@@ -57,7 +57,8 @@ export const Figure = ({
 
   if (status === 'error') { return <div className='flex justify-center items-center text-error'>{errorMsg}</div> }
 
-  const minHeight = visualization.height ? visualization.height + 'px' : '20rem'
+  const visualizationHeightTruthy = Boolean(visualization.height)
+  const minHeight = visualizationHeightTruthy ? `${visualization.height ?? ''} px` : '20rem'
 
   return (
     <div className='flex flex-col overflow-hidden'>

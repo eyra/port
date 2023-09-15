@@ -5,7 +5,7 @@ export interface Props {
 }
 
 export const Pagination = ({ page, setPage, nPages }: Props): JSX.Element => {
-  function activeButton (active: boolean) {
+  function activeButton (active: boolean): string {
     if (active) return 'text-primary'
     return 'text-grey3 hover:cursor-default'
   }
