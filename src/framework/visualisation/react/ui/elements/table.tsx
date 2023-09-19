@@ -186,7 +186,11 @@ export const Table = ({
           </table>
         </div>
         <div className='px-3 pb-2 flex justify-between min-h-[3.5rem]'>
-          <div className={`pt-2 pb-4 ${(selected.size > 0) || (table.deletedRowCount > 0) ? '' : 'invisible'}`}>
+          <div
+            className={`pt-2 pb-4 ${
+              selected.size > 0 || table.deletedRowCount > 0 ? '' : 'invisible'
+            }`}
+          >
             {selected.size > 0
               ? (
                 <IconButton
@@ -234,6 +238,11 @@ function Cell ({
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
 
+  const searchWords = useMemo(() => {
+    return [search]
+    // return search.split(' ') // alternative: highlight individual words
+  }, [search])
+
   useEffect(() => {
     if (textRef.current == null) return
     setOverflows(textRef.current.scrollWidth > textRef.current.clientWidth)
@@ -247,7 +256,7 @@ function Cell ({
 
     const content = (
       <Highlighter
-        searchWords={search.split(' ')}
+        searchWords={searchWords}
         autoEscape
         textToHighlight={cell.text}
         highlightClassName='bg-tertiary rounded-sm'
@@ -278,7 +287,7 @@ function Cell ({
         className='whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10'
       >
         <Highlighter
-          searchWords={search.split(' ')}
+          searchWords={searchWords}
           autoEscape
           textToHighlight={cell.text}
           highlightClassName='bg-tertiary rounded-sm'

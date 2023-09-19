@@ -6,7 +6,7 @@ import {
   ChartVisualization
 } from '../../../../../types/visualizations'
 
-export async function prepareChartData(
+export async function prepareChartData (
   table: PropsUITable & TableContext,
   visualization: ChartVisualization
 ): Promise<ChartVisualizationData> {
@@ -41,7 +41,7 @@ export async function prepareChartData(
     ;[groupBy, xSortable] = formatDate(groupBy, visualization.group.dateFormat)
   }
 
-  const aggregate: Record<string, any> = {}
+  const aggregate: Record<string, PrepareAggregatedData> = {}
   for (const value of visualization.values) {
     const aggFun = value.aggregate !== undefined ? value.aggregate : 'count'
     let tickerFormat: TickerFormat = 'default'
@@ -56,7 +56,7 @@ export async function prepareChartData(
 
     // if missing values should be treated as zero, we need to add the missing values after knowing all groups
     const addZeroes = value.addZeroes ?? false
-    const groupSummary: Record<string, { n: number; sum: number }> = {}
+    const groupSummary: Record<string, { n: number, sum: number }> = {}
     const uniqueGroups = new Set<string>([])
 
     for (let i = 0; i < groupBy.length; i++) {
@@ -70,56 +70,77 @@ export async function prepareChartData(
       // calculate group summary statistics. This is used for the mean, pct and count_pct aggregations
       if (groupSummary[group] === undefined) groupSummary[group] = { n: 0, sum: 0 }
       if (aggFun === 'count_pct' || aggFun === 'mean') groupSummary[group].n += 1
-      if (aggFun === 'pct') groupSummary[group].sum += Number(yValue) || 0
+      if (aggFun === 'pct') groupSummary[group].sum += Number(yValue) ?? 0
 
       // add the AxisSettings for the yKeys in this loop, because we need to get the unique group values from the data (if group_by is used)
-      if (!visualizationData.yKeys[group]) {
+      if (visualizationData.yKeys[group] === undefined) {
         visualizationData.yKeys[group] = {
           label: group,
-          secondAxis: !!value.secondAxis,
+          secondAxis: value.secondAxis !== undefined,
           tickerFormat
         }
       }
 
-      if (!aggregate[xValue]) {
+      if (aggregate[xValue] === undefined) {
         aggregate[xValue] = {
-          __rowIds: {},
-          __sortBy: sortBy,
-          [visualizationData.xKey.label]: xValue
+          sortBy: sortBy,
+          rowIds: {},
+          xLabel: visualizationData.xKey.label,
+          xValue: String(xValue),
+          values: {}
         }
       }
-      if (!aggregate[xValue].__rowIds[group]) aggregate[xValue].__rowIds[group] = []
-      aggregate[xValue].__rowIds[group].push(rowIds[i])
+      if (aggregate[xValue].rowIds[group] === undefined) aggregate[xValue].rowIds[group] = []
+      aggregate[xValue].rowIds[group].push(rowIds[i])
 
-      if (!aggregate[xValue][group]) aggregate[xValue][group] = 0
-      if (aggFun === 'count' || aggFun === 'count_pct') aggregate[xValue][group] += 1
+      if (aggregate[xValue].values[group] === undefined) aggregate[xValue].values[group] = 0
+      if (aggFun === 'count' || aggFun === 'count_pct') aggregate[xValue].values[group] += 1
       if (aggFun === 'sum' || aggFun === 'mean' || aggFun === 'pct') {
-        aggregate[xValue][group] += Number(yValue) || 0
+        aggregate[xValue].values[group] += Number(yValue) ?? 0
       }
     }
 
     Object.keys(groupSummary).forEach((group) => {
       for (const xValue of Object.keys(aggregate)) {
-        if (!aggregate[xValue][group]) {
-          if (addZeroes) aggregate[xValue][group] = 0
+        if (aggregate[xValue].values[group] === undefined) {
+          if (addZeroes) aggregate[xValue].values[group] = 0
           else continue
         }
         if (aggFun === 'mean') {
-          aggregate[xValue][group] = aggregate[xValue][group] / groupSummary[group].n
+          aggregate[xValue].values[group] =
+            Number(aggregate[xValue].values[group]) / groupSummary[group].n
         }
         if (aggFun === 'count_pct') {
-          aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].n
+          aggregate[xValue].values[group] =
+            (100 * Number(aggregate[xValue].values[group])) / groupSummary[group].n
         }
         if (aggFun === 'pct') {
-          aggregate[xValue][group] = (100 * aggregate[xValue][group]) / groupSummary[group].sum
+          aggregate[xValue].values[group] =
+            (100 * Number(aggregate[xValue].values[group])) / groupSummary[group].sum
         }
-        aggregate[xValue][group] = Number(aggregate[xValue][group].toFixed(2))
       }
     })
   }
 
-  visualizationData.data = Object.values(aggregate).sort((a: any, b: any) =>
-    a.__sortBy < b.__sortBy ? -1 : b.sortBy < a.sortBy ? 1 : 0
-  )
+  visualizationData.data = Object.values(aggregate)
+    .sort((a: any, b: any) => (a.sortBy < b.sortBy ? -1 : b.sortBy < a.sortBy ? 1 : 0))
+    .map((d) => {
+      for (const key of Object.keys(d.values)) d.values[key] = Math.round(d.values[key] * 100) / 100
+      return {
+        ...d.values,
+        [d.xLabel]: d.xValue,
+        __rowIds: d.rowIds,
+        __sortBy: d.sortBy
+      }
+    })
+
   return visualizationData
+}
+
+export interface PrepareAggregatedData {
+  xLabel: string
+  xValue: string
+  values: Record<string, number>
+  rowIds: Record<string, string[]>
+  sortBy: number | string
 }

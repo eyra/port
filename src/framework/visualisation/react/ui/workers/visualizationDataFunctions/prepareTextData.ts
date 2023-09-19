@@ -23,7 +23,8 @@ export async function prepareTextData (
   if (table.body.rows.length === 0) return visualizationData
 
   const texts = getTableColumn(table, visualization.textColumn)
-  const values = visualization.valueColumn ? getTableColumn(table, visualization.valueColumn) : null
+  const values =
+    visualization.valueColumn != null ? getTableColumn(table, visualization.valueColumn) : null
 
   const vocabulary = getVocabulary(texts, values, visualization)
   visualizationData.topTerms = getTopTerms(vocabulary, texts.length, 200)
@@ -39,18 +40,19 @@ function getVocabulary (
   const vocabulary: Record<string, VocabularyStats> = {}
 
   for (let i = 0; i < texts.length; i++) {
-    if (texts?.[i] == undefined) continue
+    if (texts?.[i] == null) continue
     const text = texts[i]
-    const tokens = visualization.tokenize ? tokenize(text) : [text]
+    const tokens =
+      visualization.tokenize != null && visualization.tokenize ? tokenize(text) : [text]
 
     const seen = new Set<string>()
     for (const token of tokens) {
-      if (!vocabulary[token]) vocabulary[token] = { value: 0, docFreq: 0 }
+      if (vocabulary[token] === undefined) vocabulary[token] = { value: 0, docFreq: 0 }
       if (!seen.has(token)) {
         vocabulary[token].docFreq += 1
         seen.add(token)
       }
-      const v = (values != null) && values[i] ? Number(values[i]) : 1
+      const v = Number(values?.[i]) ?? 1
       if (!isNaN(v)) vocabulary[token].value += v
     }
   }
