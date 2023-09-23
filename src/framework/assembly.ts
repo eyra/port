@@ -1,7 +1,7 @@
 import ReactEngine from './visualisation/react/engine'
 import ReactFactory from './visualisation/react/factory'
 import WorkerProcessingEngine from './processing/worker_engine'
-import { VisualisationEngine, ProcessingEngine, System } from './types/modules'
+import { VisualisationEngine, ProcessingEngine, Storage } from './types/modules'
 import CommandRouter from './command_router'
 
 export default class Assembly {
@@ -9,7 +9,7 @@ export default class Assembly {
   processingEngine: ProcessingEngine
   router: CommandRouter
 
-  constructor (worker: Worker, system: System) {
+  constructor (worker: Worker, system: Storage) {
     const sessionId = String(Date.now())
     this.visualisationEngine = new ReactEngine(new ReactFactory())
     this.router = new CommandRouter(system, this.visualisationEngine)

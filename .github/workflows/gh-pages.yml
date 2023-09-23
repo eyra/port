@@ -16,27 +16,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set PUBLIC_URL in .env
-        run: |
-          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-          echo "PUBLIC_URL=https://$(echo $GITHUB_REPOSITORY | cut -d'/' -f1).github.io/$REPO_NAME/" >> .env
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: earthly/actions-setup@v1
         with:
-          node-version-file: ".tool-versions"
+          version: v0.7.8
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+      - name: Build release
+        run: earthly +release
 
-      - name: Install dependencies and build
-        run: |
-          npm install
-          python -m pip install --upgrade pip
-          python -m pip install poetry
-          npm run dev:build
+      - name: Unpack release
+        run: unzip release.zip -d build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
