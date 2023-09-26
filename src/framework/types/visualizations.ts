@@ -50,15 +50,12 @@ export interface ScoredTerm {
   text: string
   value: number
   importance: number
+  rowIds?: string[]
 }
 
 // General
 
 export type VisualizationType = ChartVisualization | TextVisualization
-
-export type AggregateRowIds = Record<string, string[]>
-
-export type AggregatedData = Array<Record<string, string | AggregateRowIds>>
 
 export interface AxisSettings {
   label: string
@@ -70,7 +67,7 @@ export type TickerFormat = 'percent' | 'default'
 
 export interface ChartVisualizationData {
   type: 'line' | 'bar' | 'area'
-  data: AggregatedData
+  data: Array<Record<string, any>>
   xKey: AxisSettings
   yKeys: Record<string, AxisSettings>
 }

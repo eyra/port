@@ -159,7 +159,13 @@ function deleteTableRows (table: TableWithContext, deletedRows: string[][]): Tab
 
 function searchRows (rows: PropsUITableRow[], search: string): Set<string> | undefined {
   if (search.trim() === '') return undefined
-  const query = search.trim().split(/\s+/)
+
+  // Not sure whether it's better to look for one of the words or exact string.
+  // Now going for exact string. Note that if you change this, you should also change
+  // the highlighting behavior in table.tsx (<Highlighter searchWords.../>)
+  // const query = search.trim().split(/\s+/)
+  const query = [search.trim()]
+
   const regexes: RegExp[] = []
   for (const q of query) regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, '\\$&'), 'i'))
 
