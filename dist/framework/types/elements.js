@@ -3,18 +3,18 @@ import { isPropsUIPage } from './pages';
 import { isPropsUIPrompt } from './prompts';
 // UI
 export function isPropsUI(arg) {
-    return isPropsUIText(arg) ||
+    return (isPropsUIText(arg) ||
         isPropsUIButton(arg) ||
         isPropsUISpinner(arg) ||
         isPropsUIProgress(arg) ||
         isPropsUIHeader(arg) ||
         isPropsUITable(arg) ||
         isPropsUIPage(arg) ||
-        isPropsUIPrompt(arg);
+        isPropsUIPrompt(arg));
 }
 // TEXTS
 export function isPropsUIText(arg) {
-    return isPropsUITextTitle0(arg) ||
+    return (isPropsUITextTitle0(arg) ||
         isPropsUITextTitle0(arg) ||
         isPropsUITextTitle1(arg) ||
         isPropsUITextTitle2(arg) ||
@@ -24,7 +24,7 @@ export function isPropsUIText(arg) {
         isPropsUITextBodyLarge(arg) ||
         isPropsUITextBodyMedium(arg) ||
         isPropsUITextLabel(arg) ||
-        isPropsUITextCaption(arg);
+        isPropsUITextCaption(arg));
 }
 export function isPropsUITextLabel(arg) {
     return isInstanceOf(arg, 'PropsUITextLabel', ['text', 'color', 'margin']);
@@ -33,13 +33,25 @@ export function isPropsUITextCaption(arg) {
     return isInstanceOf(arg, 'PropsUITextCaption', ['text', 'color', 'margin']);
 }
 export function isPropsUITextBodyLarge(arg) {
-    return isInstanceOf(arg, 'PropsUITextBodyLarge', ['text', 'color', 'margin']);
+    return isInstanceOf(arg, 'PropsUITextBodyLarge', [
+        'text',
+        'color',
+        'margin'
+    ]);
 }
 export function isPropsUITextBodyMedium(arg) {
-    return isInstanceOf(arg, 'PropsUITextBodyMedium', ['text', 'color', 'margin']);
+    return isInstanceOf(arg, 'PropsUITextBodyMedium', [
+        'text',
+        'color',
+        'margin'
+    ]);
 }
 export function isPropsUITextBodySmall(arg) {
-    return isInstanceOf(arg, 'PropsUITextBodySmall', ['text', 'color', 'margin']);
+    return isInstanceOf(arg, 'PropsUITextBodySmall', [
+        'text',
+        'color',
+        'margin'
+    ]);
 }
 export function isPropsUITextTitle0(arg) {
     return isInstanceOf(arg, 'PropsUITextTitle0', ['text', 'color', 'margin']);
@@ -61,7 +73,7 @@ export function isPropsUITextTitle6(arg) {
 }
 // BUTTONS
 export function isPropsUIButton(arg) {
-    return isPropsUIButtonPrimary(arg) ||
+    return (isPropsUIButtonPrimary(arg) ||
         isPropsUIButtonSecundary(arg) ||
         isPropsUIButtonBack(arg) ||
         isPropsUIButtonForward(arg) ||
@@ -69,13 +81,21 @@ export function isPropsUIButton(arg) {
         isPropsUIButtonIconForward(arg) ||
         isPropsUIButtonIcon(arg) ||
         isPropsUIButtonLabel(arg) ||
-        isPropsUIButtonIconLabel(arg);
+        isPropsUIButtonIconLabel(arg));
 }
 export function isPropsUIButtonPrimary(arg) {
-    return isInstanceOf(arg, 'PropsUIButtonPrimary', ['label', 'color', 'onClick']);
+    return isInstanceOf(arg, 'PropsUIButtonPrimary', [
+        'label',
+        'color',
+        'onClick'
+    ]);
 }
 export function isPropsUIButtonSecundary(arg) {
-    return isInstanceOf(arg, 'PropsUIButtonSecundary', ['label', 'color', 'onClick']);
+    return isInstanceOf(arg, 'PropsUIButtonSecundary', [
+        'label',
+        'color',
+        'onClick'
+    ]);
 }
 export function isPropsUIButtonBack(arg) {
     return isInstanceOf(arg, 'PropsUIButtonBack', ['label', 'onClick']);
@@ -93,13 +113,24 @@ export function isPropsUIButtonIcon(arg) {
     return isInstanceOf(arg, 'PropsUIButtonIcon', ['icon', 'onClick']);
 }
 export function isPropsUIButtonIconLabel(arg) {
-    return isInstanceOf(arg, 'PropsUIButtonIconLabel', ['icon', 'label', 'color', 'alignment', 'onClick']);
+    return isInstanceOf(arg, 'PropsUIButtonIconLabel', [
+        'icon',
+        'label',
+        'color',
+        'alignment',
+        'onClick'
+    ]);
 }
 export function isPropsUIButtonLabel(arg) {
     return isInstanceOf(arg, 'PropsUIButtonLabel', ['label', 'onClick']);
 }
 export function isPropsUIRadioItem(arg) {
-    return isInstanceOf(arg, 'PropsUIRadioItem', ['id', 'value', 'selected', 'onSelect']);
+    return isInstanceOf(arg, 'PropsUIRadioItem', [
+        'id',
+        'value',
+        'selected',
+        'onSelect'
+    ]);
 }
 export function isPropsUICheckBox(arg) {
     return isInstanceOf(arg, 'PropsUICheckBox', ['id', 'selected', 'onSelect']);
@@ -117,7 +148,7 @@ export function isPropsUIFooter(arg) {
     return isInstanceOf(arg, 'PropsUIFooter', ['progressPercentage']);
 }
 export function isPropsUITable(arg) {
-    return isInstanceOf(arg, 'PropsUITable', ['readOnly', 'pageSize', 'id', 'head', 'body']);
+    return isInstanceOf(arg, 'PropsUITable', ['pageSize', 'id', 'head', 'body']);
 }
 export function isPropsUITableHead(arg) {
     return isInstanceOf(arg, 'PropsUITableHead', ['cells']);
@@ -139,4 +170,13 @@ export function isText(arg) {
 }
 export function isTranslatable(arg) {
     return isLike(arg, ['translations']);
+}
+export function isPropsUIQuestionMultipleChoice(arg) {
+    return isInstanceOf(arg, 'PropsUIQuestionMultipleChoice', ['id', 'question', 'choices']);
+}
+export function isPropsUIQuestionMultipleChoiceCheckbox(arg) {
+    return isInstanceOf(arg, 'PropsUIQuestionMultipleChoiceCheckbox', ['id', 'question', 'choices']);
+}
+export function isPropsUIQuestionOpen(arg) {
+    return isInstanceOf(arg, 'PropsUIQuestionOpen', ['id', 'question']);
 }

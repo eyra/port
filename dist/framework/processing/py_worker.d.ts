@@ -5,4 +5,11 @@ declare function initialise(): any;
 declare function startPyodide(): any;
 declare function loadPackages(): any;
 declare function installPortPackage(): any;
+declare function generateErrorMessage(stacktrace: any): {
+    __type__: string;
+    page: {
+        __type__: string;
+        stacktrace: any;
+    };
+};
 declare let pyScript: any;

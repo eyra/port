@@ -4,6 +4,6 @@ interface PropsUIPageIcon {
     selected: boolean;
     onClick: () => void;
 }
-declare type Props = PropsUIPageIcon;
+type Props = PropsUIPageIcon;
 export declare const PageIcon: ({ index, selected, onClick }: Props) => JSX.Element;
 export {};

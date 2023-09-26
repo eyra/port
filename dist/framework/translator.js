@@ -1,6 +1,6 @@
 import { isTranslatable } from './types/elements';
-export var Translator = (function () {
-    var defaultLocale = 'nl';
+export const Translator = (function () {
+    const defaultLocale = 'nl';
     function translate(text, locale) {
         if (typeof text === 'string') {
             return text;
@@ -11,11 +11,11 @@ export var Translator = (function () {
         throw new TypeError('Unknown text type');
     }
     function resolve(translatable, locale) {
-        var text = translatable.translations[locale];
+        const text = translatable.translations[locale];
         if (text !== null) {
             return text;
         }
-        var defaultText = translatable.translations[defaultLocale];
+        const defaultText = translatable.translations[defaultLocale];
         if (defaultText !== null) {
             return defaultText;
         }
@@ -25,6 +25,6 @@ export var Translator = (function () {
         return '?text?';
     }
     return {
-        translate: translate
+        translate
     };
 })();

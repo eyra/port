@@ -1,19 +1,19 @@
-var pyScript;
-onmessage = function (event) {
-    var eventType = event.data.eventType;
+let pyScript;
+onmessage = (event) => {
+    const { eventType } = event.data;
     switch (eventType) {
         case 'initialise':
-            initialise().then(function () {
+            initialise().then(() => {
                 self.postMessage({ eventType: 'initialiseDone' });
             });
             break;
         case 'firstRunCycle':
-            pyScript = self.pyodide.runPython("port.start(".concat(event.data.sessionId, ")"));
+            pyScript = self.pyodide.runPython(`port.start(${event.data.sessionId})`);
             runCycle(null);
             break;
         case 'nextRunCycle':
-            var response = event.data.response;
-            unwrap(response).then(function (userInput) {
+            const { response } = event.data;
+            unwrap(response).then((userInput) => {
                 runCycle(userInput);
             });
             break;
@@ -23,18 +23,26 @@ onmessage = function (event) {
 };
 function runCycle(payload) {
     console.log('[ProcessingWorker] runCycle ' + JSON.stringify(payload));
-    scriptEvent = pyScript.send(payload);
-    self.postMessage({
-        eventType: 'runCycleDone',
-        scriptEvent: scriptEvent.toJs({
-            create_proxies: false,
-            dict_converter: Object.fromEntries
-        })
-    });
+    try {
+        scriptEvent = pyScript.send(payload);
+        self.postMessage({
+            eventType: 'runCycleDone',
+            scriptEvent: scriptEvent.toJs({
+                create_proxies: false,
+                dict_converter: Object.fromEntries
+            })
+        });
+    }
+    catch (error) {
+        self.postMessage({
+            eventType: 'runCycleDone',
+            scriptEvent: generateErrorMessage(error.toString())
+        });
+    }
 }
 function unwrap(response) {
     console.log('[ProcessingWorker] unwrap response: ' + JSON.stringify(response.payload));
-    return new Promise(function (resolve) {
+    return new Promise((resolve) => {
         switch (response.payload.__type__) {
             case 'PayloadFile':
                 copyFileToPyFS(response.payload.value, resolve);
@@ -45,10 +53,9 @@ function unwrap(response) {
     });
 }
 function copyFileToPyFS(file, resolve) {
-    var reader = file.stream().getReader();
-    var pyFile = self.pyodide.FS.open(file.name, 'w');
-    var writeToPyFS = function (_a) {
-        var done = _a.done, value = _a.value;
+    const reader = file.stream().getReader();
+    const pyFile = self.pyodide.FS.open(file.name, 'w');
+    const writeToPyFS = ({ done, value }) => {
         if (done) {
             resolve({ __type__: 'PayloadString', value: file.name });
         }
@@ -61,11 +68,11 @@ function copyFileToPyFS(file, resolve) {
 }
 function initialise() {
     console.log('[ProcessingWorker] initialise');
-    return startPyodide().then(function (pyodide) {
+    return startPyodide().then((pyodide) => {
         self.pyodide = pyodide;
         return loadPackages();
     })
-        .then(function () {
+        .then(() => {
         return installPortPackage();
     });
 }
@@ -82,5 +89,18 @@ function loadPackages() {
 }
 function installPortPackage() {
     console.log('[ProcessingWorker] load port package');
-    return self.pyodide.runPythonAsync("\n    import micropip\n    await micropip.install(\"/port-0.0.0-py3-none-any.whl\", deps=False)\n    import port\n  ");
+    return self.pyodide.runPythonAsync(`
+    import micropip
+    await micropip.install("/port-0.0.0-py3-none-any.whl", deps=False)
+    import port
+  `);
+}
+function generateErrorMessage(stacktrace) {
+    return {
+        __type__: "CommandUIRender",
+        page: {
+            __type__: "PropsUIPageError",
+            stacktrace: stacktrace
+        }
+    };
 }

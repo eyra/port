@@ -1,21 +1,40 @@
 import { isInstanceOf } from '../helpers';
 export function isPropsUIPrompt(arg) {
-    return isPropsUIPromptFileInput(arg) ||
+    return (isPropsUIPromptFileInput(arg) ||
         isPropsUIPromptRadioInput(arg) ||
-        isPropsUIPromptConsentForm(arg);
+        isPropsUIPromptQuestionnaire(arg) ||
+        isPropsUIPromptConsentForm(arg));
 }
 export function isPropsUIPromptConfirm(arg) {
     return isInstanceOf(arg, 'PropsUIPromptConfirm', ['text', 'ok', 'cancel']);
 }
 export function isPropsUIPromptFileInput(arg) {
-    return isInstanceOf(arg, 'PropsUIPromptFileInput', ['description', 'extensions']);
+    return isInstanceOf(arg, 'PropsUIPromptFileInput', [
+        'description',
+        'extensions'
+    ]);
 }
 export function isPropsUIPromptRadioInput(arg) {
-    return isInstanceOf(arg, 'PropsUIPromptRadioInput', ['title', 'description', 'items']);
+    return isInstanceOf(arg, 'PropsUIPromptRadioInput', [
+        'title',
+        'description',
+        'items'
+    ]);
 }
 export function isPropsUIPromptConsentForm(arg) {
-    return isInstanceOf(arg, 'PropsUIPromptConsentForm', ['tables', 'metaTables']);
+    return isInstanceOf(arg, 'PropsUIPromptConsentForm', [
+        'tables',
+        'metaTables'
+    ]);
 }
 export function isPropsUIPromptConsentFormTable(arg) {
-    return isInstanceOf(arg, 'PropsUIPromptConsentFormTable', ['id', 'title', 'description', 'data_frame']);
+    return isInstanceOf(arg, 'PropsUIPromptConsentFormTable', [
+        'id',
+        'title',
+        'description',
+        'data_frame'
+    ]);
+}
+export function isPropsUIPromptQuestionnaire(arg) {
+    return isInstanceOf(arg, 'PropsUIPromptQuestionnaire', ['questions', 'description']);
 }

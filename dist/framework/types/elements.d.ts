@@ -1,8 +1,9 @@
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
-export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIProgress | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
-export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle3 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
-export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonBack | PropsUIButtonForward | PropsUIButtonIconBack | PropsUIButtonIconForward | PropsUIButtonIcon | PropsUIButtonLabel | PropsUIButtonIconLabel;
+import { VisualizationType } from './visualizations';
+export type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIProgress | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
+export type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle3 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
+export type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonBack | PropsUIButtonForward | PropsUIButtonIconBack | PropsUIButtonIconForward | PropsUIButtonIcon | PropsUIButtonLabel | PropsUIButtonIconLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
 export declare function isPropsUIText(arg: any): arg is PropsUIText;
 export interface PropsUITextLabel {
@@ -153,6 +154,7 @@ export declare function isPropsUIRadioItem(arg: any): arg is PropsUIRadioItem;
 export interface PropsUICheckBox {
     id: string;
     selected: boolean;
+    size?: string;
     onSelect: () => void;
 }
 export declare function isPropsUICheckBox(arg: any): arg is PropsUICheckBox;
@@ -182,7 +184,6 @@ export interface PropsUITable {
     id: string;
     head: PropsUITableHead;
     body: PropsUITableBody;
-    readOnly?: boolean;
     pageSize?: number;
 }
 export declare function isPropsUITable(arg: any): arg is PropsUITable;
@@ -207,14 +208,28 @@ export interface PropsUITableCell {
     text: string;
 }
 export declare function isPropsUITableCell(arg: any): arg is PropsUITableCell;
+export interface TableContext {
+    title: string;
+    deletedRowCount: number;
+    annotations: Annotation[];
+    originalBody: PropsUITableBody;
+    deletedRows: string[][];
+    visualizations?: VisualizationType[];
+}
+export type TableWithContext = TableContext & PropsUITable;
+export interface Annotation {
+    row_id: string;
+    [key: string]: any;
+}
 export interface PropsUISearchBar {
     __type__: 'PropsUISearchBar';
-    placeholder: string;
+    search: string;
+    onSearch: (search: string) => void;
+    placeholder?: string;
     debounce?: number;
-    onSearch: (words: string[]) => void;
 }
 export declare function isPropsUISearchBar(arg: any): arg is PropsUISearchBar;
-export declare type Text = Translatable | string;
+export type Text = Translatable | string;
 export declare function isText(arg: any): arg is Text;
 export interface Translatable {
     translations: {
@@ -222,3 +237,23 @@ export interface Translatable {
     };
 }
 export declare function isTranslatable(arg: any): arg is Translatable;
+export interface PropsUIQuestionMultipleChoice {
+    __type__: 'PropsUIQuestionMultipleChoice';
+    id: number;
+    question: Text;
+    choices: Text[];
+}
+export declare function isPropsUIQuestionMultipleChoice(arg: any): arg is PropsUIQuestionMultipleChoice;
+export interface PropsUIQuestionMultipleChoiceCheckbox {
+    __type__: 'PropsUIQuestionMultipleChoiceCheckbox';
+    id: number;
+    question: Text;
+    choices: Text[];
+}
+export declare function isPropsUIQuestionMultipleChoiceCheckbox(arg: any): arg is PropsUIQuestionMultipleChoiceCheckbox;
+export interface PropsUIQuestionOpen {
+    __type__: 'PropsUIQuestionOpen';
+    id: number;
+    question: Text;
+}
+export declare function isPropsUIQuestionOpen(arg: any): arg is PropsUIQuestionOpen;

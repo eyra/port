@@ -1,22 +1,22 @@
 import _ from 'lodash';
-var TextBundle = /** @class */ (function () {
-    function TextBundle() {
+export default class TextBundle {
+    constructor() {
         this.translations = {};
         this.defaultLocale = 'nl';
     }
-    TextBundle.prototype.add = function (locale, text) {
+    add(locale, text) {
         this.translations[locale] = text;
         return this;
-    };
-    TextBundle.prototype.translate = function (locale) {
+    }
+    translate(locale) {
         return _.escape(this.resolve(locale));
-    };
-    TextBundle.prototype.resolve = function (locale) {
-        var text = this.translations[locale];
+    }
+    resolve(locale) {
+        const text = this.translations[locale];
         if (text !== null) {
             return text;
         }
-        var defaultText = this.translations[this.defaultLocale];
+        const defaultText = this.translations[this.defaultLocale];
         if (defaultText !== null) {
             return defaultText;
         }
@@ -24,7 +24,5 @@ var TextBundle = /** @class */ (function () {
             return Object.values(this.translations)[0];
         }
         return '?text?';
-    };
-    return TextBundle;
-}());
-export default TextBundle;
+    }
+}

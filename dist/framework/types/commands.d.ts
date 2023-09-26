@@ -12,8 +12,8 @@ export interface Response {
     payload: Payload;
 }
 export declare function isResponse(arg: any): arg is Response;
-export declare type Payload = PayloadResolved | PayloadRejected;
-export declare type PayloadRejected = PayloadFalse | PayloadError;
+export type Payload = PayloadResolved | PayloadRejected;
+export type PayloadRejected = PayloadFalse | PayloadError;
 export interface PayloadFalse {
     __type__: 'PayloadFalse';
     value: false;
@@ -22,7 +22,7 @@ export interface PayloadError {
     __type__: 'PayloadError';
     value: string;
 }
-export declare type PayloadResolved = PayloadVoid | PayloadTrue | PayloadString | PayloadFile | PayloadJSON;
+export type PayloadResolved = PayloadVoid | PayloadTrue | PayloadString | PayloadFile | PayloadJSON;
 export interface PayloadVoid {
     __type__: 'PayloadVoid';
     value: undefined;
@@ -44,11 +44,11 @@ export interface PayloadJSON {
     value: string;
 }
 export declare function isPayloadJSON(arg: any): arg is PayloadJSON;
-export declare type Command = CommandUI | CommandSystem;
+export type Command = CommandUI | CommandSystem;
 export declare function isCommand(arg: any): arg is Command;
-export declare type CommandSystem = CommandSystemDonate;
+export type CommandSystem = CommandSystemDonate;
 export declare function isCommandSystem(arg: any): arg is CommandSystem;
-export declare type CommandUI = CommandUIRender;
+export type CommandUI = CommandUIRender;
 export declare function isCommandUI(arg: any): arg is CommandUI;
 export interface CommandSystemDonate {
     __type__: 'CommandSystemDonate';
