@@ -1,0 +1,28 @@
+on:
+  workflow_call:
+    outputs:
+      archive:
+        description: "The name of the archive (ZIP)"
+        value: ${{jobs.release.outputs.archive}}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: prod
+    outputs:
+      archive: ${{ steps.tag.outputs.tag }}.zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Tag name
+        id: tag
+        run: echo "name=tag::v$(date +%F)_${{github.run_number}}" >> $GITHUB_OUTPUT
+
+      - uses: earthly/actions-setup@v1
+        with:
+          version: v0.7.8
+
+      - name: Build release
+        run: earthly +release --release_tag=${{steps.tag.outputs.tag}}
