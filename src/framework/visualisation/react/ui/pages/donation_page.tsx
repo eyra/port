@@ -6,24 +6,18 @@ import { Translatable } from '../../../../types/elements'
 import { PropsUIPageDonation } from '../../../../types/pages'
 import { isPropsUIPromptConfirm, isPropsUIPromptConsentForm, isPropsUIPromptFileInput, isPropsUIPromptRadioInput } from '../../../../types/prompts'
 import { ReactFactoryContext } from '../../factory'
-import { ForwardButton } from '../elements/button'
 import { Title1 } from '../elements/text'
 import { Confirm } from '../prompts/confirm'
 import { ConsentForm } from '../prompts/consent_form'
 import { FileInput } from '../prompts/file_input'
 import { RadioInput } from '../prompts/radio_input'
-import { Footer } from './templates/footer'
-import { Sidebar } from './templates/sidebar'
-import LogoSvg from '../../../../../assets/images/logo.svg'
 import { Page } from './templates/page'
-import { Progress } from '../elements/progress'
-import { Instructions } from '../elements/instructions'
 
 type Props = Weak<PropsUIPageDonation> & ReactFactoryContext
 
 export const DonationPage = (props: Props): JSX.Element => {
-  const { title, forwardButton } = prepareCopy(props)
-  const { platform, locale, resolve } = props
+  const { title } = prepareCopy(props)
+  const { locale } = props
 
   function renderBody (props: Props): JSX.Element {
     const context = { locale: locale, resolve: props.resolve }
@@ -43,31 +37,6 @@ export const DonationPage = (props: Props): JSX.Element => {
     throw new TypeError('Unknown body type')
   }
 
-  function handleSkip (): void {
-    resolve?.({ __type__: 'PayloadFalse', value: false })
-  }
-
-  const footer: JSX.Element = (
-    <Footer
-      middle={<Progress percentage={props.footer.progressPercentage} />}
-      right={
-        <div className='flex flex-row'>
-          <div className='flex-grow' />
-          <ForwardButton label={forwardButton} onClick={handleSkip} />
-        </div>
-      }
-    />
-  )
-
-  const sidebar: JSX.Element = (
-    <Sidebar
-      logo={LogoSvg}
-      content={
-        <Instructions platform={platform} locale={locale} />
-      }
-    />
-  )
-
   const body: JSX.Element = (
     <>
       <Title1 text={title} />
@@ -78,8 +47,6 @@ export const DonationPage = (props: Props): JSX.Element => {
   return (
     <Page
       body={body}
-      sidebar={sidebar}
-      footer={footer}
     />
   )
 }

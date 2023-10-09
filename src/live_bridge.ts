@@ -1,35 +1,31 @@
-import { CommandSystem, CommandSystemDonate, isCommandSystemDonate } from './framework/types/commands'
-import { Storage } from './framework/types/modules'
+import { CommandSystem, isCommandSystem } from './framework/types/commands'
+import { Bridge } from './framework/types/modules'
 
-export default class LiveStorage implements Storage {
+export default class LiveBridge implements Bridge {
   port: MessagePort
 
   constructor (port: MessagePort) {
     this.port = port
   }
 
-  static create (window: Window, callback: (system: Storage) => void): void {
+  static create (window: Window, callback: (bridge: Bridge) => void): void {
     window.addEventListener('message', (event) => {
       console.log('MESSAGE RECEIVED', event)
       // Skip webpack messages
       if (event.ports.length === 0) {
         return
       }
-      const system = new LiveStorage(event.ports[0])
-      callback(system)
+      const bridge = new LiveBridge(event.ports[0])
+      callback(bridge)
     })
   }
 
   send (command: CommandSystem): void {
-    if (isCommandSystemDonate(command)) {
+    if (isCommandSystem(command)) {
       this.port.postMessage(command)
     } else {
       this.log('error', 'received unknown command', command)
     }
-  }
-
-  handleDonation (command: CommandSystemDonate): void {
-    this.log('info', `received donation: ${command.key}=${command.json_string}`)
   }
 
   private log (level: 'info' | 'error', ...message: any[]): void {

@@ -12,7 +12,7 @@ export interface VisualisationEngine {
   terminate: () => void
 }
 
-export interface Storage {
+export interface Bridge {
   send: (command: CommandSystem) => void
 }
 
