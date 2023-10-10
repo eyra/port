@@ -85,11 +85,11 @@ function initialise () {
 }
 
 function startPyodide() {
-  importScripts('https://cdn.jsdelivr.net/pyodide/v0.21.2/full/pyodide.js')
+  importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.0/full/pyodide.js')
 
   console.log('[ProcessingWorker] loading Pyodide')
   return loadPyodide({
-    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.21.2/full/'
+    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.0/full/'
   })  
 }
 
@@ -102,7 +102,7 @@ function installPortPackage() {
   console.log('[ProcessingWorker] load port package')
   return self.pyodide.runPythonAsync(`
     import micropip
-    await micropip.install("/port-0.0.0-py3-none-any.whl", deps=False)
+    await micropip.install("../../port-0.0.0-py3-none-any.whl", deps=False)
     import port
   `);  
 }

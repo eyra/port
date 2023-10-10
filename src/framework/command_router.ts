@@ -1,11 +1,11 @@
 import { Command, Response, isCommandSystem, isCommandUI, CommandUI, CommandSystem } from './types/commands'
-import { CommandHandler, System, VisualisationEngine } from './types/modules'
+import { CommandHandler, Storage, VisualisationEngine } from './types/modules'
 
 export default class CommandRouter implements CommandHandler {
-  system: System
+  system: Storage
   visualisationEngine: VisualisationEngine
 
-  constructor (system: System, visualisationEngine: VisualisationEngine) {
+  constructor (system: Storage, visualisationEngine: VisualisationEngine) {
     this.system = system
     this.visualisationEngine = visualisationEngine
   }

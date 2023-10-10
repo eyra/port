@@ -1,9 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run prod:clean
-npm run prod
-npm run ci:test
+earthly +commit-hook
 
 diff=$(git diff --name-only)
 

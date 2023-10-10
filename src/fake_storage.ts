@@ -1,7 +1,7 @@
 import { CommandSystem, CommandSystemDonate, isCommandSystemDonate } from './framework/types/commands'
-import { System } from './framework/types/modules'
+import { Storage } from './framework/types/modules'
 
-export default class LocalSystem implements System {
+export default class FakeStorage implements Storage {
   send (command: CommandSystem): void {
     if (isCommandSystemDonate(command)) {
       this.handleDonation(command)

@@ -5,10 +5,11 @@ description = "Port package with Data Donation logic"
 authors = ["Emiel van der Veen <e.vanderveen@eyra.co>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-panda = "^0.3.1"
+python = "^3.11"
+pandas = "^1.5"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
