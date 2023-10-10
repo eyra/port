@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: invisible;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: theme('colors.grey3');
+  border-radius: 3px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.grey2');
+}
+
+.tippy-box[data-theme~='wordcloud'] {
+  background-color: #333b;
+  backdrop-filter: blur(5px);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}

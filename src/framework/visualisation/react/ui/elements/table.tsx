@@ -1,530 +1,351 @@
-import _ from 'lodash'
-import React from 'react'
-import { Weak } from '../../../../helpers'
-import TextBundle from '../../../../text_bundle'
-import { Translator } from '../../../../translator'
-import { PropsUITable, PropsUITableCell, PropsUITableHead, PropsUITableRow } from '../../../../types/elements'
-import { ReactFactoryContext } from '../../factory'
-import { BackIconButton, ForwardIconButton, IconLabelButton } from './button'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction
+} from 'react'
+import Highlighter from 'react-highlight-words'
+import { PropsUITableCell, TableWithContext, PropsUITableRow } from '../../../../types/elements'
 import { CheckBox } from './check_box'
-import { SearchBar } from './search_bar'
-import { Caption, Label, Title3 } from './text'
+
 import UndoSvg from '../../../../../assets/images/undo.svg'
 import DeleteSvg from '../../../../../assets/images/delete.svg'
-import { PageIcon } from './page_icon'
+import { Pagination } from './pagination'
+import TextBundle from '../../../../text_bundle'
+import { Translator } from '../../../../translator'
 
-type Props = Weak<PropsUITable> & TableContext & ReactFactoryContext
-
-export interface TableContext {
-  onChange: (id: string, rows: PropsUITableRow[]) => void
+export interface Props {
+  table: TableWithContext
+  show: boolean
+  locale: string
+  search: string
+  handleDelete?: (rowIds: string[]) => void
+  handleUndo?: () => void
+  pageSize?: number
 }
 
-interface Visibility {
-  search: boolean
-  undo: boolean
-  delete: boolean
-  table: boolean
-  noData: boolean
-  noDataLeft: boolean
-  noResults: boolean
+interface Tooltip {
+  show: boolean
+  content: ReactNode
+  x: number
+  y: number
 }
 
-interface State {
-  edit: boolean
-  page: number
-  pageCount: number
-  pageWindow: number[]
-  rows: PropsUITableRow[]
-  selected: string[]
-  deletedCount: number
-  visibility: Visibility
-}
+export const Table = ({
+  table,
+  show,
+  locale,
+  search,
+  handleDelete,
+  handleUndo,
+  pageSize = 7
+}: Props): JSX.Element => {
+  const [page, setPage] = useState(0)
+  const columnNames = useMemo(() => table.head.cells.map((cell) => cell.text), [table])
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const ref = useRef<HTMLDivElement>(null)
+  const nPages = Math.ceil(table.body.rows.length / pageSize)
+  const selectedLabel = selected.size.toLocaleString(locale, { useGrouping: true })
+  const text = useMemo(() => getTranslations(locale), [locale])
 
-export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, onChange }: Props): JSX.Element => {
-  const pageWindowLegSize = 3
+  const [tooltip, setTooltip] = useState<Tooltip>({
+    show: false,
+    content: null,
+    x: 0,
+    y: 0
+  })
 
-  const query = React.useRef<string[]>([])
-  const alteredRows = React.useRef<PropsUITableRow[]>(body.rows)
-  const filteredRows = React.useRef<PropsUITableRow[]>(alteredRows.current)
+  const cellClass = ' h-[3rem] px-3 flex items-center font-table-row'
 
-  const initialState: State = {
-    edit: false,
-    pageCount: getPageCount(),
-    page: 0,
-    pageWindow: updatePageWindow(0),
-    rows: updateRows(0),
-    selected: [],
-    deletedCount: 0,
-    visibility: {
-      search: alteredRows.current.length > pageSize,
-      delete: false,
-      undo: false,
-      table: filteredRows.current.length > 0,
-      noData: filteredRows.current.length === 0,
-      noDataLeft: false,
-      noResults: false
+  useEffect(() => {
+    setSelected(new Set())
+    setPage((page) => Math.max(0, Math.min(page, nPages - 1)))
+  }, [table, nPages])
+
+  useEffect(() => {
+    // rm tooltip on scroll
+    function rmTooltip (): void {
+      setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
     }
-  }
+    window.addEventListener('scroll', rmTooltip)
+    return () => window.removeEventListener('scroll', rmTooltip)
+  })
 
-  const [state, setState] = React.useState<State>(initialState)
-
-  const copy = prepareCopy(locale)
-
-  function display (element: keyof Visibility): string {
-    return visible(element) ? '' : 'hidden'
-  }
-
-  function visible (element: keyof Visibility): boolean {
-    if (typeof state.visibility[element] === 'boolean') {
-      return state.visibility[element]
-    }
-    return false
-  }
-
-  function updatePageWindow (currentPage: number): number[] {
-    const pageWindowSize = (pageWindowLegSize * 2) + 1
-    const pageCount = getPageCount()
-
-    let range: number[] = []
-    if (pageWindowSize >= pageCount && pageCount > 0) {
-      range = _.range(0, Math.min(pageCount, pageWindowSize))
-    } else if (pageWindowSize < pageCount) {
-      const maxIndex = pageCount - 1
-
-      let start: number
-      let end: number
-
-      if (currentPage < pageWindowLegSize) {
-        // begin
-        start = 0
-        end = Math.min(pageCount, pageWindowSize)
-      } else if (maxIndex - currentPage <= pageWindowLegSize) {
-        // end
-        start = maxIndex - (pageWindowSize - 1)
-        end = maxIndex + 1
-      } else {
-        // middle
-        start = currentPage - pageWindowLegSize
-        end = currentPage + pageWindowLegSize + 1
-      }
-      range = _.range(start, end)
+  useLayoutEffect(() => {
+    // set exact height of grid row for height transition
+    if (ref.current == null) return
+    if (!show) {
+      ref.current.style.gridTemplateRows = '0rem'
+      return
     }
 
-    return range
-  }
-
-  function getPageCount (): number {
-    if (filteredRows.current.length === 0) {
-      return 0
+    function responsiveHeight (): void {
+      if (ref.current == null) return
+      ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
     }
+    responsiveHeight()
+    // just as a precaution, update height every second in case it changes
+    const interval = setInterval(responsiveHeight, 1000)
+    return () => clearInterval(interval)
+  }, [ref, show, nPages])
 
-    return Math.ceil(filteredRows.current.length / pageSize)
-  }
+  const items = useMemo(() => {
+    const items: Array<PropsUITableRow | null> = new Array(pageSize).fill(null)
+    for (let i = 0; i < pageSize; i++) {
+      const index = page * pageSize + i
+      if (table.body.rows[index] !== undefined) items[i] = table.body.rows[index]
+    }
+    return items
+  }, [table, page, pageSize])
 
-  function updateRows (currentPage: number): PropsUITableRow[] {
-    const offset = currentPage * pageSize
-    return filteredRows.current.slice(offset, offset + pageSize)
-  }
-
-  function renderHeadRow (props: Weak<PropsUITableHead>): JSX.Element {
+  function renderHeaderCell (value: string, i: number): JSX.Element {
     return (
-      <tr>
-        {state.edit ? renderHeadCheck() : ''}
-        {props.cells.map((cell, index) => renderHeadCell(cell, index))}
-      </tr>
-    )
-  }
-
-  function renderHeadCheck (): JSX.Element {
-    const selected = state.selected.length > 0 && state.selected.length === state.rows.length
-    return (
-      <td key='check-head' className='pl-4 w-10'>
-        <CheckBox id='-1' selected={selected} onSelect={() => handleSelectHead()} />
-      </td>
-    )
-  }
-
-  function renderHeadCell (props: Weak<PropsUITableCell>, index: number): JSX.Element {
-    return (
-      <th key={`${index}`} className='h-12 px-4 text-left'>
-        <div className='font-table-header text-table text-grey1'>{props.text}</div>
+      <th key={`header ${i}`}>
+        <div className={`text-left ${cellClass}`}>
+          <div>{value}</div>
+        </div>
       </th>
     )
   }
 
-  function renderRows (): JSX.Element[] {
-    return state.rows.map((row, index) => renderRow(row, index))
-  }
-
-  function renderRow (row: PropsUITableRow, rowIndex: number): JSX.Element {
+  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element {
+    if (item == null) {
+      return (
+        <tr key={`{empty ${i}`} className='border-b-2 border-grey4 '>
+          <td>
+            <div className={cellClass} />
+          </td>
+        </tr>
+      )
+    }
     return (
-      <tr key={`${rowIndex}`} className='hover:bg-grey6'>
-        {state.edit ? renderRowCheck(row.id) : ''}
-        {row.cells.map((cell, cellIndex) => renderRowCell(cell, cellIndex))}
+      <tr key={item.id} className='border-b-2 border-grey4 border-solid'>
+        <td key='select'>
+          <CheckBox
+            id={item.id}
+            size='w-7 h-7'
+            selected={selected.has(item.id)}
+            onSelect={() => toggleSelected(item.id)}
+          />
+        </td>
+
+        {item.cells.map((cell, j) => (
+          <td key={j}>
+            <Cell cell={cell} search={search} cellClass={cellClass} setTooltip={setTooltip} />
+          </td>
+        ))}
       </tr>
     )
   }
 
-  function renderRowCheck (rowId: string): JSX.Element {
-    const selected = state.selected.includes(rowId)
-    return (
-      <td key={`check-${rowId}`} className='pl-4'>
-        <CheckBox id={rowId} selected={selected} onSelect={() => handleSelectRow(rowId)} />
-      </td>
-    )
-  }
-
-  function renderRowCell ({ text }: Weak<PropsUITableCell>, cellIndex: number): JSX.Element {
-    const body = isValidHttpUrl(text) ? renderRowLink(text) : renderRowText(text)
-
-    return (
-      <td key={`${cellIndex}`} className='h-12 px-4'>
-        {body}
-      </td>
-    )
-  }
-
-  function renderRowText (text: string): JSX.Element {
-    return <div className='font-table-row text-table text-grey1'>{text}</div>
-  }
-
-  function renderRowLink (href: string): JSX.Element {
-    return (
-      <div className='font-table-row text-table text-primary underline'>
-        <a href={href} target='_blank' rel='noreferrer' title={href}>{copy.link}</a>
-      </div>
-    )
-  }
-
-  function isValidHttpUrl (value: string): boolean {
-    let url
-    try {
-      url = new URL(value)
-    } catch (_) {
-      return false
-    }
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  }
-
-  function renderPageIcons (): JSX.Element {
-    return (
-      <div className='flex flex-row gap-2'>
-        {state.pageWindow.map((page) => renderPageIcon(page))}
-      </div>
-    )
-  }
-
-  function renderPageIcon (index: number): JSX.Element {
-    return <PageIcon key={`page-${index}`} index={index + 1} selected={state.page === index} onClick={() => handleNewPage(index)} />
-  }
-
-  function filterRows (): PropsUITableRow[] {
-    if (query.current.length === 0) {
-      return alteredRows.current
-    }
-    return alteredRows.current.filter((row) => matchRow(row, query.current))
-  }
-
-  function matchRow (row: PropsUITableRow, query: string[]): boolean {
-    const rowText = row.cells.map((cell) => cell.text).join(' ')
-    return query.find((word) => !rowText.includes(word)) === undefined
-  }
-
-  function handleSelectHead (): void {
-    const allRowsSelected = state.selected.length === state.rows.length
-    if (allRowsSelected) {
-      setState((state) => {
-        return { ...state, selected: [] }
-      })
+  function toggleSelected (id: string): void {
+    if (selected.has(id)) {
+      selected.delete(id)
     } else {
-      handleSelectAll()
+      selected.add(id)
     }
+    setSelected(new Set(selected))
   }
 
-  function handleSelectRow (rowId: string): void {
-    setState((state) => {
-      const selected = state.selected.slice(0)
-      const index = selected.indexOf(rowId)
-      if (index === -1) {
-        selected.push(rowId)
-      } else {
-        selected.splice(index, 1)
-      }
-      return { ...state, selected }
-    })
-  }
-
-  function handleSelectAll (): void {
-    setState((state) => {
-      const selected = state.rows.map((row) => row.id)
-      return { ...state, selected }
-    })
-  }
-
-  function handlePrevious (): void {
-    setState((state) => {
-      const page = state.page === 0 ? state.pageCount - 1 : state.page - 1
-      const pageWindow = updatePageWindow(page)
-      const rows = updateRows(page)
-      return { ...state, page, pageWindow, rows }
-    })
-  }
-
-  function handleNext (): void {
-    setState((state) => {
-      const page = state.page === state.pageCount - 1 ? 0 : state.page + 1
-      const pageWindow = updatePageWindow(page)
-      const rows = updateRows(page)
-      return { ...state, page, pageWindow, rows }
-    })
-  }
-
-  function handleDeleteSelected (): void {
-    const currentSelectedRows = state.selected.slice(0)
-    if (currentSelectedRows.length === 0) return
-
-    const newAlteredRows = alteredRows.current.slice(0)
-
-    for (const rowId of currentSelectedRows) {
-      const index = newAlteredRows.findIndex((row) => row.id === rowId)
-      if (index !== -1) {
-        newAlteredRows.splice(index, 1)
-      }
+  function toggleSelectAll (): void {
+    if (selected.size === table.body.rows.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(table.body.rows.map((row) => row.id)))
     }
-
-    alteredRows.current = newAlteredRows
-    filteredRows.current = filterRows()
-
-    setState((state) => {
-      const pageCount = getPageCount()
-      const page = Math.max(0, Math.min(pageCount - 1, state.page))
-      const pageWindow = updatePageWindow(page)
-      const rows = updateRows(page)
-      const deletedCount = body.rows.length - alteredRows.current.length
-      const visibility = {
-        ...state.visibility,
-        undo: deletedCount > 0,
-        table: filteredRows.current.length > 0,
-        noData: false,
-        noDataLeft: alteredRows.current.length === 0,
-        noResults: alteredRows.current.length > 0 && filteredRows.current.length === 0
-      }
-      return { ...state, page, pageCount, pageWindow, rows, deletedCount, selected: [], visibility }
-    })
-
-    onChange(id, alteredRows.current)
-  }
-
-  function handleUndo (): void {
-    alteredRows.current = body.rows
-    filteredRows.current = filterRows()
-    setState((state) => {
-      const pageCount = getPageCount()
-      const page = Math.min(pageCount, state.page)
-      const pageWindow = updatePageWindow(page)
-      const rows = updateRows(state.page)
-
-      const visibility = {
-        ...state.visibility,
-        undo: false,
-        table: filteredRows.current.length > 0,
-        noData: false,
-        noDataLeft: false,
-        noResults: filteredRows.current.length === 0
-      }
-      return { ...state, page, pageCount, pageWindow, rows, deletedCount: 0, selected: [], visibility }
-    })
-
-    onChange(id, body.rows)
-  }
-
-  function handleSearch (newQuery: string[]): void {
-    query.current = newQuery
-    filteredRows.current = filterRows()
-    setState((state) => {
-      const pageCount = getPageCount()
-      const page = Math.min(pageCount, state.page)
-      const pageWindow = updatePageWindow(page)
-      const rows = updateRows(state.page)
-      const visibility = {
-        ...state.visibility,
-        table: filteredRows.current.length > 0,
-        noData: body.rows.length === 0,
-        noDataLeft: body.rows.length > 0 && alteredRows.current.length === 0,
-        noResults: body.rows.length > 0 && alteredRows.current.length > 0 && filteredRows.current.length === 0
-      }
-      return { ...state, page, pageCount, pageWindow, rows, visibility }
-    })
-  }
-
-  function handleNewPage (page: number): void {
-    setState((state) => {
-      const rows = updateRows(page)
-      return { ...state, page, rows }
-    })
-  }
-
-  function handleEditToggle (): void {
-    setState((state) => {
-      const edit = !state.edit
-      const visibility = {
-        ...state.visibility,
-        delete: edit
-      }
-      return { ...state, edit, visibility }
-    })
   }
 
   return (
-    <>
-      <div className='flex flex-row gap-4 items-center'>
-        <div className={`flex flex-row items-center gap-2 mt-2 ${body.rows.length <= pageSize ? 'hidden' : ''} `}>
-          <BackIconButton onClick={handlePrevious} />
-          <div>
-            {renderPageIcons()}
+    <div
+      ref={ref}
+      className='grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden '
+    >
+      <div className='my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]'>
+        <div className='p-3 pt-1 pb-2 max-w-full overflow-x-scroll'>
+          <table className='table-fixed min-w-full'>
+            <thead className=''>
+              <tr className='border-b-2 border-grey4 border-solid'>
+                <td className='w-8'>
+                  <CheckBox
+                    id='selectAll'
+                    size='w-7 h-7'
+                    selected={
+                      table.body.rows.length > 0 && selected.size === table.body.rows.length
+                    }
+                    onSelect={toggleSelectAll}
+                  />
+                </td>
+                {columnNames.map(renderHeaderCell)}
+              </tr>
+            </thead>
+            <tbody>{items.map(renderRow)}</tbody>
+          </table>
+        </div>
+        <div className='px-3 pb-2 flex justify-between min-h-[3.5rem]'>
+          <div
+            className={`pt-2 pb-4 ${
+              selected.size > 0 || table.deletedRowCount > 0 ? '' : 'invisible'
+            }`}
+          >
+            {selected.size > 0
+              ? (
+                <IconButton
+                  icon={DeleteSvg}
+                  label={`${text.delete} ${selectedLabel}`}
+                  color='text-delete'
+                  onClick={() => handleDelete?.([...selected])}
+                />
+                )
+              : (
+                <IconButton
+                  icon={UndoSvg}
+                  label={text.undo}
+                  color='text-primary'
+                  onClick={() => handleUndo?.()}
+                />
+                )}
           </div>
-          <ForwardIconButton onClick={handleNext} />
-        </div>
-        <div className='flex-grow' />
-        <Caption text={copy.pages} color='text-grey2' margin='' />
-        <div className={`${display('search')}`}>
-          <SearchBar placeholder={copy.searchPlaceholder} onSearch={(query) => handleSearch(query)} />
+          <Pagination page={page} setPage={setPage} nPages={nPages} />
         </div>
       </div>
-      <div className={`flex flex-col gap-4 justify-center h-full ${display('table')}`}>
-        <table className='text-grey1 table-fixed divide-y divide-grey4'>
-          <thead>
-            {renderHeadRow(head)}
-          </thead>
-          <tbody className='divide-y divide-grey4'>
-            {renderRows()}
-          </tbody>
-        </table>
+      <div
+        className={`${
+          tooltip.show ? '' : 'invisible'
+        } fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
+        style={{ left: tooltip.x, top: tooltip.y } as any}
+      >
+        {tooltip.content}
       </div>
-      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noData')}`}>
-        <Title3 text={copy.noData} color='text-grey3' margin='' />
-      </div>
-      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noDataLeft')}`}>
-        <Title3 text={copy.noDataLeft} color='text-grey3' margin='' />
-      </div>
-      <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noResults')}`}>
-        <Title3 text={copy.noResults} color='text-grey3' margin='' />
-      </div>
-      <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
-        <div className='flex flex-row gap-4 items-center'>
-          <CheckBox id='edit' selected={state.edit} onSelect={handleEditToggle} />
-          <Label text={copy.edit} margin='mt-1px' />
-        </div>
-        <div className={`${display('delete')} mt-1px`}>
-          <IconLabelButton label={copy.delete} color='text-delete' icon={DeleteSvg} onClick={handleDeleteSelected} />
-        </div>
-        <div className='flex-grow' />
-        <Label text={copy.deleted} />
-        <div className={`${display('undo')}`}>
-          <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
-        </div>
-      </div>
-    </>
+    </div>
   )
+}
 
-  function prepareCopy (locale: string): Copy {
-    return {
-      edit: Translator.translate(editLabel, locale),
-      undo: Translator.translate(undoLabel, locale),
-      noData: Translator.translate(noDataLabel, locale),
-      noDataLeft: Translator.translate(noDataLeftLabel, locale),
-      noResults: Translator.translate(noResultsLabel, locale),
-      pages: Translator.translate(pagesLabel(state.pageCount), locale),
-      delete: Translator.translate(deleteLabel, locale),
-      deleted: Translator.translate(deletedLabel(body.rows.length - alteredRows.current.length), locale),
-      searchPlaceholder: Translator.translate(searchPlaceholder, locale),
-      link: Translator.translate(link, locale)
-    }
+function Cell ({
+  cell,
+  search,
+  cellClass,
+  setTooltip
+}: {
+  cell: PropsUITableCell
+  search: string
+  cellClass: string
+  setTooltip: Dispatch<SetStateAction<Tooltip>>
+}): JSX.Element {
+  const textRef = useRef<HTMLDivElement>(null)
+  const [overflows, setOverflows] = useState(false)
+
+  const searchWords = useMemo(() => {
+    return [search]
+    // return search.split(' ') // alternative: highlight individual words
+  }, [search])
+
+  useEffect(() => {
+    if (textRef.current == null) return
+    setOverflows(textRef.current.scrollWidth > textRef.current.clientWidth)
+  }, [textRef])
+
+  function onSetTooltip (): void {
+    if (textRef.current == null) return
+    if (!overflows) return
+
+    const rect = textRef.current.getBoundingClientRect()
+
+    const content = (
+      <Highlighter
+        searchWords={searchWords}
+        autoEscape
+        textToHighlight={cell.text}
+        highlightClassName='bg-tertiary rounded-sm'
+      />
+    )
+
+    setTooltip({
+      show: true,
+      content,
+      x: rect.x,
+      y: rect.y
+    })
   }
+
+  function onRmTooltip (): void {
+    setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
+  }
+
+  return (
+    <div
+      className={`relative ${cellClass}`}
+      onMouseEnter={onSetTooltip}
+      onMouseLeave={onRmTooltip}
+      onClick={onSetTooltip}
+    >
+      <div
+        ref={textRef}
+        className='whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10'
+      >
+        <Highlighter
+          searchWords={searchWords}
+          autoEscape
+          textToHighlight={cell.text}
+          highlightClassName='bg-tertiary rounded-sm'
+        />
+      </div>
+      {overflows && <TooltipIcon />}
+    </div>
+  )
 }
 
-interface Copy {
-  edit: string
-  undo: string
-  noData: string
-  noDataLeft: string
-  noResults: string
-  pages: string
-  delete: string
-  deleted: string
-  searchPlaceholder: string
-  link: String
+function TooltipIcon (): JSX.Element {
+  return (
+    <svg
+      className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
+      aria-hidden='true'
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 10 16'
+    >
+      <path
+        stroke='currentColor'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth='2'
+        d='m2.707 14.293 5.586-5.586a1 1 0 0 0 0-1.414L2.707 1.707A1 1 0 0 0 1 2.414v11.172a1 1 0 0 0 1.707.707Z'
+      />
+    </svg>
+  )
 }
 
-const link = new TextBundle()
-  .add('en', 'Check out')
-  .add('nl', 'Bekijk')
-
-const searchPlaceholder = new TextBundle()
-  .add('en', 'Search')
-  .add('nl', 'Zoeken')
-
-const noDataLabel = new TextBundle()
-  .add('en', 'No data found')
-  .add('nl', 'Geen gegevens gevonden')
-
-const noDataLeftLabel = new TextBundle()
-  .add('en', 'All data removed')
-  .add('nl', 'Alle gegevens verwijderd')
-
-const noResultsLabel = new TextBundle()
-  .add('en', 'No search results')
-  .add('nl', 'Geen zoek resultaten')
-
-const editLabel = new TextBundle()
-  .add('en', 'Adjust')
-  .add('nl', 'Aanpassen')
-
-const undoLabel = new TextBundle()
-  .add('en', 'Undo')
-  .add('nl', 'Herstel')
-
-const deleteLabel = new TextBundle()
-  .add('en', 'Delete selected')
-  .add('nl', 'Verwijder selectie')
-
-function deletedNoneRowLabel (): TextBundle {
-  return new TextBundle()
-    .add('en', 'No adjustments')
-    .add('nl', 'Geen aanpassingen')
+function IconButton (props: {
+  icon: string
+  label: string
+  onClick: () => void
+  color: string
+  hidden?: boolean
+}): JSX.Element | null {
+  if (props.hidden ?? false) return null
+  return (
+    <div
+      className={`flex items-center gap-2 cursor-pointer ${props.color} animate-fadeIn text-button `}
+      onClick={props.onClick}
+    >
+      <img src={props.icon} className='w-9 h-9 -translate-x-[3px]' />
+      {props.label}
+    </div>
+  )
 }
 
-function deletedRowLabel (amount: number): TextBundle {
-  return new TextBundle()
-    .add('en', `${amount} row deleted`)
-    .add('nl', `${amount} rij verwijderd`)
+function getTranslations (locale: string): Record<string, string> {
+  const translated: Record<string, string> = {}
+  for (const [key, value] of Object.entries(translations)) {
+    translated[key] = Translator.translate(value, locale)
+  }
+  return translated
 }
 
-function deletedRowsLabel (amount: number): TextBundle {
-  return new TextBundle()
-    .add('en', `${amount} rows deleted`)
-    .add('nl', `${amount} rijen verwijderd`)
-}
-
-function deletedLabel (amount: number): TextBundle {
-  if (amount === 0) return deletedNoneRowLabel()
-  if (amount === 1) return deletedRowLabel(amount)
-  return deletedRowsLabel(amount)
-}
-
-function singlePageLabel (): TextBundle {
-  return new TextBundle()
-    .add('en', '1 page')
-    .add('nl', '1 pagina')
-}
-
-function multiplePagesLabel (amount: number): TextBundle {
-  return new TextBundle()
-    .add('en', `${amount} pages`)
-    .add('nl', `${amount} pagina's`)
-}
-
-function pagesLabel (amount: number): TextBundle {
-  if (amount === 1) return singlePageLabel()
-  return multiplePagesLabel(amount)
+const translations = {
+  delete: new TextBundle().add('en', 'Delete').add('nl', 'Verwijder'),
+  undo: new TextBundle().add('en', 'Undo').add('nl', 'Herstel')
 }

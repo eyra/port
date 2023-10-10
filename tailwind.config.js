@@ -2,9 +2,7 @@
 const plugin = require('tailwindcss/plugin')
 
 module.exports = {
-  content: [
-    './src/**/*.{js,jsx,ts,tsx}'
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
 
   darkMode: 'media',
   theme: {
@@ -33,7 +31,8 @@ module.exports = {
       grey4: '#EEEEEE',
       grey5: '#F6F6F6',
       grey6: '#FAFAFA',
-      white: '#FFFFFF'
+      white: '#FFFFFF',
+      transparent: 'transparent'
     },
     extend: {
       opacity: {
@@ -161,7 +160,18 @@ module.exports = {
         header1: '376px',
         form: '400px',
         mailto: '128px'
-      }
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.25s ease-in-out'
+      },
+
+      // that is actual animation
+      keyframes: (theme) => ({
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 }
+        }
+      })
     }
   },
   variants: {
@@ -182,7 +192,10 @@ module.exports = {
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         '.h-viewport': {
-          height: 'calc(var(--vh, 1vh) * 100)'
+          height: 'var(--screen-height, 100vh)'
+        },
+        '.w-viewport': {
+          width: 'var(--screen-width, 100vw)'
         },
         '.scrollbar-hide': {
           /* Firefox */
@@ -194,6 +207,7 @@ module.exports = {
           }
         }
       }
+
       addUtilities(newUtilities)
     })
   ]
