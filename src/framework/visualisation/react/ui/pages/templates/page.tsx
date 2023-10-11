@@ -1,7 +1,7 @@
 interface PageProps {
   body: JSX.Element
-  sidebar: JSX.Element
-  footer: JSX.Element
+  sidebar?: JSX.Element
+  footer?: JSX.Element
 }
 
 export const Page = (props: PageProps): JSX.Element => {
@@ -11,14 +11,16 @@ export const Page = (props: PageProps): JSX.Element => {
         <div className='flex-1 pl-14'>
           {props.body}
         </div>
-        <div className='w-sidebar flex-shrink-0'>
-          {props.sidebar}
-        </div>
+        {props.sidebar != null &&
+          <div className='w-sidebar flex-shrink-0'>
+            {props.sidebar}
+          </div>}
       </div>
       <div className='flex-grow' />
-      <div className='h-footer flex-shrink-0'>
-        {props.footer}
-      </div>
+      {props.footer != null &&
+        <div className='h-footer flex-shrink-0'>
+          {props.footer}
+        </div>}
     </div>
   )
 }

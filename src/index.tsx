@@ -1,9 +1,9 @@
 import './fonts.css'
 import './framework/styles.css'
 import Assembly from './framework/assembly'
-import { Storage } from './framework/types/modules'
-import LiveStorage from './live_storage'
-import FakeStorage from './fake_storage'
+import { Bridge } from './framework/types/modules'
+import LiveBridge from './live_bridge'
+import FakeBridge from './fake_bridge'
 
 const rootElement = document.getElementById('root') as HTMLElement
 
@@ -13,18 +13,18 @@ const worker = new Worker(workerFile)
 
 let assembly: Assembly
 
-const run = (system: Storage): void => {
-  assembly = new Assembly(worker, system)
+const run = (bridge: Bridge): void => {
+  assembly = new Assembly(worker, bridge)
   assembly.visualisationEngine.start(rootElement, locale)
   assembly.processingEngine.start()
 }
 
 if (process.env.NODE_ENV === 'production') {
   // Setup embedded mode (requires to be embedded in iFrame)
-  console.log('Initializing storage system')
-  LiveStorage.create(window, run)
+  console.log('Initializing system')
+  LiveBridge.create(window, run)
 } else {
   // Setup local development mode
-  console.log('Running with fake storage')
-  run(new FakeStorage())
+  console.log('Running with fake bridge')
+  run(new FakeBridge())
 }

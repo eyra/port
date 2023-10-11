@@ -110,6 +110,8 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
         (response) => this.nextRunCycle(response),
         () => {}
       )
+    } else {
+      console.log('[WorkerProcessingEngine] received unsupported command:', command)
     }
   }
 }
