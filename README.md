@@ -33,7 +33,9 @@ In order to start a local instance of Port go through the following steps:
 
    - Fork or clone this repo
    - Install [Node.js](https://nodejs.org/en)
-   - Install [Python](https://www.python.org/) and [Poetry](https://python-poetry.org/)
+   - Install [Python](https://www.python.org/)
+   - Install [Poetry](https://python-poetry.org/)
+   - Install [Earthly CLI](https://earthly.dev/get-earthly)
 
 1. Install dependencies & tools:
 
