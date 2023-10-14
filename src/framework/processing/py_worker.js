@@ -26,7 +26,7 @@ onmessage = (event) => {
   }
 }
 
-function runCycle (payload) {
+function runCycle(payload) {
   console.log('[ProcessingWorker] runCycle ' + JSON.stringify(payload))
   try {
     scriptEvent = pyScript.send(payload)
@@ -45,7 +45,7 @@ function runCycle (payload) {
   }
 }
 
-function unwrap (response) {
+function unwrap(response) {
   console.log('[ProcessingWorker] unwrap response: ' + JSON.stringify(response.payload))
   return new Promise((resolve) => {
     switch (response.payload.__type__) {
@@ -59,29 +59,28 @@ function unwrap (response) {
   })
 }
 
-function copyFileToPyFS (file, resolve) {
-  const reader = file.stream().getReader()
-  const pyFile = self.pyodide.FS.open(file.name, 'w')
-
-  const writeToPyFS = ({ done, value }) => {
-    if (done) {
-      resolve({ __type__: 'PayloadString', value: file.name })
-    } else {
-      self.pyodide.FS.write(pyFile, value, 0, value.length)
-      reader.read().then(writeToPyFS)
-    }
-  }
-  reader.read().then(writeToPyFS)
+function copyFileToPyFS(file, resolve) {
+  self.pyodide.FS.mkdir('/file-input')
+  self.pyodide.FS.mount(
+    self.pyodide.FS.filesystems.WORKERFS,
+    {
+      files: [file]
+    },
+    '/file-input'
+  )
+  resolve({ __type__: 'PayloadString', value: '/file-input/' + file.name })
 }
 
-function initialise () {
+function initialise() {
   console.log('[ProcessingWorker] initialise')
-  return startPyodide().then((pyodide) => {
-    self.pyodide = pyodide
-    return loadPackages()})
-  .then(() => {
-    return installPortPackage()
-  })
+  return startPyodide()
+    .then((pyodide) => {
+      self.pyodide = pyodide
+      return loadPackages()
+    })
+    .then(() => {
+      return installPortPackage()
+    })
 }
 
 function startPyodide() {
@@ -90,7 +89,7 @@ function startPyodide() {
   console.log('[ProcessingWorker] loading Pyodide')
   return loadPyodide({
     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.0/full/'
-  })  
+  })
 }
 
 function loadPackages() {
@@ -104,14 +103,14 @@ function installPortPackage() {
     import micropip
     await micropip.install("../../port-0.0.0-py3-none-any.whl", deps=False)
     import port
-  `);  
+  `)
 }
 
 function generateErrorMessage(stacktrace) {
   return {
-    __type__: "CommandUIRender",
+    __type__: 'CommandUIRender',
     page: {
-      __type__: "PropsUIPageError",
+      __type__: 'PropsUIPageError',
       stacktrace: stacktrace
     }
   }
