@@ -19,7 +19,7 @@ const run = (system: Storage): void => {
   assembly.processingEngine.start()
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.REACT_APP_BUILD!=='standalone' && process.env.NODE_ENV === 'production') {
   // Setup embedded mode (requires to be embedded in iFrame)
   console.log('Initializing storage system')
   LiveStorage.create(window, run)

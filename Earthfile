@@ -32,7 +32,9 @@ build-py:
 release:
     BUILD +build-py
     ARG release_tag=release
+    ARG build_type=release
     FROM +setup-base
+    ENV REACT_APP_BUILD=$build_type
     RUN apt-get update && apt install -y zip
     COPY +build-py/dist/* public/
     RUN npm run build:css
