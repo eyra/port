@@ -60,8 +60,13 @@ function unwrap(response) {
 }
 
 function copyFileToPyFS(file, resolve) {
-  directoryName = `/file-input${crypto.randomUUID()}`
-  self.pyodide.FS.mkdir(directoryName)
+  directoryName = `/file-input`
+  pathStats = self.pyodide.FS.analyzePath(directoryName)
+  if (!pathStats.exists) {
+    self.pyodide.FS.mkdir(directoryName)
+  } else {
+    self.pyodide.FS.unmount(directoryName)
+  }
   self.pyodide.FS.mount(
     self.pyodide.FS.filesystems.WORKERFS,
     {
