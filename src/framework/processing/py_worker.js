@@ -60,15 +60,16 @@ function unwrap(response) {
 }
 
 function copyFileToPyFS(file, resolve) {
-  self.pyodide.FS.mkdir('/file-input')
+  directoryName = `/file-input${crypto.randomUUID()}`
+  self.pyodide.FS.mkdir(directoryName)
   self.pyodide.FS.mount(
     self.pyodide.FS.filesystems.WORKERFS,
     {
       files: [file]
     },
-    '/file-input'
+    directoryName
   )
-  resolve({ __type__: 'PayloadString', value: '/file-input/' + file.name })
+  resolve({ __type__: 'PayloadString', value: directoryName + '/' + file.name })
 }
 
 function initialise() {
