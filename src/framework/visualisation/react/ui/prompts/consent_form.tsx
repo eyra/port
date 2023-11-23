@@ -80,7 +80,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   function rows (data: any): PropsUITableRow[] {
     const result: PropsUITableRow[] = []
-    for (let row = 0; row <= rowCount(data); row++) {
+    const nRows = rowCount(data)
+    for (let row = 0; row <= nRows; row++) {
       const id = `${row}`
       const cells = columnNames(data).map((column: string) => rowCell(data, column, row))
       result.push({ __type__: 'PropsUITableRow', id, cells })
