@@ -6,6 +6,7 @@ import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 import { PropsUIPromptRadioInput } from '../../../../types/prompts'
 import { RadioItem } from '../elements/radio_item'
+import { PrimaryButton } from '../elements/button'
 
 interface Copy {
   title: string
@@ -25,20 +26,24 @@ function prepareCopy ({ title, description, locale }: Props): Copy {
 
 export const RadioInput = (props: Props): JSX.Element => {
   const [selectedId, setSelectedId] = React.useState<number>(-1)
-  const [confirmHidden, setConfirmHidden] = React.useState<boolean>(true)
+  const [waiting, setWaiting] = React.useState<boolean>(false)
+  const [checked, setChecked] = React.useState<boolean>(false)
 
   const { items, resolve } = props
   const { title, description, continueButton } = prepareCopy(props)
 
   function handleSelect (id: number): void {
     setSelectedId(id)
-    setConfirmHidden(false)
+    setChecked(true)
   }
 
   function handleConfirm (): void {
-    const item = items.at(selectedId)
-    if (item !== undefined) {
-      resolve?.({ __type__: 'PayloadString', value: item.value })
+    if (!waiting) {
+      setWaiting(true)
+      const item = items.at(selectedId)
+      if (item !== undefined) {
+        resolve?.({ __type__: 'PayloadString', value: item.value })
+      }
     }
   }
 
@@ -64,12 +69,8 @@ export const RadioInput = (props: Props): JSX.Element => {
         </div>
       </div>
       <div className='mt-8' />
-      <div className={`flex flex-row ${confirmHidden ? 'hidden' : ''}`}>
-        <div className='pt-15px pb-15px active:shadow-top4px active:pt-4 active:pb-14px leading-none font-button text-button rounded pr-4 pl-4 bg-primary text-white cursor-pointer' onClick={handleConfirm}>
-          <div id='confirm-button' className='flex-wrap'>
-            {continueButton}
-          </div>
-        </div>
+      <div className={`flex flex-row gap-4 ${checked ? '' : 'opacity-30'}`}>
+        <PrimaryButton label={continueButton} onClick={handleConfirm} enabled={checked} spinning={waiting} />
       </div>
     </>
   )
