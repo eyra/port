@@ -1,22 +1,23 @@
 import { CommandSystem, CommandSystemDonate, isCommandSystemDonate } from './framework/types/commands'
-import { Storage } from './framework/types/modules'
+import { Bridge } from './framework/types/modules'
 
-export default class LiveStorage implements Storage {
+export default class LiveBridge implements Bridge {
   port: MessagePort
 
   constructor (port: MessagePort) {
     this.port = port
   }
 
-  static create (window: Window, callback: (system: Storage) => void): void {
+  static create (window: Window, callback: (bridge: Bridge, locale: string) => void): void {
     window.addEventListener('message', (event) => {
       console.log('MESSAGE RECEIVED', event)
       // Skip webpack messages
-      if (event.ports.length === 0) {
-        return
+      if (event.data.action === 'live-init') {
+        const bridge = new LiveBridge(event.ports[0])
+        const locale = event.data.locale
+        console.log('LOCALE', locale)
+        callback(bridge, locale)
       }
-      const system = new LiveStorage(event.ports[0])
-      callback(system)
     })
   }
 

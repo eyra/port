@@ -1,30 +1,29 @@
 import './fonts.css'
 import './framework/styles.css'
 import Assembly from './framework/assembly'
-import { Storage } from './framework/types/modules'
-import LiveStorage from './live_storage'
-import FakeStorage from './fake_storage'
+import { Bridge } from './framework/types/modules'
+import LiveBridge from './live_bridge'
+import FakeBridge from './fake_bridge'
 
 const rootElement = document.getElementById('root') as HTMLElement
 
-const locale = 'en'
 const workerFile = new URL('./framework/processing/py_worker.js', import.meta.url)
 const worker = new Worker(workerFile)
 
 let assembly: Assembly
 
-const run = (system: Storage): void => {
-  assembly = new Assembly(worker, system)
+const run = (bridge: Bridge, locale: string): void => {
+  assembly = new Assembly(worker, bridge)
   assembly.visualisationEngine.start(rootElement, locale)
   assembly.processingEngine.start()
 }
 
-if (process.env.REACT_APP_BUILD!=='standalone' && process.env.NODE_ENV === 'production') {
+if (process.env.REACT_APP_BUILD !== 'standalone' && process.env.NODE_ENV === 'production') {
   // Setup embedded mode (requires to be embedded in iFrame)
-  console.log('Initializing storage system')
-  LiveStorage.create(window, run)
+  console.log('Initializing bridge system')
+  LiveBridge.create(window, run)
 } else {
   // Setup local development mode
-  console.log('Running with fake storage')
-  run(new FakeStorage())
+  console.log('Running with fake bridge')
+  run(new FakeBridge(), 'en')
 }

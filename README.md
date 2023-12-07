@@ -283,7 +283,7 @@ Port uses the following data model (also see: [src/framework/types](src/framewor
   | ProcessingEngine    | Responsible for processing donation flows                  |
   | VisualizationEngine | Responsible for presenting the UI and accepting user input |
   | CommandHandler      | Decoupling of ProcessingEngine and VisualizationEngine     |
-  | Storage             | Callback interface for Storage Commands (e.g. Donation)    |
+  | Bridge              | Callback interface for Bridge Commands (e.g. Donation)    |
 
 - [Pages](src/framework/types/pages.ts)
 
@@ -345,7 +345,7 @@ See: [src/framework/processing/py/port](src/framework/processing/py/port)
 
 - [API](src/framework/processing/py/port/api)
 
-  - [commands.py](src/framework/processing/py/port/api/commands.py): Defines commands, pages and prompts that are used to communicate from the Python script to the `VisualisationEngine` and `Storage`.
+  - [commands.py](src/framework/processing/py/port/api/commands.py): Defines commands, pages and prompts that are used to communicate from the Python script to the `VisualisationEngine` and `Bridge`.
   - [props.py](src/framework/processing/py/port/api/commands.py): Defines property objects for pages and prompts
 
 ## Code instructions
@@ -542,7 +542,7 @@ Change implementation of [assembly.ts](src/framework/assembly.ts) to support you
 ```Typescript
 import MyEngine from './visualisation/my/engine'
 import WorkerProcessingEngine from './processing/worker_engine'
-import { VisualisationEngine, ProcessingEngine, Storage } from './types/modules'
+import { VisualisationEngine, ProcessingEngine, Bridge } from './types/modules'
 import CommandRouter from './command_router'
 
 export default class Assembly {
@@ -550,7 +550,7 @@ export default class Assembly {
     processingEngine: ProcessingEngine
     router: CommandRouter
 
-    constructor (worker: Worker, system: Storage) {
+    constructor (worker: Worker, bridge: Bridge) {
         const sessionId = String(Date.now())
         this.visualisationEngine = new MyEngine()
         this.router = new CommandRouter(system, this.visualisationEngine)

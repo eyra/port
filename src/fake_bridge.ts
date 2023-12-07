@@ -1,7 +1,7 @@
 import { CommandSystem, CommandSystemDonate, isCommandSystemDonate } from './framework/types/commands'
-import { Storage } from './framework/types/modules'
+import { Bridge } from './framework/types/modules'
 
-export default class FakeStorage implements Storage {
+export default class FakeBridge implements Bridge {
   send (command: CommandSystem): void {
     if (isCommandSystemDonate(command)) {
       this.handleDonation(command)
