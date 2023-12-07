@@ -1,4 +1,4 @@
-import { CommandSystem, CommandSystemDonate, isCommandSystemDonate } from './framework/types/commands'
+import { CommandSystem, isCommandSystem } from './framework/types/commands'
 import { Bridge } from './framework/types/modules'
 
 export default class LiveBridge implements Bridge {
@@ -22,15 +22,11 @@ export default class LiveBridge implements Bridge {
   }
 
   send (command: CommandSystem): void {
-    if (isCommandSystemDonate(command)) {
+    if (isCommandSystem(command)) {
       this.port.postMessage(command)
     } else {
       this.log('error', 'received unknown command', command)
     }
-  }
-
-  handleDonation (command: CommandSystemDonate): void {
-    this.log('info', `received donation: ${command.key}=${command.json_string}`)
   }
 
   private log (level: 'info' | 'error', ...message: any[]): void {
