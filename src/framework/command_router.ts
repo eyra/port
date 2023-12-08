@@ -1,12 +1,12 @@
 import { Command, Response, isCommandSystem, isCommandUI, CommandUI, CommandSystem } from './types/commands'
-import { CommandHandler, Storage, VisualisationEngine } from './types/modules'
+import { CommandHandler, Bridge, VisualisationEngine } from './types/modules'
 
 export default class CommandRouter implements CommandHandler {
-  system: Storage
+  bridge: Bridge
   visualisationEngine: VisualisationEngine
 
-  constructor (system: Storage, visualisationEngine: VisualisationEngine) {
-    this.system = system
+  constructor (bridge: Bridge, visualisationEngine: VisualisationEngine) {
+    this.bridge = bridge
     this.visualisationEngine = visualisationEngine
   }
 
@@ -23,7 +23,7 @@ export default class CommandRouter implements CommandHandler {
   }
 
   onCommandSystem (command: CommandSystem, resolve: (response: Response) => void): void {
-    this.system.send(command)
+    this.bridge.send(command)
     resolve({ __type__: 'Response', command, payload: { __type__: 'PayloadVoid', value: undefined } })
   }
 

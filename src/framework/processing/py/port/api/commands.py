@@ -24,3 +24,18 @@ class CommandSystemDonate:
         dict["key"] = self.key
         dict["json_string"] = self.json_string
         return dict
+
+
+class CommandSystemExit:
+    __slots__ = "code", "info"
+
+    def __init__(self, code, info):
+        self.code = code
+        self.info = info
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "CommandSystemExit"
+        dict["code"] = self.code
+        dict["info"] = self.info
+        return dict

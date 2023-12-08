@@ -1,5 +1,5 @@
 import port.api.props as props
-from port.api.commands import (CommandSystemDonate, CommandUIRender)
+from port.api.commands import (CommandSystemDonate, CommandSystemExit, CommandUIRender)
 
 import pandas as pd
 import zipfile
@@ -58,6 +58,7 @@ def process(sessionId):
                 meta_data.append(("debug", f"{platform}: donate consent data"))
                 yield donate(f"{sessionId}-{platform}", consent_result.value)
 
+    yield exit(0, "Success")
     yield render_end_page()
 
 
@@ -141,3 +142,6 @@ def prompt_consent(id, data, meta_data):
 
 def donate(key, json_string):
     return CommandSystemDonate(key, json_string)
+
+def exit(code, info):
+    return CommandSystemExit(code, info)
