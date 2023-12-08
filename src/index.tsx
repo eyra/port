@@ -27,3 +27,11 @@ if (process.env.REACT_APP_BUILD !== 'standalone' && process.env.NODE_ENV === 'pr
   console.log('Running with fake bridge')
   run(new FakeBridge(), 'en')
 }
+
+const observer = new ResizeObserver(() => {
+  const height = window.document.body.scrollHeight;
+  const action = "resize"
+  window.parent.postMessage({action, height}, "*")
+});
+
+observer.observe(window.document.body);
