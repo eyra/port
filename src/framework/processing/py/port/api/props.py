@@ -401,7 +401,12 @@ class PropsUIPageDonation:
     platform: str
     header: PropsUIHeader
     body: PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptFileInput | PropsUIPromptConfirm | PropsUIPromptQuestionnaire
-    footer: PropsUIFooter
+    footer: Optional[PropsUIFooter]
+
+    def translate_footer(self):
+        if self.footer is None:
+            return None
+        return self.footer.toDict()
 
     def toDict(self):
         dict = {}
@@ -409,7 +414,7 @@ class PropsUIPageDonation:
         dict["platform"] = self.platform
         dict["header"] = self.header.toDict()
         dict["body"] = self.body.toDict()
-        dict["footer"] = self.footer.toDict()
+        dict["footer"] = self.translate_footer()
         return dict
     
 

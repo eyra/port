@@ -1,5 +1,5 @@
 import { CommandHandler, ProcessingEngine } from '../types/modules'
-import { CommandSystemDonate, CommandUIRender, isCommand, Response } from '../types/commands'
+import { CommandSystemDonate, isCommand, Response } from '../types/commands'
 
 export default class WorkerProcessingEngine implements ProcessingEngine {
   sessionId: String
@@ -7,7 +7,6 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
   commandHandler: CommandHandler
 
   resolveInitialized!: () => void
-  resolveContinue!: () => void
 
   constructor (sessionId: string, worker: Worker, commandHandler: CommandHandler) {
     this.sessionId = sessionId
@@ -60,9 +59,8 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     console.log('[WorkerProcessingEngine] started')
 
     const waitForInitialization: Promise<void> = this.waitForInitialization()
-    const waitForSplashScreen: Promise<void> = this.waitForSplashScreen()
 
-    Promise.all([waitForInitialization, waitForSplashScreen]).then(
+    waitForInitialization.then(
       () => { this.firstRunCycle() },
       () => {}
     )
@@ -73,23 +71,6 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
       this.resolveInitialized = resolve
       this.worker.postMessage({ eventType: 'initialise' })
     })
-  }
-
-  async waitForSplashScreen (): Promise<void> {
-    return await new Promise<void>((resolve) => {
-      this.resolveContinue = resolve
-      this.renderSplashScreen()
-    })
-  }
-
-  renderSplashScreen (): void {
-    const command: CommandUIRender = { __type__: 'CommandUIRender', page: { __type__: 'PropsUIPageSplashScreen' } }
-    if (isCommand(command)) {
-      this.commandHandler.onCommand(command).then(
-        (_response) => this.resolveContinue(),
-        () => {}
-      )
-    }
   }
 
   firstRunCycle (): void {

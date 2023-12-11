@@ -52,30 +52,26 @@ export const DonationPage = (props: Props): JSX.Element => {
     resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
-  const footer: JSX.Element = (
-    <Footer
-      middle={<Progress percentage={props.footer.progressPercentage} />}
+  function renderFooter (props: Props): JSX.Element | undefined {
+    if (props.footer != null) {
+      return <Footer
+      middle={<Progress percentage={props.footer?.progressPercentage ?? 0} />}
       right={
         <div className='flex flex-row'>
           <div className='flex-grow' />
           <ForwardButton label={forwardButton} onClick={handleSkip} />
         </div>
-      }
-    />
-  )
+      } />
+    } else {
+      return undefined
+    }
+  }
 
-  // COMMENT BY NIEK: I TURNED OFF THE SIDEBAR (UGLY)
-  // const sidebar: JSX.Element = (
-  //  <Sidebar
-  //    logo={LogoSvg}
-  //    content={
-  //      <Instructions platform={platform} locale={locale} />
-  //    }
-  //  />
-  // )
-  // COMMENT BY KASPER: MADE SIDEBAR OPTIONAL IN <Page /> COMPONENT,
-  // SO THAT IT DOESN'T AFFECT THE LAYOUT OF THE PAGE
-  // const sidebar: JSX.Element = <></>
+  const footer: JSX.Element | undefined = (
+    <>
+      {renderFooter(props)}
+    </>
+  )
 
   const body: JSX.Element = (
     <>
