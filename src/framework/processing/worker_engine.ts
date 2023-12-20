@@ -1,5 +1,5 @@
 import { CommandHandler, ProcessingEngine } from '../types/modules'
-import { CommandSystemDonate, isCommand, Response } from '../types/commands'
+import { CommandSystemEvent, CommandSystemDonate, isCommand, Response } from '../types/commands'
 
 export default class WorkerProcessingEngine implements ProcessingEngine {
   sessionId: String
@@ -34,6 +34,14 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     )
   }
 
+  sendSystemEvent(name: string): void {
+    const command: CommandSystemEvent = { __type__: 'CommandSystemEvent', name}
+    this.commandHandler.onCommand(command).then(
+      () => {},
+      () => {}
+    )
+  }
+
   handleEvent (event: any): void {
     const { eventType } = event.data
     console.log('[ReactEngine] received eventType: ', eventType)
@@ -61,7 +69,10 @@ export default class WorkerProcessingEngine implements ProcessingEngine {
     const waitForInitialization: Promise<void> = this.waitForInitialization()
 
     waitForInitialization.then(
-      () => { this.firstRunCycle() },
+      () => { 
+        this.sendSystemEvent("initialized") 
+        this.firstRunCycle() 
+      },
       () => {}
     )
   }
