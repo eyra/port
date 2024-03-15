@@ -1,3 +1,14 @@
+# Deprecated 
+![No Maintenance Intended](https://img.shields.io/maintenance/no/2024.svg)
+
+This repository was described in the following paper:
+
+Boeschoten, L., De Schipper, N.C., Mendrik, A.M., Van der Veen, E., Struminskaya, B., Janssen, H. and Araujo, T. (2023). [Port: A software tool for digital data donation. Journal of Open Source Software](https://joss.theoj.org/papers/10.21105/joss.05596), 8(90), 5596, https://doi.org/10.21105/joss.05596.
+
+For the latest version of the data donation software visit the [feldspar repository](https://github.com/eyra/feldspar), which is used as part of the Port program for data donation. 
+
+---
+
 <p align="center">
   <a href="https://github.com/eyra/port">
     <img width="40%" height="40%" src="./public/port_logo.svg">
